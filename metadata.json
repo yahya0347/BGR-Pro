@@ -1,0 +1,5 @@
+{
+  "name": "BGR PRO",
+  "description": "An advanced image editing tool that uses AI to remove backgrounds. Features manual touch-up tools like erase and restore for pixel-perfect results, and allows saving in multiple formats.",
+  "requestFramePermissions": []
+}
