@@ -750,10 +750,6 @@ function switchTab(tab) {
     }
   } else if (tab === 'wm-remover') {
     initWatermarkEraserBase();
-    if (!state.aiDetectionRun && state.originalImage) {
-      state.aiDetectionRun = true;
-      runAIWatermarkDetection();
-    }
   } else if (tab === 'wm-maker') {
     renderWMMakerCanvas();
   }
@@ -983,9 +979,21 @@ function initWatermarkEraserBase() {
   brushCanvas.width = w;
   brushCanvas.height = h;
   
-  // Set Canvas wrapper responsive max-height
-  const maxViewHeight = window.innerHeight * 0.55;
-  const screenScale = Math.min(1, maxViewHeight / h);
+  // Set Canvas wrapper responsive max-height and max-width to fit parent container bounds
+  const container = baseCanvas.closest('.canvas-box') || baseCanvas.parentElement;
+  let maxW = window.innerWidth - 32;
+  let maxH = window.innerHeight * 0.55;
+  
+  if (container) {
+    const containerRect = container.getBoundingClientRect();
+    if (containerRect.width > 0) maxW = containerRect.width - 16;
+    if (containerRect.height > 0) maxH = containerRect.height - 16;
+  }
+  
+  const scaleW = maxW / w;
+  const scaleH = maxH / h;
+  const screenScale = Math.min(1, scaleW, scaleH);
+  
   const displayW = w * screenScale;
   const displayH = h * screenScale;
   
@@ -1795,9 +1803,21 @@ function renderWMMakerCanvas() {
   canvas.width = w;
   canvas.height = h;
   
-  // Scale Canvas wrapper to fit preview area nicely
-  const maxViewHeight = window.innerHeight * 0.55;
-  const screenScale = Math.min(1, maxViewHeight / h);
+  // Scale Canvas wrapper to fit parent container bounds
+  const container = canvas.closest('.canvas-box') || canvas.parentElement;
+  let maxW = window.innerWidth - 32;
+  let maxH = window.innerHeight * 0.55;
+  
+  if (container) {
+    const containerRect = container.getBoundingClientRect();
+    if (containerRect.width > 0) maxW = containerRect.width - 16;
+    if (containerRect.height > 0) maxH = containerRect.height - 16;
+  }
+  
+  const scaleW = maxW / w;
+  const scaleH = maxH / h;
+  const screenScale = Math.min(1, scaleW, scaleH);
+  
   canvas.style.width = `${w * screenScale}px`;
   canvas.style.height = `${h * screenScale}px`;
   
