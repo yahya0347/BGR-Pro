@@ -981,8 +981,17 @@ function initWatermarkEraserBase() {
   if (!state.eraserBaseImage) return;
   
   const baseCanvas = elements.wmRemoverBaseCanvas;
-  const brushCanvas = elements.wmRemoverBrushCanvas;
+  const container = baseCanvas.closest('.canvas-box') || baseCanvas.parentElement;
   
+  if (container) {
+    const containerRect = container.getBoundingClientRect();
+    if (containerRect.height === 0 || containerRect.width === 0) {
+      requestAnimationFrame(initWatermarkEraserBase);
+      return;
+    }
+  }
+  
+  const brushCanvas = elements.wmRemoverBrushCanvas;
   const w = state.eraserBaseImage.width;
   const h = state.eraserBaseImage.height;
   
@@ -1301,7 +1310,7 @@ function runWatermarkInpaint() {
     state.inpaintWorker.terminate();
     state.inpaintWorker = null;
   }
-  state.inpaintWorker = new Worker('inpaint-worker.js?v=23');
+  state.inpaintWorker = new Worker('inpaint-worker.js?v=24');
   
   // Post data to worker
   state.inpaintWorker.postMessage({
