@@ -1280,12 +1280,14 @@ function runWatermarkInpaint() {
   const baseImgData = baseCtx.getImageData(0, 0, w, h);
   const brushImgData = brushCtx.getImageData(0, 0, w, h);
   
-  showGlobalLoader('Erasing Watermark...', 'Applying advanced boundary inpainting...');
+  showGlobalLoader('Erasing Watermark...', 'Reconstructing texture with patch-based inpainting...');
   
-  // Spawn Web Worker if not initialized
-  if (!state.inpaintWorker) {
-    state.inpaintWorker = new Worker('inpaint-worker.js?v=17');
+  // Always create a fresh worker to ensure latest algorithm is loaded
+  if (state.inpaintWorker) {
+    state.inpaintWorker.terminate();
+    state.inpaintWorker = null;
   }
+  state.inpaintWorker = new Worker('inpaint-worker.js?v=20');
   
   // Post data to worker
   state.inpaintWorker.postMessage({
