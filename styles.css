@@ -1574,35 +1574,98 @@ dialog::backdrop {
     border-radius: var(--border-radius-md) !important;
   }
   
-  /* Brush control bar mobile overlay inside canvas-workspace */
-  .brush-control-bar {
-    position: absolute !important;
-    bottom: 8px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 10 !important;
-    background: rgba(15, 23, 42, 0.9) !important;
-    backdrop-filter: blur(12px) !webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    width: calc(100% - 16px) !important;
-    max-width: 350px !important;
-    padding: 8px 12px !important;
-    border-radius: var(--border-radius-full) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
+  /* Watermark eraser workspace view — flex column to fit canvas + toolbar */
+  #view-wm-remover.workspace-view.active {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 8px !important;
     gap: 8px !important;
+    overflow: hidden !important;
+    height: 100% !important;
   }
-
+  
+  /* Editor canvas wrapper — shrinks to leave room for brush bar */
+  .editor-canvas-wrapper {
+    flex: 1 !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    position: relative !important;
+  }
+  
+  /* Canvas layers container — constrained to parent */
+  #view-wm-remover .canvas-layers {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Brush control bar — FIXED to flow layout, NOT absolute */
+  .brush-control-bar {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    z-index: 10 !important;
+    background: rgba(15, 23, 42, 0.92) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 10px 12px !important;
+    border-radius: var(--border-radius-md) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2) !important;
+    flex-shrink: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Brush slider row */
   .brush-slider-group {
-    font-size: 0.72rem !important;
-    gap: 6px !important;
+    font-size: 0.75rem !important;
+    gap: 8px !important;
+    width: 100% !important;
   }
   
   .brush-slider-group input[type="range"] {
-    width: 70px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
   }
   
+  /* Brush buttons row — wrap for small screens */
+  .brush-btn-group {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+  }
+  
+  .brush-btn-group .btn {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 0.72rem !important;
+    border-radius: var(--border-radius-sm) !important;
+    text-align: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Erase watermark button — make it prominent */
+  .brush-btn-group #btnEraseWatermark {
+    flex: 2 !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+  }
+
   .brush-actions {
     display: flex !important;
     gap: 6px !important;
