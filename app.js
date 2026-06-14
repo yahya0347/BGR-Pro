@@ -1276,7 +1276,7 @@ function runWatermarkInpaint() {
   
   // Spawn Web Worker if not initialized
   if (!state.inpaintWorker) {
-    state.inpaintWorker = new Worker('inpaint-worker.js?v=15');
+    state.inpaintWorker = new Worker('inpaint-worker.js?v=16');
   }
   
   // Post data to worker
