@@ -345,6 +345,7 @@ h1, h2, h3, h4, h5, h6 {
    Upload Landing Screen
    ========================================================================== */
 #uploadLanding {
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
@@ -2046,6 +2047,7 @@ dialog::backdrop {
    PDF Tools Landing Page Grid
    ========================================================================== */
 #pdfToolsLanding {
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
