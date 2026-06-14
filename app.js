@@ -1091,7 +1091,7 @@ function initWMEraserHandlers() {
     if (!container) return;
     
     const rect = container.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : (e.clientX !== undefined ? e.clientX : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0].clientX : 0));
     let x = clientX - rect.left;
     
     x = Math.max(0, Math.min(rect.width, x));
@@ -1149,8 +1149,8 @@ function initWMEraserHandlers() {
   // Brushing Mouse/Touch Listeners
   const getCoordinates = (e) => {
     const rect = brushCanvas.getBoundingClientRect();
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : (e.clientX !== undefined ? e.clientX : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0].clientX : 0));
+    const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : (e.clientY !== undefined ? e.clientY : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0].clientY : 0));
     
     // Scale matching the display aspect ratio relative to absolute canvas resolution
     const x = ((clientX - rect.left) / rect.width) * brushCanvas.width;
