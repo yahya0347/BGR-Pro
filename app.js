@@ -276,6 +276,19 @@ document.addEventListener('DOMContentLoaded', () => {
   initCheckoutHandlers();
   initPdfModalHandlers();
   initPdfHubHandlers();
+  
+  // Window resize handler to maintain editor responsiveness
+  window.addEventListener('resize', () => {
+    if (state.originalImage) {
+      if (state.activeTab === 'bg-remover') {
+        renderBGRemoverCanvas();
+      } else if (state.activeTab === 'wm-remover') {
+        initWatermarkEraserBase();
+      } else if (state.activeTab === 'wm-maker') {
+        renderWMMakerCanvas();
+      }
+    }
+  });
 });
 
 // Setup subscription state from localStorage and URL redirect parameters
@@ -987,7 +1000,8 @@ function initWatermarkEraserBase() {
   if (container) {
     const containerRect = container.getBoundingClientRect();
     if (containerRect.width > 0) maxW = containerRect.width - 16;
-    if (containerRect.height > 0) maxH = containerRect.height - 16;
+    // Leave 140px vertical space to prevent cutting off the brush toolbar and gap
+    if (containerRect.height > 0) maxH = containerRect.height - 140;
   }
   
   const scaleW = maxW / w;
@@ -1287,7 +1301,7 @@ function runWatermarkInpaint() {
     state.inpaintWorker.terminate();
     state.inpaintWorker = null;
   }
-  state.inpaintWorker = new Worker('inpaint-worker.js?v=22');
+  state.inpaintWorker = new Worker('inpaint-worker.js?v=23');
   
   // Post data to worker
   state.inpaintWorker.postMessage({
