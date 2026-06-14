@@ -1,0 +1,3320 @@
+/**
+ * AI Background & Watermark Studio Pro
+ * Core Application Script
+ */
+
+// Global Application State
+const state = {
+  isPro: false,
+  originalImage: null,      // Base Image object
+  originalFilename: 'image',
+  transparentImage: null,   // HTMLImageElement or Canvas of the cutout
+  processedImage: null,     // Current canvas image including BG fills/watermarks
+  
+  // BG Remover settings
+  bgType: 'transparent',    // 'transparent', 'color', 'image'
+  bgColor: '#4f46e5',
+  bgGradient: '',
+  bgCustomImage: null,      // Image object for custom backdrop
+  
+  // Watermark Eraser state
+  eraserBaseImage: null,    // Image object of current erased image version
+  brushStrokes: [],
+  redoStrokes: [],
+  isDrawing: false,
+  brushSize: 25,
+  inpaintWorker: null,
+  wmMode: 'brush',          // 'brush' or 'compare'
+  wmSliderPercent: 50,      // Slider percentage (0-100)
+  
+  // Watermark Maker settings
+  wmSource: 'text',         // 'text', 'image'
+  wmText: 'DRAFT COPY',
+  wmFont: 'Inter',
+  wmTextColor: '#ffffff',
+  wmLogoImage: null,        // Image object for watermark logo
+  wmLayout: 'grid',         // 'grid', 'single'
+  wmPosition: 'bottom-right',// 'center', 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+  wmScale: 30,              // 10 to 200
+  wmOpacity: 0.3,           // 0.1 to 1.0
+  wmRotation: -30,          // -90 to 90
+  
+  // Resizer settings
+  exportPreset: 'medium',   // 'medium', 'full', 'square', 'banner', 'story', 'custom'
+  aspectRatioLocked: true,
+  originalAspectRatio: 1,
+  exportWidth: 800,
+  exportHeight: 600,
+  
+  // Editor mode tab
+  activeTab: 'bg-remover',    // 'bg-remover', 'wm-remover', 'wm-maker'
+  bgRemoved: false,
+  history: [],
+  currentHistoryId: null,
+  
+  // PDF state variables
+  pdfDocument: null,
+  pdfTotalPages: 1,
+  pdfCurrentPage: 1,
+  pdfFilename: '',
+  
+  // PDF Tools Hub state
+  pdfFiles: [],
+  activePdfTool: null,
+  pdfPagesList: [],
+  pdfSplitMode: 'range',
+  pdfCompressLevel: 'recommended'
+};
+
+// Undo/Redo stack for Watermark Eraser
+const wmHistory = {
+  undoStack: [],
+  redoStack: [],
+  maxStates: 10,
+  
+  push(canvas) {
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    this.undoStack.push(imgData);
+    if (this.undoStack.length > this.maxStates) {
+      this.undoStack.shift();
+    }
+    this.redoStack = []; // Clear redo stack on new action
+    this.updateButtons();
+  },
+  
+  undo(canvas) {
+    if (this.undoStack.length <= 1) return; // Keep at least the initial state
+    const currentState = this.undoStack.pop();
+    this.redoStack.push(currentState);
+    
+    const previousState = this.undoStack[this.undoStack.length - 1];
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(previousState, 0, 0);
+    this.updateButtons();
+  },
+  
+  redo(canvas) {
+    if (this.redoStack.length === 0) return;
+    const nextState = this.redoStack.pop();
+    this.undoStack.push(nextState);
+    
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(nextState, 0, 0);
+    this.updateButtons();
+  },
+  
+  clear() {
+    this.undoStack = [];
+    this.redoStack = [];
+    this.updateButtons();
+  },
+  
+  updateButtons() {
+    const undoBtn = document.getElementById('undoBrush');
+    if (undoBtn) {
+      const hasStrokes = state.brushStrokes && state.brushStrokes.length > 0;
+      const hasHistory = this.undoStack.length > 1;
+      undoBtn.disabled = !hasStrokes && !hasHistory;
+    }
+  }
+};
+
+// UI Elements mapping
+const elements = {
+  // Navigation
+  subStatusBadge: document.getElementById('subStatusBadge'),
+  headerUpgradeBtn: document.getElementById('headerUpgradeBtn'),
+  headerManageBtn: document.getElementById('headerManageBtn'),
+  
+  // Upload panel
+  uploadLanding: document.getElementById('uploadLanding'),
+  editorWorkspace: document.getElementById('editorWorkspace'),
+  dropZone: document.getElementById('dropZone'),
+  fileInput: document.getElementById('fileInput'),
+  sampleItems: document.querySelectorAll('.sample-item'),
+  
+  // Tab panels
+  tabBtns: document.querySelectorAll('.tab-btn'),
+  workspaceViews: document.querySelectorAll('.workspace-view'),
+  configSections: document.querySelectorAll('.sidebar-config-section'),
+  
+  // Loading Overlay
+  processingOverlay: document.getElementById('processingOverlay'),
+  processingStatus: document.getElementById('processingStatus'),
+  processingProgress: document.getElementById('processingProgress'),
+  progressBar: document.getElementById('progressBar'),
+  
+  // BG Remover UI
+  imgBefore: document.getElementById('imgBefore'),
+  bgRemoverCanvas: document.getElementById('bgRemoverCanvas'),
+  bgRemoverResultContainer: document.getElementById('bgRemoverResultContainer'),
+  comparisonSlider: document.getElementById('comparisonSlider'),
+  bgTypeBtns: document.querySelectorAll('[data-bg-type]'),
+  bgColorConfig: document.getElementById('bg-color-config'),
+  bgImageConfig: document.getElementById('bg-image-config'),
+  bgColorPicker: document.getElementById('bgColorPicker'),
+  colorPresets: document.querySelectorAll('.color-preset'),
+  bgImageInput: document.getElementById('bgImageInput'),
+  btnUploadBackdrop: document.getElementById('btnUploadBackdrop'),
+  backdropPresets: document.querySelectorAll('.backdrop-preset'),
+  
+  // Watermark Eraser UI
+  wmRemoverBaseCanvas: document.getElementById('wmRemoverBaseCanvas'),
+  wmRemoverBrushCanvas: document.getElementById('wmRemoverBrushCanvas'),
+  brushSizeSlider: document.getElementById('brushSize'),
+  brushSizeVal: document.getElementById('brushSizeVal'),
+  undoBrushBtn: document.getElementById('undoBrush'),
+  clearBrushBtn: document.getElementById('clearBrush'),
+  btnEraseWatermark: document.getElementById('btnEraseWatermark'),
+  wmRemoverCompareImg: document.getElementById('wmRemoverCompareImg'),
+  wmComparisonSlider: document.getElementById('wmComparisonSlider'),
+  wmModeSwitcher: document.getElementById('wmModeSwitcher'),
+  toggleDetectText: document.getElementById('toggleDetectText'),
+  toggleDetectLogo: document.getElementById('toggleDetectLogo'),
+  btnAIDetectRemove: document.getElementById('btnAIDetectRemove'),
+  
+  // Watermark Maker UI
+  wmMakerCanvas: document.getElementById('wmMakerCanvas'),
+  wmSourceBtns: document.querySelectorAll('[data-wm-source]'),
+  wmTextConfig: document.getElementById('wm-text-config'),
+  wmImageConfig: document.getElementById('wm-image-config'),
+  wmText: document.getElementById('wmText'),
+  wmFont: document.getElementById('wmFont'),
+  wmTextColor: document.getElementById('wmTextColor'),
+  wmTextColorHex: document.getElementById('wmTextColorHex'),
+  wmLogoInput: document.getElementById('wmLogoInput'),
+  btnUploadWMLogo: document.getElementById('btnUploadWMLogo'),
+  wmLogoPreviewContainer: document.getElementById('wmLogoPreviewContainer'),
+  wmLogoPreview: document.getElementById('wmLogoPreview'),
+  btnClearWMLogo: document.getElementById('btnClearWMLogo'),
+  wmLayoutBtns: document.querySelectorAll('[data-wm-layout]'),
+  wmSinglePositionGroup: document.getElementById('wm-single-position-group'),
+  wmPosition: document.getElementById('wmPosition'),
+  wmSizeSlider: document.getElementById('wmSize'),
+  wmSizeVal: document.getElementById('wmSizeVal'),
+  wmOpacitySlider: document.getElementById('wmOpacity'),
+  wmOpacityVal: document.getElementById('wmOpacityVal'),
+  wmRotationSlider: document.getElementById('wmRotation'),
+  wmRotationVal: document.getElementById('wmRotationVal'),
+  
+  // Export Settings
+  resolutionPreset: document.getElementById('resolutionPreset'),
+  customResolutionPanel: document.getElementById('customResolutionPanel'),
+  customWidth: document.getElementById('customWidth'),
+  customHeight: document.getElementById('customHeight'),
+  aspectRatioLock: document.getElementById('aspectRatioLock'),
+  btnDownloadImage: document.getElementById('btnDownloadImage'),
+  sidebarProBanner: document.getElementById('sidebarProBanner'),
+  backToUploadBtn: document.getElementById('backToUploadBtn'),
+  exportFormat: document.getElementById('exportFormat'),
+  exportColorSpace: document.getElementById('exportColorSpace'),
+  
+  // PDF Page Modal
+  pdfPageModal: document.getElementById('pdfPageModal'),
+  closePdfModalBtn: document.getElementById('closePdfModalBtn'),
+  pdfTotalPages: document.getElementById('pdfTotalPages'),
+  btnPrevPdfPage: document.getElementById('btnPrevPdfPage'),
+  pdfCurrentPageDisplay: document.getElementById('pdfCurrentPageDisplay'),
+  btnNextPdfPage: document.getElementById('btnNextPdfPage'),
+  btnConfirmPdfPage: document.getElementById('btnConfirmPdfPage'),
+  
+  // Subscription Modal
+  checkoutModal: document.getElementById('checkoutModal'),
+  closeCheckoutBtn: document.getElementById('closeCheckoutBtn'),
+  checkoutForm: document.getElementById('checkoutForm'),
+  btnSubmitCheckout: document.getElementById('btnSubmitCheckout'),
+  checkoutSuccessScreen: document.getElementById('checkoutSuccessScreen'),
+  btnDismissSuccess: document.getElementById('btnDismissSuccess'),
+  cardNumberInput: null,
+  cardExpiryInput: null,
+
+  // PDF Tools Hub
+  navModeStudio: document.getElementById('navModeStudio'),
+  navModePdf: document.getElementById('navModePdf'),
+  pdfToolsLanding: document.getElementById('pdfToolsLanding'),
+  pdfEditorWorkspace: document.getElementById('pdfEditorWorkspace'),
+  pdfToolCards: document.querySelectorAll('.pdf-tool-card'),
+  pdfHubFileInput: document.getElementById('pdfHubFileInput'),
+  pdfDropZone: document.getElementById('pdfDropZone'),
+  pdfPagesPreviewGrid: document.getElementById('pdfPagesPreviewGrid'),
+  pdfPagesViewport: document.getElementById('pdfPagesViewport'),
+  btnBackToPdfHub: document.getElementById('btnBackToPdfHub'),
+  btnAddPdfFile: document.getElementById('btnAddPdfFile'),
+  btnExecutePdfTool: document.getElementById('btnExecutePdfTool'),
+  btnRotateAllCw: document.getElementById('btnRotateAllCw'),
+  pdfConfigSections: document.querySelectorAll('#pdfEditorWorkspace .sidebar-config-section'),
+  pdfSplitModeGroup: document.getElementById('pdfSplitModeGroup'),
+  pdfSplitRangePanel: document.getElementById('pdfSplitRangePanel'),
+  pdfSplitStartPage: document.getElementById('pdfSplitStartPage'),
+  pdfSplitEndPage: document.getElementById('pdfSplitEndPage'),
+  pdfWatermarkText: document.getElementById('pdfWatermarkText'),
+  pdfWatermarkSize: document.getElementById('pdfWatermarkSize'),
+  pdfWatermarkOpacity: document.getElementById('pdfWatermarkOpacity'),
+  pdfCompressModeGroup: document.getElementById('pdfCompressModeGroup'),
+  pdfToImgFormat: document.getElementById('pdfToImgFormat'),
+  pdfToImgResolution: document.getElementById('pdfToImgResolution'),
+  pdfToImgColorSpace: document.getElementById('pdfToImgColorSpace')
+};
+
+/* ==========================================================================
+   Initialization and Global Events
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  // Configure Global PDF.js Worker
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  
+  initSubscription();
+  initUploadHandlers();
+  initTabHandlers();
+  initBGRemoverHandlers();
+  initWMEraserHandlers();
+  initWMMakerHandlers();
+  initResizerHandlers();
+  initCheckoutHandlers();
+  initPdfModalHandlers();
+  initPdfHubHandlers();
+});
+
+// Setup subscription state from localStorage and URL redirect parameters
+function initSubscription() {
+  // Check if redirected from Stripe checkout success
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('subscribed') === 'true') {
+    localStorage.setItem('eraser_pro_subscribed', 'true');
+    // Clean up URL parameters so it looks nice
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+  
+  const isSubscribed = localStorage.getItem('eraser_pro_subscribed') === 'true';
+  state.isPro = isSubscribed;
+  updateSubUI();
+}
+
+function updateSubUI() {
+  if (state.isPro) {
+    // Nav Status Update
+    elements.subStatusBadge.className = 'sub-badge pro-badge-active';
+    elements.subStatusBadge.querySelector('span').innerText = 'PRO Active';
+    elements.subStatusBadge.querySelector('i').className = 'fa-solid fa-crown';
+    
+    // Header Buttons toggle
+    elements.headerUpgradeBtn.classList.add('hidden');
+    elements.headerManageBtn.classList.remove('hidden');
+    
+    // Sidebar banner hide
+    elements.sidebarProBanner.classList.add('hidden');
+  } else {
+    // Nav Status Update
+    elements.subStatusBadge.className = 'sub-badge free-badge';
+    elements.subStatusBadge.querySelector('span').innerText = 'Free Tier';
+    elements.subStatusBadge.querySelector('i').className = 'fa-solid fa-circle-dot';
+    
+    // Header Buttons toggle
+    elements.headerUpgradeBtn.classList.remove('hidden');
+    elements.headerManageBtn.classList.add('hidden');
+    
+    // Sidebar banner show
+    elements.sidebarProBanner.classList.remove('hidden');
+    
+    // Enforce Free resolution restrictions on select
+    if (elements.resolutionPreset.value !== 'medium') {
+      elements.resolutionPreset.value = 'medium';
+      elements.customResolutionPanel.classList.add('hidden');
+    }
+  }
+
+  // Hide/Show ads depending on Pro subscription status
+  const adSlots = document.querySelectorAll('.adsense-slot');
+  adSlots.forEach(slot => {
+    if (state.isPro) {
+      slot.classList.add('hidden');
+    } else {
+      slot.classList.remove('hidden');
+    }
+  });
+}
+
+/* ==========================================================================
+   Image Upload and Landing Core
+   ========================================================================== */
+function initUploadHandlers() {
+  // Landing Tabs click handlers
+  const landingTabBtns = document.querySelectorAll('.landing-tab-btn');
+  const uploadTitle = document.getElementById('uploadTitle');
+  const uploadDesc = document.getElementById('uploadDesc');
+  
+  landingTabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent triggering upload click if inside upload-card
+      const tab = btn.getAttribute('data-landing-tab');
+      state.activeTab = tab;
+      
+      // Update active class on landing tabs
+      landingTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Update titles and descriptions dynamically
+      if (tab === 'bg-remover') {
+        uploadTitle.innerText = 'Drag & Drop your image';
+        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to remove background';
+      } else if (tab === 'wm-remover') {
+        uploadTitle.innerText = 'Upload image to erase watermark';
+        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to start erasing';
+      } else if (tab === 'wm-maker') {
+        uploadTitle.innerText = 'Upload image to add watermark';
+        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to add logos/text';
+      }
+    });
+  });
+
+  // Click upload area
+  elements.dropZone.addEventListener('click', () => {
+    elements.fileInput.click();
+  });
+  
+  // File input change
+  elements.fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageFile(file);
+      elements.fileInput.value = ''; // Reset value to allow uploading same file consecutively
+    }
+  });
+  
+  // Drag over effects
+  elements.dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    elements.dropZone.classList.add('dragover');
+  });
+  
+  elements.dropZone.addEventListener('dragleave', () => {
+    elements.dropZone.classList.remove('dragover');
+  });
+  
+  elements.dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    elements.dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && (file.type.startsWith('image/') || file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
+      handleImageFile(file);
+    }
+  });
+  
+  // Sample Images click
+  elements.sampleItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const url = item.getAttribute('data-url');
+      showGlobalLoader('Downloading sample image...', 'Downloading assets...');
+      
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        state.originalFilename = 'sample';
+        processUploadedImage(img);
+        hideGlobalLoader();
+      };
+      img.onerror = () => {
+        hideGlobalLoader();
+        alert('Failed to load sample image. Please try uploading your own image.');
+      };
+      img.src = url;
+    });
+  });
+  
+  // Back to upload button (triggers file selector directly instead of leaving workspace)
+  elements.backToUploadBtn.addEventListener('click', () => {
+    elements.fileInput.click();
+  });
+
+  // Logo click listener (acts as "home" button to reset workspace and return to landing page)
+  const logo = document.querySelector('.header-logo');
+  if (logo) {
+    logo.style.cursor = 'pointer';
+    logo.addEventListener('click', () => {
+      // Reset workspace state
+      state.originalImage = null;
+      state.transparentImage = null;
+      state.eraserBaseImage = null;
+      state.brushStrokes = [];
+      state.redoStrokes = [];
+      state.bgRemoved = false;
+      state.currentHistoryId = null;
+      wmHistory.clear();
+      
+      // Update history UI (will hide the bar)
+      updateHistoryUI();
+      
+      // Switch panels
+      elements.uploadLanding.classList.add('active');
+      elements.editorWorkspace.classList.remove('active');
+    });
+  }
+}
+
+// Convert uploaded file to Image object
+function handleImageFile(file) {
+  state.originalFilename = file.name.substring(0, file.name.lastIndexOf('.')) || 'image';
+  
+  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+    loadPdfFile(file);
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      processUploadedImage(img);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Run when image object is successfully loaded
+function processUploadedImage(img) {
+  state.originalImage = img;
+  state.originalAspectRatio = img.width / img.height;
+  
+  // Default fallbacks
+  state.transparentImage = img;
+  state.eraserBaseImage = img;
+  state.bgRemoved = false;
+  state.aiDetectionRun = false;
+  
+  // Default sizes
+  state.exportWidth = img.width;
+  state.exportHeight = img.height;
+  elements.customWidth.value = img.width;
+  elements.customHeight.value = img.height;
+  
+  // Configure Before image in slide comparison
+  elements.imgBefore.src = img.src;
+  
+  // Create and push a new history item
+  const id = 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  const newItem = {
+    id: id,
+    originalImage: img,
+    transparentImage: img,
+    eraserBaseImage: img,
+    bgRemoved: false,
+    filename: state.originalFilename || 'image',
+    aspectRatio: state.originalAspectRatio
+  };
+  state.history.push(newItem);
+  state.currentHistoryId = id;
+  
+  // Show editor panel
+  elements.uploadLanding.classList.remove('active');
+  elements.editorWorkspace.classList.add('active');
+  
+  // Initialize view mode
+  setViewMode('removed');
+  
+  // Switch to the selected tab (will trigger BG removal if bg-remover is active)
+  switchTab(state.activeTab);
+  
+  // Update history list UI
+  updateHistoryUI();
+}
+
+/* ==========================================================================
+   AI Background Removal Integration
+   ========================================================================== */
+async function runAIBackgroundRemoval(imgSource) {
+  showGlobalLoader('Removing Background...', 'Preparing image for cloud upload...');
+  elements.progressBar.style.width = '10%';
+  
+  const targetHistoryId = state.currentHistoryId;
+  
+  try {
+    // Draw image to a canvas to get base64 data URL
+    const canvas = document.createElement('canvas');
+    canvas.width = imgSource.naturalWidth || imgSource.width;
+    canvas.height = imgSource.naturalHeight || imgSource.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgSource, 0, 0);
+    
+    // Extract base64 representation of image
+    const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+    const base64Data = dataURL.split(',')[1];
+    
+    elements.progressBar.style.width = '30%';
+    elements.processingStatus.innerText = 'Uploading to Cloud AI...';
+    elements.processingProgress.innerText = 'Sending image to secure remove.bg servers...';
+    
+    // Call the Netlify Serverless Function
+    const response = await fetch('/.netlify/functions/remove-bg', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ image: base64Data })
+    });
+    
+    elements.progressBar.style.width = '70%';
+    elements.processingStatus.innerText = 'Processing Cutout...';
+    elements.processingProgress.innerText = 'Generating premium alpha-channel tracing...';
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+    
+    // Retrieve processed binary PNG blob
+    const blob = await response.blob();
+    elements.progressBar.style.width = '95%';
+    
+    const resultUrl = URL.createObjectURL(blob);
+    const transparentImg = new Image();
+    transparentImg.onload = () => {
+      state.transparentImage = transparentImg;
+      state.eraserBaseImage = transparentImg; // Start eraser history with the cutout
+      state.bgRemoved = true;
+      
+      // Update history item
+      const item = state.history.find(h => h.id === targetHistoryId);
+      if (item) {
+        item.transparentImage = transparentImg;
+        item.eraserBaseImage = transparentImg;
+        item.bgRemoved = true;
+      }
+      
+      // Initialize Background Remover canvas
+      renderBGRemoverCanvas();
+      
+      // Auto-trigger layout setup for other workspaces
+      initWatermarkEraserBase();
+      renderWMMakerCanvas();
+      
+      updateHistoryUI();
+      hideGlobalLoader();
+    };
+    transparentImg.src = resultUrl;
+    
+  } catch (error) {
+    console.error('AI background removal failed:', error);
+    hideGlobalLoader();
+    
+    // Elegant Failover notice & prompt
+    const useSampleCutout = confirm(
+      'Cloud background removal failed (this can occur on slow networks or if API credits are exhausted).\n\n' +
+      'Would you like to auto-cutout using contrast thresholds (Magic Cutout)?'
+    );
+    
+    if (useSampleCutout) {
+      applyMagicCutoutFallback(imgSource);
+    } else {
+      // Switch back to original transparent
+      state.transparentImage = imgSource;
+      state.eraserBaseImage = imgSource;
+      state.bgRemoved = true;
+      
+      // Update history item
+      const item = state.history.find(h => h.id === targetHistoryId);
+      if (item) {
+        item.transparentImage = imgSource;
+        item.eraserBaseImage = imgSource;
+        item.bgRemoved = true;
+      }
+      
+      renderBGRemoverCanvas();
+      initWatermarkEraserBase();
+      renderWMMakerCanvas();
+      
+      updateHistoryUI();
+    }
+  }
+}
+
+// Simple Magic Cutout (removes near-white backgrounds as a client fallback)
+function applyMagicCutoutFallback(img) {
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  
+  // Sample top-left corner color as background color target
+  const bgR = data[0];
+  const bgG = data[1];
+  const bgB = data[2];
+  
+  const threshold = 40; // color distance threshold
+  
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i+1];
+    const b = data[i+2];
+    
+    const dist = Math.sqrt(
+      Math.pow(r - bgR, 2) +
+      Math.pow(g - bgG, 2) +
+      Math.pow(b - bgB, 2)
+    );
+    
+    if (dist < threshold) {
+      data[i+3] = 0; // Set alpha to transparent
+    }
+  }
+  
+  ctx.putImageData(imgData, 0, 0);
+  
+  const fallbackImg = new Image();
+  fallbackImg.onload = () => {
+    state.transparentImage = fallbackImg;
+    state.eraserBaseImage = fallbackImg;
+    state.bgRemoved = true;
+    
+    // Update history item
+    const item = state.history.find(h => h.id === state.currentHistoryId);
+    if (item) {
+      item.transparentImage = fallbackImg;
+      item.eraserBaseImage = fallbackImg;
+      item.bgRemoved = true;
+    }
+    
+    renderBGRemoverCanvas();
+    initWatermarkEraserBase();
+    renderWMMakerCanvas();
+    updateHistoryUI();
+  };
+  fallbackImg.src = canvas.toDataURL();
+}
+
+function showGlobalLoader(statusText, progressText) {
+  elements.processingOverlay.classList.remove('hidden');
+  elements.processingStatus.innerText = statusText;
+  elements.processingProgress.innerText = progressText;
+}
+
+function hideGlobalLoader() {
+  elements.processingOverlay.classList.add('hidden');
+}
+
+/* ==========================================================================
+   Tab Selection Control
+   ========================================================================== */
+function initTabHandlers() {
+  elements.tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      switchTab(tab);
+    });
+  });
+}
+
+function switchTab(tab) {
+  state.activeTab = tab;
+  
+  // Update Editor Tab Button styles
+  elements.tabBtns.forEach(b => {
+    if (b.getAttribute('data-tab') === tab) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  // Toggle workspace canvases
+  elements.workspaceViews.forEach(view => {
+    if (view.id === `view-${tab}`) {
+      view.classList.add('active');
+    } else {
+      view.classList.remove('active');
+    }
+  });
+  
+  // Toggle Config Settings on the right
+  elements.configSections.forEach(section => {
+    if (section.id === `config-${tab}`) {
+      section.classList.add('active');
+    } else {
+      section.classList.remove('active');
+    }
+  });
+  
+  // Perform initial renders or auto-triggers on tab changes
+  if (tab === 'bg-remover') {
+    if (!state.bgRemoved && state.originalImage) {
+      // Auto-trigger background removal if it hasn't run yet, passing the current edited base image
+      runAIBackgroundRemoval(state.eraserBaseImage || state.originalImage);
+    } else {
+      renderBGRemoverCanvas();
+    }
+  } else if (tab === 'wm-remover') {
+    initWatermarkEraserBase();
+    if (!state.aiDetectionRun && state.originalImage) {
+      state.aiDetectionRun = true;
+      runAIWatermarkDetection();
+    }
+  } else if (tab === 'wm-maker') {
+    renderWMMakerCanvas();
+  }
+  
+  updateHistoryUI();
+}
+
+/* ==========================================================================
+   Tool 1: Background Remover Panel & Custom Backdrops
+   ========================================================================== */
+function initBGRemoverHandlers() {
+  // BG Type toggle
+  elements.bgTypeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const bgType = btn.getAttribute('data-bg-type');
+      state.bgType = bgType;
+      
+      elements.bgTypeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Toggle configurations sub-panels
+      elements.bgColorConfig.classList.add('hidden');
+      elements.bgImageConfig.classList.add('hidden');
+      
+      if (bgType === 'color') {
+        elements.bgColorConfig.classList.remove('hidden');
+      } else if (bgType === 'image') {
+        elements.bgImageConfig.classList.remove('hidden');
+      }
+      
+      renderBGRemoverCanvas();
+    });
+  });
+  
+  // Custom Solid Color Pick
+  elements.bgColorPicker.addEventListener('input', (e) => {
+    state.bgColor = e.target.value;
+    state.bgGradient = '';
+    
+    // Clear active presets
+    elements.colorPresets.forEach(preset => preset.classList.remove('active'));
+    renderBGRemoverCanvas();
+  });
+  
+  // Preset Colors/Gradients Click
+  elements.colorPresets.forEach(preset => {
+    preset.addEventListener('click', () => {
+      elements.colorPresets.forEach(p => p.classList.remove('active'));
+      preset.classList.add('active');
+      
+      const grad = preset.getAttribute('data-gradient');
+      const col = preset.getAttribute('data-color');
+      
+      if (grad) {
+        state.bgGradient = grad;
+        state.bgColor = '';
+      } else {
+        state.bgColor = col;
+        state.bgGradient = '';
+        elements.bgColorPicker.value = col;
+      }
+      renderBGRemoverCanvas();
+    });
+  });
+  
+  // Backdrop Image Select
+  elements.btnUploadBackdrop.addEventListener('click', () => {
+    elements.bgImageInput.click();
+  });
+  
+  elements.bgImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          state.bgCustomImage = img;
+          elements.backdropPresets.forEach(p => p.classList.remove('active'));
+          renderBGRemoverCanvas();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Preset Backdrop Images Click
+  elements.backdropPresets.forEach(preset => {
+    preset.addEventListener('click', () => {
+      elements.backdropPresets.forEach(p => p.classList.remove('active'));
+      preset.classList.add('active');
+      
+      const url = preset.getAttribute('data-bg-url');
+      showGlobalLoader('Loading backdrop...', 'Please wait');
+      
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        state.bgCustomImage = img;
+        renderBGRemoverCanvas();
+        hideGlobalLoader();
+      };
+      img.onerror = () => {
+        hideGlobalLoader();
+        alert('Failed to load backdrop image preset.');
+      };
+      img.src = url;
+    });
+  });
+  
+  // Original vs Removed Background View Switcher
+  const viewToggleBtns = document.querySelectorAll('.view-toggle-btn');
+  viewToggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-view-mode');
+      setViewMode(mode);
+    });
+  });
+}
+
+function setViewMode(mode) {
+  const viewToggleBtns = document.querySelectorAll('.view-toggle-btn');
+  viewToggleBtns.forEach(btn => {
+    if (btn.getAttribute('data-view-mode') === mode) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  const originalWrapper = document.getElementById('previewOriginalWrapper');
+  const removedWrapper = document.getElementById('bgRemoverResultContainer');
+
+  if (mode === 'original') {
+    originalWrapper.classList.remove('hidden');
+    removedWrapper.classList.add('hidden');
+  } else {
+    originalWrapper.classList.add('hidden');
+    removedWrapper.classList.remove('hidden');
+  }
+}
+
+// Render background removals overlay to final canvas preview
+function renderBGRemoverCanvas() {
+  if (!state.transparentImage) return;
+  
+  const canvas = elements.bgRemoverCanvas;
+  const ctx = canvas.getContext('2d');
+  
+  const imgWidth = state.transparentImage.width;
+  const imgHeight = state.transparentImage.height;
+  
+  // Set dimensions matching original image aspect ratio
+  canvas.width = imgWidth;
+  canvas.height = imgHeight;
+  
+  // Step 1: Draw Background
+  if (state.bgType === 'transparent') {
+    ctx.clearRect(0, 0, imgWidth, imgHeight);
+  } else if (state.bgType === 'color') {
+    if (state.bgGradient) {
+      // Split CSS linear gradient string to colors (simple parsing)
+      // Standard linear gradient (135deg, col1 0%, col2 100%)
+      const grad = ctx.createLinearGradient(0, 0, imgWidth, imgHeight);
+      if (state.bgGradient.includes('#ff9a9e')) {
+        grad.addColorStop(0, '#ff9a9e'); grad.addColorStop(1, '#fecfef');
+      } else if (state.bgGradient.includes('#a1c4fd')) {
+        grad.addColorStop(0, '#a1c4fd'); grad.addColorStop(1, '#c2e9fb');
+      } else if (state.bgGradient.includes('#f6d365')) {
+        grad.addColorStop(0, '#f6d365'); grad.addColorStop(1, '#fda085');
+      } else if (state.bgGradient.includes('#4facfe')) {
+        grad.addColorStop(0, '#4facfe'); grad.addColorStop(1, '#00f2fe');
+      } else if (state.bgGradient.includes('#667eea')) {
+        grad.addColorStop(0, '#667eea'); grad.addColorStop(1, '#764ba2');
+      } else {
+        grad.addColorStop(0, '#4f46e5'); grad.addColorStop(1, '#818cf8');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, imgWidth, imgHeight);
+    } else {
+      ctx.fillStyle = state.bgColor;
+      ctx.fillRect(0, 0, imgWidth, imgHeight);
+    }
+  } else if (state.bgType === 'image' && state.bgCustomImage) {
+    // Fit backdrop image to canvas size using cover scaling
+    const bg = state.bgCustomImage;
+    const bgRatio = bg.width / bg.height;
+    const canvasRatio = imgWidth / imgHeight;
+    let dx = 0, dy = 0, dWidth = imgWidth, dHeight = imgHeight;
+    
+    if (bgRatio > canvasRatio) {
+      const scale = imgHeight / bg.height;
+      dWidth = bg.width * scale;
+      dx = (imgWidth - dWidth) / 2;
+    } else {
+      const scale = imgWidth / bg.width;
+      dHeight = bg.height * scale;
+      dy = (imgHeight - dHeight) / 2;
+    }
+    
+    ctx.drawImage(bg, dx, dy, dWidth, dHeight);
+  }
+  
+  // Step 2: Overlay Transparent Subject Cutout
+  ctx.drawImage(state.transparentImage, 0, 0);
+  
+  // Save global processed buffer
+  state.processedImage = canvas;
+}
+
+/* ==========================================================================
+   Tool 2: Watermark Eraser Canvas and Custom Laplace Inpainter
+   ========================================================================== */
+function initWatermarkEraserBase() {
+  if (!state.eraserBaseImage) return;
+  
+  const baseCanvas = elements.wmRemoverBaseCanvas;
+  const brushCanvas = elements.wmRemoverBrushCanvas;
+  
+  const w = state.eraserBaseImage.width;
+  const h = state.eraserBaseImage.height;
+  
+  // Set dimensions matching original image
+  baseCanvas.width = w;
+  baseCanvas.height = h;
+  brushCanvas.width = w;
+  brushCanvas.height = h;
+  
+  // Set Canvas wrapper responsive max-height
+  const maxViewHeight = window.innerHeight * 0.55;
+  const screenScale = Math.min(1, maxViewHeight / h);
+  const displayW = w * screenScale;
+  const displayH = h * screenScale;
+  
+  baseCanvas.style.width = `${displayW}px`;
+  baseCanvas.style.height = `${displayH}px`;
+  brushCanvas.style.width = `${displayW}px`;
+  brushCanvas.style.height = `${displayH}px`;
+  
+  // Set parent container layout dimensions matching scaled canvas
+  const layersDiv = baseCanvas.parentElement;
+  layersDiv.style.width = `${displayW}px`;
+  layersDiv.style.height = `${displayH}px`;
+  
+  const baseCtx = baseCanvas.getContext('2d');
+  baseCtx.drawImage(state.eraserBaseImage, 0, 0);
+  
+  // Setup Undo History initially
+  if (wmHistory.undoStack.length === 0) {
+    wmHistory.push(baseCanvas);
+  }
+  
+  // Clear brush canvas
+  const brushCtx = brushCanvas.getContext('2d');
+  brushCtx.clearRect(0, 0, w, h);
+  
+  // Initialize comparison image and active mode
+  const compareImg = elements.wmRemoverCompareImg;
+  if (compareImg && state.originalImage) {
+    compareImg.src = state.originalImage.src;
+  }
+  setWMEraserMode(state.wmMode || 'brush');
+}
+
+function initWMEraserHandlers() {
+  const brushCanvas = elements.wmRemoverBrushCanvas;
+  const brushCtx = brushCanvas.getContext('2d');
+  
+  // Brush size slider listener
+  elements.brushSizeSlider.addEventListener('input', (e) => {
+    state.brushSize = parseInt(e.target.value);
+    elements.brushSizeVal.innerText = `${state.brushSize}px`;
+  });
+  
+  // Clear brush overlays, strokes history, and reset to original image state
+  elements.clearBrushBtn.addEventListener('click', () => {
+    state.brushStrokes = [];
+    brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
+    
+    // Reset back to brush mode
+    setWMEraserMode('brush');
+    
+    if (state.originalImage) {
+      const baseCanvas = elements.wmRemoverBaseCanvas;
+      const baseCtx = baseCanvas.getContext('2d');
+      baseCtx.clearRect(0, 0, baseCanvas.width, baseCanvas.height);
+      baseCtx.drawImage(state.originalImage, 0, 0);
+      
+      // Reset state and transparent caches
+      state.transparentImage = state.originalImage;
+      state.eraserBaseImage = state.originalImage;
+      
+      // Update history item
+      const item = state.history.find(h => h.id === state.currentHistoryId);
+      if (item) {
+        item.transparentImage = state.originalImage;
+        item.eraserBaseImage = state.originalImage;
+      }
+      
+      // Reset undo history stacks
+      wmHistory.clear();
+      wmHistory.push(baseCanvas);
+      
+      // Re-render and update UI
+      renderBGRemoverCanvas();
+      updateHistoryUI();
+    }
+    
+    wmHistory.updateButtons();
+  });
+  
+  // Mode switcher event listeners
+  if (elements.wmModeSwitcher) {
+    const modeBtns = elements.wmModeSwitcher.querySelectorAll('.btn-toggle');
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-wm-mode');
+        setWMEraserMode(mode);
+      });
+    });
+  }
+
+  // Draggable comparison slider bindings
+  let isDraggingSlider = false;
+  
+  const onStartDrag = (e) => {
+    isDraggingSlider = true;
+    e.preventDefault();
+  };
+  
+  const onMoveDrag = (e) => {
+    if (!isDraggingSlider) return;
+    const container = elements.wmRemoverBaseCanvas.parentElement; // .canvas-layers
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let x = clientX - rect.left;
+    
+    x = Math.max(0, Math.min(rect.width, x));
+    const pct = (x / rect.width) * 100;
+    
+    updateSliderPosition(pct);
+  };
+  
+  const onEndDrag = () => {
+    isDraggingSlider = false;
+  };
+  
+  if (elements.wmComparisonSlider) {
+    elements.wmComparisonSlider.addEventListener('mousedown', onStartDrag);
+    elements.wmComparisonSlider.addEventListener('touchstart', onStartDrag);
+    
+    window.addEventListener('mousemove', onMoveDrag);
+    window.addEventListener('touchmove', onMoveDrag, { passive: false });
+    
+    window.addEventListener('mouseup', onEndDrag);
+    window.addEventListener('touchend', onEndDrag);
+  }
+
+  // AI Auto-Detection Trigger
+  if (elements.btnAIDetectRemove) {
+    elements.btnAIDetectRemove.addEventListener('click', () => {
+      runAIWatermarkDetection();
+    });
+  }
+  
+  // Undo stroke action (normal click)
+  elements.undoBrushBtn.addEventListener('click', (e) => {
+    if (state.brushStrokes.length > 0) {
+      // Undo drawing stroke
+      state.brushStrokes.pop();
+      redrawBrushCanvas();
+      wmHistory.updateButtons();
+    } else {
+      // Undo inpaint action
+      wmHistory.undo(elements.wmRemoverBaseCanvas);
+      // Switch back to brush mode when undoing inpainting so they see the editor
+      setWMEraserMode('brush');
+      
+      // Refresh base transparent cache
+      const canvas = elements.wmRemoverBaseCanvas;
+      const cacheImg = new Image();
+      cacheImg.onload = () => {
+        state.transparentImage = cacheImg;
+        state.eraserBaseImage = cacheImg;
+      };
+      cacheImg.src = canvas.toDataURL();
+    }
+  });
+  
+  // Brushing Mouse/Touch Listeners
+  const getCoordinates = (e) => {
+    const rect = brushCanvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    
+    // Scale matching the display aspect ratio relative to absolute canvas resolution
+    const x = ((clientX - rect.left) / rect.width) * brushCanvas.width;
+    const y = ((clientY - rect.top) / rect.height) * brushCanvas.height;
+    
+    return { x, y };
+  };
+  
+  const getCanvasBrushSize = () => {
+    const rect = brushCanvas.getBoundingClientRect();
+    if (!rect.width) return state.brushSize;
+    // Scale brush size relative to display vs absolute canvas resolution
+    return state.brushSize * (brushCanvas.width / rect.width);
+  };
+  
+  let currentStroke = [];
+  
+  const startDrawing = (e) => {
+    if (state.wmMode === 'compare') return;
+    state.isDrawing = true;
+    const { x, y } = getCoordinates(e);
+    const canvasBrushSize = getCanvasBrushSize();
+    
+    brushCtx.beginPath();
+    brushCtx.arc(x, y, canvasBrushSize / 2, 0, Math.PI * 2);
+    brushCtx.fillStyle = 'rgba(239, 68, 68, 0.45)'; // Semi-transparent Red Highlight
+    brushCtx.fill();
+    
+    currentStroke = [{ x, y, size: canvasBrushSize }];
+    
+    brushCtx.beginPath();
+    brushCtx.moveTo(x, y);
+  };
+  
+  const draw = (e) => {
+    if (state.wmMode === 'compare') return;
+    if (!state.isDrawing) return;
+    e.preventDefault();
+    const { x, y } = getCoordinates(e);
+    const canvasBrushSize = getCanvasBrushSize();
+    
+    if (currentStroke.length > 0) {
+      const lastPoint = currentStroke[currentStroke.length - 1];
+      brushCtx.beginPath();
+      brushCtx.moveTo(lastPoint.x, lastPoint.y);
+      brushCtx.lineTo(x, y);
+      brushCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+      brushCtx.lineWidth = canvasBrushSize;
+      brushCtx.lineCap = 'round';
+      brushCtx.lineJoin = 'round';
+      brushCtx.stroke();
+    }
+    
+    currentStroke.push({ x, y, size: canvasBrushSize });
+  };
+  
+  const stopDrawing = () => {
+    if (state.isDrawing) {
+      state.isDrawing = false;
+      if (currentStroke.length > 0) {
+        state.brushStrokes.push(currentStroke);
+        currentStroke = [];
+        wmHistory.updateButtons();
+      }
+    }
+  };
+  
+  const redrawBrushCanvas = () => {
+    brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
+    state.brushStrokes.forEach(stroke => {
+      if (stroke.length === 0) return;
+      
+      const first = stroke[0];
+      brushCtx.beginPath();
+      brushCtx.arc(first.x, first.y, first.size / 2, 0, Math.PI * 2);
+      brushCtx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+      brushCtx.fill();
+      
+      if (stroke.length > 1) {
+        brushCtx.beginPath();
+        brushCtx.moveTo(first.x, first.y);
+        for (let i = 1; i < stroke.length; i++) {
+          brushCtx.lineTo(stroke[i].x, stroke[i].y);
+        }
+        brushCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+        brushCtx.lineWidth = first.size;
+        brushCtx.lineCap = 'round';
+        brushCtx.lineJoin = 'round';
+        brushCtx.stroke();
+      }
+    });
+  };
+  
+  brushCanvas.addEventListener('mousedown', startDrawing);
+  brushCanvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', stopDrawing);
+  
+  brushCanvas.addEventListener('touchstart', startDrawing);
+  brushCanvas.addEventListener('touchmove', draw);
+  window.addEventListener('touchend', stopDrawing);
+  
+  // Inpaint trigger event
+  elements.btnEraseWatermark.addEventListener('click', () => {
+    runWatermarkInpaint();
+  });
+}
+
+// Spawn CPU Worker to run Laplace relaxation inpainting
+function runWatermarkInpaint() {
+  const baseCanvas = elements.wmRemoverBaseCanvas;
+  const brushCanvas = elements.wmRemoverBrushCanvas;
+  
+  const baseCtx = baseCanvas.getContext('2d');
+  const brushCtx = brushCanvas.getContext('2d');
+  
+  const w = baseCanvas.width;
+  const h = baseCanvas.height;
+  
+  const baseImgData = baseCtx.getImageData(0, 0, w, h);
+  const brushImgData = brushCtx.getImageData(0, 0, w, h);
+  
+  showGlobalLoader('Erasing Watermark...', 'Applying advanced boundary inpainting...');
+  
+  // Spawn Web Worker if not initialized
+  if (!state.inpaintWorker) {
+    state.inpaintWorker = new Worker('inpaint-worker.js?v=15');
+  }
+  
+  // Post data to worker
+  state.inpaintWorker.postMessage({
+    imgWidth: w,
+    imgHeight: h,
+    imgPixels: baseImgData.data,
+    maskPixels: brushImgData.data
+  });
+  
+  // Worker callback
+  state.inpaintWorker.onmessage = (e) => {
+    const resultPixels = e.data.result;
+    
+    // Write back to canvas
+    const newImgData = new ImageData(resultPixels, w, h);
+    baseCtx.putImageData(newImgData, 0, 0);
+    
+    // Clear brush overlay and strokes history
+    state.brushStrokes = [];
+    brushCtx.clearRect(0, 0, w, h);
+    
+    // Push base canvas to Undo Stack
+    wmHistory.push(baseCanvas);
+    
+    // Update local cache variables
+    const updatedImg = new Image();
+    updatedImg.onload = () => {
+      state.transparentImage = updatedImg;
+      state.eraserBaseImage = updatedImg;
+      
+      // Update history item
+      const item = state.history.find(h => h.id === state.currentHistoryId);
+      if (item) {
+        item.transparentImage = updatedImg;
+        item.eraserBaseImage = updatedImg;
+      }
+      
+      // Update background remover views as well
+      renderBGRemoverCanvas();
+      updateHistoryUI();
+      
+      // Auto switch to comparison slider mode so the user sees the side-by-side result instantly!
+      setWMEraserMode('compare');
+      
+      hideGlobalLoader();
+    };
+    updatedImg.src = baseCanvas.toDataURL();
+  };
+}
+
+// ==========================================================================
+// PixelBin-Style Upgrades: Slider, Mode Switcher & AI Auto-Detection
+// ==========================================================================
+function setWMEraserMode(mode) {
+  state.wmMode = mode;
+  
+  if (elements.wmModeSwitcher) {
+    const modeBtns = elements.wmModeSwitcher.querySelectorAll('.btn-toggle');
+    modeBtns.forEach(btn => {
+      if (btn.getAttribute('data-wm-mode') === mode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+  
+  const compareImg = elements.wmRemoverCompareImg;
+  const slider = elements.wmComparisonSlider;
+  const brushCanvas = elements.wmRemoverBrushCanvas;
+  
+  if (mode === 'compare') {
+    if (compareImg && state.originalImage) {
+      compareImg.src = state.originalImage.src;
+      compareImg.style.display = 'block';
+    }
+    if (slider) {
+      slider.style.display = 'block';
+      updateSliderPosition(state.wmSliderPercent || 50);
+    }
+    if (brushCanvas) {
+      brushCanvas.style.display = 'none';
+    }
+  } else {
+    if (compareImg) compareImg.style.display = 'none';
+    if (slider) slider.style.display = 'none';
+    if (brushCanvas) brushCanvas.style.display = 'block';
+  }
+}
+
+function updateSliderPosition(percent) {
+  state.wmSliderPercent = percent;
+  const slider = elements.wmComparisonSlider;
+  const compareImg = elements.wmRemoverCompareImg;
+  
+  if (slider) {
+    slider.style.left = `${percent}%`;
+  }
+  if (compareImg) {
+    compareImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+  }
+}
+
+function runAIWatermarkDetection() {
+  const baseCanvas = elements.wmRemoverBaseCanvas;
+  if (!baseCanvas) return;
+  
+  const w = baseCanvas.width;
+  const h = baseCanvas.height;
+  
+  const baseCtx = baseCanvas.getContext('2d');
+  const imgData = baseCtx.getImageData(0, 0, w, h);
+  
+  const detectText = elements.toggleDetectText.checked;
+  const detectLogo = elements.toggleDetectLogo.checked;
+  
+  if (!detectText && !detectLogo) {
+    showToastNotification('Please select at least one detection layer (Text or Logo).');
+    return;
+  }
+  
+  showGlobalLoader('AI Scanning...', 'Running machine-vision watermark detection...');
+  
+  setTimeout(() => {
+    try {
+      const mask = detectWatermarkMask(imgData, detectText, detectLogo);
+      
+      const brushCanvas = elements.wmRemoverBrushCanvas;
+      const brushCtx = brushCanvas.getContext('2d');
+      brushCtx.clearRect(0, 0, w, h);
+      
+      const brushImgData = brushCtx.createImageData(w, h);
+      let count = 0;
+      for (let i = 0; i < w * h; i++) {
+        if (mask[i] === 1) {
+          const idx = i * 4;
+          brushImgData.data[idx] = 239;     // R
+          brushImgData.data[idx + 1] = 68;  // G
+          brushImgData.data[idx + 2] = 68;  // B
+          brushImgData.data[idx + 3] = 115; // A (0.45 opacity)
+          count++;
+        }
+      }
+      
+      if (count > 0) {
+        brushCtx.putImageData(brushImgData, 0, 0);
+        hideGlobalLoader();
+        
+        // Push dummy brush stroke to support undo history stack triggers
+        state.brushStrokes.push([{ x: 0, y: 0, size: 0 }]);
+        
+        showToastNotification(`AI successfully highlighted watermark areas. Erasing...`);
+        runWatermarkInpaint();
+      } else {
+        hideGlobalLoader();
+        showToastNotification('No watermarks automatically detected. Please use Brush Mode to paint manually.');
+      }
+    } catch (err) {
+      console.error(err);
+      hideGlobalLoader();
+      showToastNotification('Detection failed. Try manual brushing.');
+    }
+  }, 150);
+}
+
+function detectWatermarkMask(imgData, detectText, detectLogo) {
+  const width = imgData.width;
+  const height = imgData.height;
+  const src = imgData.data;
+  
+  const mask = new Uint8Array(width * height);
+  const edges = new Float32Array(width * height);
+  const grayscale = new Uint8Array(width * height);
+  
+  // Grayscale conversion
+  for (let i = 0; i < width * height; i++) {
+    const idx = i * 4;
+    grayscale[i] = Math.round(0.299 * src[idx] + 0.587 * src[idx + 1] + 0.114 * src[idx + 2]);
+  }
+  
+  // Sobel Edge Filter
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = y * width + x;
+      
+      const val00 = grayscale[(y - 1) * width + (x - 1)];
+      const val01 = grayscale[(y - 1) * width + x];
+      const val02 = grayscale[(y - 1) * width + (x + 1)];
+      
+      const val10 = grayscale[y * width + (x - 1)];
+      const val12 = grayscale[y * width + (x + 1)];
+      
+      const val20 = grayscale[(y + 1) * width + (x - 1)];
+      const val21 = grayscale[(y + 1) * width + x];
+      const val22 = grayscale[(y + 1) * width + (x + 1)];
+      
+      const gx = (val02 + 2 * val12 + val22) - (val00 + 2 * val10 + val20);
+      const gy = (val20 + 2 * val21 + val22) - (val00 + 2 * val01 + val02);
+      
+      edges[idx] = Math.sqrt(gx * gx + gy * gy);
+    }
+  }
+  
+  // Block-based density & contrast analysis (16x16 blocks)
+  const blockSize = 16;
+  const blocksW = Math.ceil(width / blockSize);
+  const blocksH = Math.ceil(height / blockSize);
+  
+  const blockStats = [];
+  for (let by = 0; by < blocksH; by++) {
+    for (let bx = 0; bx < blocksW; bx++) {
+      let edgeSum = 0;
+      let edgeCount = 0;
+      let valSum = 0;
+      let minVal = 255;
+      let maxVal = 0;
+      
+      const startX = bx * blockSize;
+      const startY = by * blockSize;
+      const endX = Math.min(width, startX + blockSize);
+      const endY = Math.min(height, startY + blockSize);
+      const count = (endX - startX) * (endY - startY);
+      
+      for (let y = startY; y < endY; y++) {
+        for (let x = startX; x < endX; x++) {
+          const offset = y * width + x;
+          edgeSum += edges[offset];
+          if (edges[offset] > 35) edgeCount++;
+          const val = grayscale[offset];
+          valSum += val;
+          if (val < minVal) minVal = val;
+          if (val > maxVal) maxVal = val;
+        }
+      }
+      
+      blockStats.push({
+        bx, by,
+        edgeDensity: edgeCount / count,
+        contrast: maxVal - minVal,
+        isText: false,
+        isLogo: false
+      });
+    }
+  }
+  
+  // Calculate threshold averages
+  let totalContrast = 0;
+  let totalDensity = 0;
+  for (let i = 0; i < blockStats.length; i++) {
+    totalContrast += blockStats[i].contrast;
+    totalDensity += blockStats[i].edgeDensity;
+  }
+  const avgContrast = totalContrast / blockStats.length;
+  const avgDensity = totalDensity / blockStats.length;
+  
+  // Mark candidate blocks
+  for (let i = 0; i < blockStats.length; i++) {
+    const b = blockStats[i];
+    
+    // Watermarks stand out from global averages
+    const isHighContrast = b.contrast > Math.max(30, avgContrast * 1.4);
+    const isHighDensity = b.edgeDensity > Math.max(0.04, avgDensity * 1.5);
+    
+    if (isHighContrast && isHighDensity) {
+      if (detectText && b.edgeDensity > 0.06) {
+        b.isText = true;
+      }
+      if (detectLogo && b.contrast > 45) {
+        b.isLogo = true;
+      }
+    }
+  }
+  
+  // Filter noise using connected component clustering (BFS)
+  const visited = new Uint8Array(blocksW * blocksH);
+  
+  for (let by = 0; by < blocksH; by++) {
+    for (let bx = 0; bx < blocksW; bx++) {
+      const idx = by * blocksW + bx;
+      const b = blockStats[idx];
+      
+      if (visited[idx] === 0 && (b.isText || b.isLogo)) {
+        const cluster = [];
+        const queue = [{ x: bx, y: by }];
+        visited[idx] = 1;
+        
+        while (queue.length > 0) {
+          const curr = queue.shift();
+          const currIdx = curr.y * blocksW + curr.x;
+          cluster.push(blockStats[currIdx]);
+          
+          // Check 4 neighbors
+          const neighbors = [];
+          if (curr.x > 0) neighbors.push({ x: curr.x - 1, y: curr.y });
+          if (curr.x < blocksW - 1) neighbors.push({ x: curr.x + 1, y: curr.y });
+          if (curr.y > 0) neighbors.push({ x: curr.x, y: curr.y - 1 });
+          if (curr.y < blocksH - 1) neighbors.push({ x: curr.x, y: curr.y + 1 });
+          
+          for (let n of neighbors) {
+            const nIdx = n.y * blocksW + n.x;
+            const nb = blockStats[nIdx];
+            if (visited[nIdx] === 0 && (nb.isText || nb.isLogo)) {
+              visited[nIdx] = 1;
+              queue.push(n);
+            }
+          }
+        }
+        
+        // Watermarks span at least 2 connected blocks
+        if (cluster.length >= 2) {
+          for (let cb of cluster) {
+            const startX = cb.bx * blockSize;
+            const startY = cb.by * blockSize;
+            const endX = Math.min(width, startX + blockSize);
+            const endY = Math.min(height, startY + blockSize);
+            
+            for (let my = startY; my < endY; my++) {
+              for (let mx = startX; mx < endX; mx++) {
+                mask[my * width + mx] = 1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Dilation (5px) to ensure complete cover of antialiased edges
+  const dilatedMask = new Uint8Array(width * height);
+  const r = 5;
+  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (mask[y * width + x] === 1) {
+        for (let dy = -r; dy <= r; dy++) {
+          for (let dx = -r; dx <= r; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              dilatedMask[ny * width + nx] = 1;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return dilatedMask;
+}
+
+// Simple dynamic Toast notification
+function showToastNotification(message, duration = 3500) {
+  let toastContainer = document.getElementById('toast-notification-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-notification-container';
+    toastContainer.style = 'position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; font-family: "Inter", sans-serif; pointer-events: none;';
+    document.body.appendChild(toastContainer);
+  }
+  
+  const toast = document.createElement('div');
+  toast.style = 'background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); color: #ffffff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); transform: translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-width: 320px; pointer-events: auto;';
+  toast.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-circle-info" style="color:var(--accent-primary);"></i> <span>${message}</span></div>`;
+  
+  toastContainer.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.transform = 'translateY(0)';
+    toast.style.opacity = '1';
+  }, 10);
+  
+  setTimeout(() => {
+    toast.style.transform = 'translateY(-20px)';
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, duration);
+}
+
+/* ==========================================================================
+   Tool 3: Watermark Maker Panel
+   ========================================================================== */
+function initWMMakerHandlers() {
+  // Source Toggle (Text vs Image Logo)
+  elements.wmSourceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const src = btn.getAttribute('data-wm-source');
+      state.wmSource = src;
+      
+      elements.wmSourceBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Toggle settings grids
+      elements.wmTextConfig.classList.add('hidden');
+      elements.wmImageConfig.classList.add('hidden');
+      
+      if (src === 'text') {
+        elements.wmTextConfig.classList.remove('hidden');
+      } else {
+        elements.wmImageConfig.classList.remove('hidden');
+      }
+      
+      renderWMMakerCanvas();
+    });
+  });
+  
+  // Watermark text change
+  elements.wmText.addEventListener('input', (e) => {
+    state.wmText = e.target.value;
+    renderWMMakerCanvas();
+  });
+  
+  // Font Family selector
+  elements.wmFont.addEventListener('change', (e) => {
+    state.wmFont = e.target.value;
+    renderWMMakerCanvas();
+  });
+  
+  // Font Color picker
+  elements.wmTextColor.addEventListener('input', (e) => {
+    state.wmTextColor = e.target.value;
+    elements.wmTextColorHex.innerText = e.target.value;
+    renderWMMakerCanvas();
+  });
+  
+  // Image Logo Upload
+  elements.btnUploadWMLogo.addEventListener('click', () => {
+    elements.wmLogoInput.click();
+  });
+  
+  elements.wmLogoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          state.wmLogoImage = img;
+          elements.wmLogoPreview.src = ev.target.result;
+          elements.wmLogoPreviewContainer.classList.remove('hidden');
+          renderWMMakerCanvas();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  elements.btnClearWMLogo.addEventListener('click', () => {
+    state.wmLogoImage = null;
+    elements.wmLogoInput.value = '';
+    elements.wmLogoPreviewContainer.classList.add('hidden');
+    renderWMMakerCanvas();
+  });
+  
+  // Watermark Layout Toggle (Tiled vs Single)
+  elements.wmLayoutBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const layout = btn.getAttribute('data-wm-layout');
+      state.wmLayout = layout;
+      
+      elements.wmLayoutBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if (layout === 'single') {
+        elements.wmSinglePositionGroup.classList.remove('hidden');
+      } else {
+        elements.wmSinglePositionGroup.classList.add('hidden');
+      }
+      
+      renderWMMakerCanvas();
+    });
+  });
+  
+  // Position dropdown for single layout
+  elements.wmPosition.addEventListener('change', (e) => {
+    state.wmPosition = e.target.value;
+    renderWMMakerCanvas();
+  });
+  
+  // Size Scale slider
+  elements.wmSizeSlider.addEventListener('input', (e) => {
+    state.wmScale = parseInt(e.target.value);
+    elements.wmSizeVal.innerText = state.wmScale;
+    renderWMMakerCanvas();
+  });
+  
+  // Opacity slider
+  elements.wmOpacitySlider.addEventListener('input', (e) => {
+    state.wmOpacity = parseFloat(e.target.value) / 10;
+    elements.wmOpacityVal.innerText = state.wmOpacity;
+    renderWMMakerCanvas();
+  });
+  
+  // Rotation slider
+  elements.wmRotationSlider.addEventListener('input', (e) => {
+    state.wmRotation = parseInt(e.target.value);
+    elements.wmRotationVal.innerText = `${state.wmRotation}°`;
+    renderWMMakerCanvas();
+  });
+}
+
+// Render Watermarks on Canvas Overlay
+function renderWMMakerCanvas() {
+  if (!state.transparentImage) return;
+  
+  const canvas = elements.wmMakerCanvas;
+  const ctx = canvas.getContext('2d');
+  
+  // Set dimensions matching currently processed background image size
+  const w = state.processedImage ? state.processedImage.width : state.transparentImage.width;
+  const h = state.processedImage ? state.processedImage.height : state.transparentImage.height;
+  
+  canvas.width = w;
+  canvas.height = h;
+  
+  // Scale Canvas wrapper to fit preview area nicely
+  const maxViewHeight = window.innerHeight * 0.55;
+  const screenScale = Math.min(1, maxViewHeight / h);
+  canvas.style.width = `${w * screenScale}px`;
+  canvas.style.height = `${h * screenScale}px`;
+  
+  // Draw base image contents (BG removal layout output)
+  if (state.processedImage) {
+    ctx.drawImage(state.processedImage, 0, 0);
+  } else {
+    ctx.drawImage(state.transparentImage, 0, 0);
+  }
+  
+  // Apply Watermark overlay drawing
+  ctx.save();
+  ctx.globalAlpha = state.wmOpacity;
+  
+  if (state.wmSource === 'text') {
+    // Configure typography settings
+    // Font size relative to width scale (default 30px on 1000px width)
+    const relativeFontSize = (state.wmScale / 1000) * w;
+    ctx.font = `${relativeFontSize}px '${state.wmFont}', sans-serif`;
+    ctx.fillStyle = state.wmTextColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const textWidth = ctx.measureText(state.wmText).width;
+    
+    if (state.wmLayout === 'grid') {
+      // Tiled Repeater Pattern
+      // Space between tiles based on size scale
+      const stepX = textWidth * 2.2;
+      const stepY = relativeFontSize * 4.5;
+      
+      for (let y = -stepY; y < h + stepY * 2; y += stepY) {
+        for (let x = -stepX; x < w + stepX * 2; x += stepX) {
+          ctx.save();
+          // Translate to center of tile cell
+          ctx.translate(x, y);
+          ctx.rotate((state.wmRotation * Math.PI) / 180);
+          ctx.fillText(state.wmText, 0, 0);
+          ctx.restore();
+        }
+      }
+    } else {
+      // Single Badge Placement
+      const pos = getSinglePositionCoords(w, h, textWidth, relativeFontSize);
+      ctx.translate(pos.x, pos.y);
+      ctx.rotate((state.wmRotation * Math.PI) / 180);
+      ctx.fillText(state.wmText, 0, 0);
+    }
+    
+  } else if (state.wmSource === 'image' && state.wmLogoImage) {
+    // Watermark Logo Image scaling
+    const logo = state.wmLogoImage;
+    const logoAspectRatio = logo.width / logo.height;
+    
+    // Scale width relative to main canvas width
+    const logoWidth = (state.wmScale / 1000) * w * 3; 
+    const logoHeight = logoWidth / logoAspectRatio;
+    
+    if (state.wmLayout === 'grid') {
+      const stepX = logoWidth * 2.5;
+      const stepY = logoHeight * 2.5;
+      
+      for (let y = -stepY; y < h + stepY * 2; y += stepY) {
+        for (let x = -stepX; x < w + stepX * 2; x += stepX) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate((state.wmRotation * Math.PI) / 180);
+          ctx.drawImage(logo, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
+          ctx.restore();
+        }
+      }
+    } else {
+      const pos = getSinglePositionCoords(w, h, logoWidth, logoHeight);
+      ctx.translate(pos.x, pos.y);
+      ctx.rotate((state.wmRotation * Math.PI) / 180);
+      ctx.drawImage(logo, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
+    }
+  }
+  
+  ctx.restore();
+}
+
+// Calculate absolute position mapping helper for Single Watermarks
+function getSinglePositionCoords(w, h, objW, objH) {
+  // Margin distance from edges (e.g. 5% of dimensions)
+  const marginX = w * 0.05;
+  const marginY = h * 0.05;
+  
+  switch (state.wmPosition) {
+    case 'center':
+      return { x: w / 2, y: h / 2 };
+    case 'top-left':
+      return { x: marginX + objW / 2, y: marginY + objH / 2 };
+    case 'top-right':
+      return { x: w - marginX - objW / 2, y: marginY + objH / 2 };
+    case 'bottom-left':
+      return { x: marginX + objW / 2, y: h - marginY - objH / 2 };
+    case 'bottom-right':
+    default:
+      return { x: w - marginX - objW / 2, y: h - marginY - objH / 2 };
+  }
+}
+
+/* ==========================================================================
+   Resizer Exporter and Resolution Limits
+   ========================================================================== */
+function initResizerHandlers() {
+  // Resolution Preset Picker
+  elements.resolutionPreset.addEventListener('change', (e) => {
+    const val = e.target.value;
+    state.exportPreset = val;
+    
+    // Check if free user is trying to select PRO sizes
+    if (!state.isPro && val !== 'medium') {
+      // Force change value back to free preview
+      elements.resolutionPreset.value = 'medium';
+      state.exportPreset = 'medium';
+      
+      // Open Upgrade Dialog
+      elements.checkoutSuccessScreen.classList.add('hidden');
+      elements.checkoutForm.classList.remove('hidden');
+      elements.checkoutModal.showModal();
+      return;
+    }
+    
+    // Toggle custom panels
+    if (val === 'custom') {
+      elements.customResolutionPanel.classList.remove('hidden');
+    } else {
+      elements.customResolutionPanel.classList.add('hidden');
+      updateResolutionDimensionsByPreset(val);
+    }
+  });
+  
+  // Custom Resolution input changes
+  elements.customWidth.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    if (isNaN(val) || val < 10) return;
+    
+    state.exportWidth = val;
+    if (state.aspectRatioLocked && state.originalImage) {
+      state.exportHeight = Math.round(val / state.originalAspectRatio);
+      elements.customHeight.value = state.exportHeight;
+    }
+  });
+  
+  elements.customHeight.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value);
+    if (isNaN(val) || val < 10) return;
+    
+    state.exportHeight = val;
+    if (state.aspectRatioLocked && state.originalImage) {
+      state.exportWidth = Math.round(val * state.originalAspectRatio);
+      elements.customWidth.value = state.exportWidth;
+    }
+  });
+  
+  // Aspect Ratio Lock Toggle button
+  elements.aspectRatioLock.addEventListener('click', () => {
+    state.aspectRatioLocked = !state.aspectRatioLocked;
+    
+    if (state.aspectRatioLocked) {
+      elements.aspectRatioLock.classList.add('active');
+      // Force recalculation of height matching ratio
+      state.exportHeight = Math.round(state.exportWidth / state.originalAspectRatio);
+      elements.customHeight.value = state.exportHeight;
+    } else {
+      elements.aspectRatioLock.classList.remove('active');
+    }
+  });
+  
+  // Trigger main download event
+  elements.btnDownloadImage.addEventListener('click', () => {
+    triggerImageDownload();
+  });
+}
+
+function updateResolutionDimensionsByPreset(preset) {
+  if (!state.originalImage) return;
+  
+  const w = state.originalImage.width;
+  const h = state.originalImage.height;
+  
+  switch (preset) {
+    case 'medium': // Capped at max 800px width/height (Free)
+      if (w > h) {
+        state.exportWidth = Math.min(800, w);
+        state.exportHeight = Math.round(state.exportWidth / state.originalAspectRatio);
+      } else {
+        state.exportHeight = Math.min(800, h);
+        state.exportWidth = Math.round(state.exportHeight * state.originalAspectRatio);
+      }
+      break;
+    case 'full': // Original resolution
+      state.exportWidth = w;
+      state.exportHeight = h;
+      break;
+    case 'square': // 500x500 square cropping
+      state.exportWidth = 500;
+      state.exportHeight = 500;
+      break;
+    case 'banner': // 1000x500 banner landscape
+      state.exportWidth = 1000;
+      state.exportHeight = 500;
+      break;
+    case 'story': // 500x1000 story portrait
+      state.exportWidth = 500;
+      state.exportHeight = 1000;
+      break;
+  }
+}
+
+// Master Canvas Compiler Exporter
+function triggerImageDownload() {
+  if (!state.originalImage) return;
+  
+  // Double check user subscription tier limits before export
+  if (!state.isPro && state.exportPreset !== 'medium') {
+    elements.checkoutSuccessScreen.classList.add('hidden');
+    elements.checkoutForm.classList.remove('hidden');
+    elements.checkoutModal.showModal();
+    return;
+  }
+  
+  // Configure final canvas layout resolution sizes
+  const exportCanvas = document.createElement('canvas');
+  const w = state.exportWidth;
+  const h = state.exportHeight;
+  exportCanvas.width = w;
+  exportCanvas.height = h;
+  const ctx = exportCanvas.getContext('2d');
+  
+  // Draw base image source canvas content dynamically downscaled/upscaled to export sizes
+  let sourceCanvas;
+  if (state.activeTab === 'bg-remover') {
+    sourceCanvas = elements.bgRemoverCanvas;
+  } else if (state.activeTab === 'wm-remover') {
+    sourceCanvas = elements.wmRemoverBaseCanvas;
+  } else if (state.activeTab === 'wm-maker') {
+    sourceCanvas = elements.wmMakerCanvas;
+  }
+  
+  if (!sourceCanvas) return;
+  
+  // Check if we require special cropping for layout shifts (e.g. forced square/story bounds)
+  if (state.exportPreset === 'square' || state.exportPreset === 'banner' || state.exportPreset === 'story') {
+    // Cover scale drawing (centers and crops excess edges of source to match output canvas aspect ratio)
+    const srcRatio = sourceCanvas.width / sourceCanvas.height;
+    const destRatio = w / h;
+    let sx = 0, sy = 0, sWidth = sourceCanvas.width, sHeight = sourceCanvas.height;
+    
+    if (srcRatio > destRatio) {
+      sWidth = sourceCanvas.height * destRatio;
+      sx = (sourceCanvas.width - sWidth) / 2;
+    } else {
+      sHeight = sourceCanvas.width / destRatio;
+      sy = (sourceCanvas.height - sHeight) / 2;
+    }
+    
+    ctx.drawImage(sourceCanvas, sx, sy, sWidth, sHeight, 0, 0, w, h);
+  } else {
+    // Normal scale to full dimension
+    ctx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, 0, 0, w, h);
+  }
+  
+  // Apply CMYK Gamut Mapping if Print-Ready CMYK is selected
+  const chosenColorSpace = elements.exportColorSpace ? elements.exportColorSpace.value : 'rgb';
+  if (chosenColorSpace === 'cmyk') {
+    applyCMYKPrintGamutMapping(exportCanvas);
+  }
+  
+  // Read export format preset
+  const chosenFormat = elements.exportFormat ? elements.exportFormat.value : 'png';
+  
+  if (chosenFormat === 'pdf') {
+    // PDF Export format
+    const dataURL = exportCanvas.toDataURL('image/png');
+    
+    // Determine orientation based on canvas bounds
+    const orientation = w > h ? 'l' : 'p';
+    
+    // Import jsPDF
+    const { jsPDF } = window.jspdf;
+    const pdfDoc = new jsPDF({
+      orientation: orientation,
+      unit: 'px',
+      format: [w, h]
+    });
+    
+    pdfDoc.addImage(dataURL, 'PNG', 0, 0, w, h);
+    pdfDoc.save(`${state.originalFilename}_processed_${w}x${h}.pdf`);
+  } else {
+    // Normal Image export formats
+    let mimeType = 'image/png';
+    let fileExt = 'png';
+    let quality = undefined;
+    
+    if (chosenFormat === 'jpg') {
+      mimeType = 'image/jpeg';
+      fileExt = 'jpg';
+      quality = 0.92;
+    } else if (chosenFormat === 'webp') {
+      mimeType = 'image/webp';
+      fileExt = 'webp';
+      quality = 0.92;
+    }
+    
+    const dataURL = exportCanvas.toDataURL(mimeType, quality);
+    const link = document.createElement('a');
+    link.download = `${state.originalFilename}_processed_${w}x${h}.${fileExt}`;
+    link.href = dataURL;
+    link.click();
+  }
+}
+
+/* ==========================================================================
+   Billing Checkout Modal (Stripe Checkout Mock)
+   ========================================================================== */
+function initCheckoutHandlers() {
+  // Go Pro header link
+  elements.headerUpgradeBtn.addEventListener('click', () => {
+    elements.checkoutSuccessScreen.classList.add('hidden');
+    elements.checkoutForm.classList.remove('hidden');
+    elements.checkoutModal.showModal();
+  });
+  
+  // Manage Sub link (Unsub simulation)
+  elements.headerManageBtn.addEventListener('click', () => {
+    const cancel = confirm('Cancel premium subscription? (This will restore Free limits)');
+    if (cancel) {
+      localStorage.setItem('eraser_pro_subscribed', 'false');
+      state.isPro = false;
+      updateSubUI();
+    }
+  });
+  
+  // Close Checkout Modal
+  elements.closeCheckoutBtn.addEventListener('click', () => {
+    elements.checkoutModal.close();
+  });
+  
+  // Fallback for browsers without closedby support
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    elements.checkoutModal.addEventListener('click', (event) => {
+      if (event.target !== elements.checkoutModal) return;
+      
+      const rect = elements.checkoutModal.getBoundingClientRect();
+      const isDialogContent = (
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width
+      );
+      if (!isDialogContent) {
+        elements.checkoutModal.close();
+      }
+    });
+  }
+  
+  // Success dismissal button
+  elements.btnDismissSuccess.addEventListener('click', () => {
+    elements.checkoutModal.close();
+  });
+}
+
+/* ==========================================================================
+   Recent Images History Bar Logic
+   ========================================================================== */
+function updateHistoryUI() {
+  const historyBar = document.getElementById('historyBar');
+  const historyList = document.getElementById('historyList');
+  if (!historyBar || !historyList) return;
+  
+  if (state.history.length === 0) {
+    historyBar.classList.add('hidden');
+    return;
+  }
+  
+  // Show history bar in the editor workspace
+  if (elements.editorWorkspace.classList.contains('active')) {
+    historyBar.classList.remove('hidden');
+  } else {
+    historyBar.classList.add('hidden');
+  }
+  
+  historyList.innerHTML = '';
+  
+  // Render history items (newest first)
+  state.history.slice().reverse().forEach(item => {
+    const div = document.createElement('div');
+    div.className = `history-item ${item.id === state.currentHistoryId ? 'active' : ''}`;
+    div.title = item.filename;
+    
+    const bg = document.createElement('div');
+    bg.className = 'history-item-bg';
+    
+    const img = document.createElement('img');
+    // Show transparent cutout if background is removed, otherwise show original
+    img.src = item.transparentImage ? item.transparentImage.src : item.originalImage.src;
+    
+    bg.appendChild(img);
+    div.appendChild(bg);
+    
+    div.addEventListener('click', () => {
+      loadHistoryItem(item.id);
+    });
+    
+    historyList.appendChild(div);
+  });
+}
+
+function loadHistoryItem(id) {
+  const item = state.history.find(h => h.id === id);
+  if (!item) return;
+  
+  state.currentHistoryId = item.id;
+  state.originalImage = item.originalImage;
+  state.transparentImage = item.transparentImage;
+  state.eraserBaseImage = item.eraserBaseImage;
+  state.bgRemoved = item.bgRemoved;
+  state.originalFilename = item.filename;
+  state.originalAspectRatio = item.aspectRatio;
+  
+  // Update Before image source
+  elements.imgBefore.src = item.originalImage.src;
+  
+  // Set export dimensions
+  state.exportWidth = item.originalImage.width;
+  state.exportHeight = item.originalImage.height;
+  elements.customWidth.value = item.originalImage.width;
+  elements.customHeight.value = item.originalImage.height;
+  
+  // Clear brush drawing overlays
+  state.brushStrokes = [];
+  state.redoStrokes = [];
+  wmHistory.clear();
+  
+  // Reset view modes to show removed background
+  setViewMode('removed');
+  
+  // Restore correct tab
+  switchTab(state.activeTab);
+  updateHistoryUI();
+}
+
+/* ==========================================================================
+   PDF Support Integration
+   ========================================================================== */
+async function loadPdfFile(file) {
+  showGlobalLoader('Loading PDF...', 'Reading document data...');
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const arrayBuffer = e.target.result;
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+      
+      state.pdfDocument = pdf;
+      state.pdfTotalPages = pdf.numPages;
+      state.pdfCurrentPage = 1;
+      state.pdfFilename = state.originalFilename;
+      
+      hideGlobalLoader();
+      
+      if (pdf.numPages > 1) {
+        elements.pdfTotalPages.innerText = pdf.numPages;
+        elements.pdfCurrentPageDisplay.innerText = 1;
+        elements.pdfPageModal.showModal();
+      } else {
+        loadAndRenderPdfPage(1);
+      }
+    } catch (err) {
+      console.error('Failed to parse PDF file:', err);
+      hideGlobalLoader();
+      alert('Error loading PDF: ' + err.message);
+    }
+  };
+  reader.onerror = () => {
+    hideGlobalLoader();
+    alert('Failed to read PDF file.');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function loadAndRenderPdfPage(pageNumber) {
+  if (!state.pdfDocument) return;
+  
+  showGlobalLoader('Rendering PDF page...', `Processing page ${pageNumber} of ${state.pdfTotalPages}...`);
+  
+  try {
+    const page = await state.pdfDocument.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 2.0 }); // High-quality rendering scale
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const context = canvas.getContext('2d');
+    
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+    
+    const imgUrl = canvas.toDataURL('image/png');
+    const img = new Image();
+    img.onload = () => {
+      state.originalFilename = `${state.pdfFilename}_page_${pageNumber}`;
+      processUploadedImage(img);
+      hideGlobalLoader();
+      if (elements.pdfPageModal && elements.pdfPageModal.open) {
+        elements.pdfPageModal.close();
+      }
+    };
+    img.onerror = () => {
+      hideGlobalLoader();
+      alert('Failed to load rendered PDF page.');
+    };
+    img.src = imgUrl;
+  } catch (err) {
+    console.error('PDF rendering failed:', err);
+    hideGlobalLoader();
+    alert('Failed to render PDF page: ' + err.message);
+  }
+}
+
+function initPdfModalHandlers() {
+  if (!elements.pdfPageModal) return;
+  
+  elements.closePdfModalBtn.addEventListener('click', () => {
+    elements.pdfPageModal.close();
+  });
+  
+  elements.btnPrevPdfPage.addEventListener('click', () => {
+    if (state.pdfCurrentPage > 1) {
+      state.pdfCurrentPage--;
+      elements.pdfCurrentPageDisplay.innerText = state.pdfCurrentPage;
+    }
+  });
+  
+  elements.btnNextPdfPage.addEventListener('click', () => {
+    if (state.pdfCurrentPage < state.pdfTotalPages) {
+      state.pdfCurrentPage++;
+      elements.pdfCurrentPageDisplay.innerText = state.pdfCurrentPage;
+    }
+  });
+  
+  elements.btnConfirmPdfPage.addEventListener('click', () => {
+    loadAndRenderPdfPage(state.pdfCurrentPage);
+  });
+}
+
+/* ==========================================================================
+   CMYK Gamut Mapping / Print-Safe Color Converter
+   ========================================================================== */
+function applyCMYKPrintGamutMapping(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i+1];
+    const b = data[i+2];
+    
+    // Convert to HSL
+    let [h, s, l] = rgbToHsl(r, g, b);
+    
+    // CMYK Gamut Mapping: Compress out-of-gamut neon colors to print-safe ranges
+    if (s > 0.70) {
+      s = 0.70 + (s - 0.70) * 0.35; // compress high saturation
+    }
+    
+    // Convert back to RGB
+    const [nr, ng, nb] = hslToRgb(h, s, l);
+    data[i] = nr;
+    data[i+1] = ng;
+    data[i+2] = nb;
+  }
+  
+  ctx.putImageData(imgData, 0, 0);
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return [h, s, l];
+}
+
+function hslToRgb(h, s, l) {
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+/* ==========================================================================
+   PDF Tools Hub Logic
+   ========================================================================== */
+
+function initPdfHubHandlers() {
+  if (!elements.navModeStudio || !elements.navModePdf) return;
+
+  // Mode Switcher between Studio and PDF Tools Hub
+  elements.navModeStudio.addEventListener('click', () => {
+    elements.navModeStudio.classList.add('active');
+    elements.navModePdf.classList.remove('active');
+    
+    // Hide PDF pages
+    elements.pdfToolsLanding.classList.remove('active');
+    elements.pdfEditorWorkspace.classList.remove('active');
+    
+    // Show AI Image Studio page
+    if (state.originalImage) {
+      elements.editorWorkspace.classList.add('active');
+    } else {
+      elements.uploadLanding.classList.add('active');
+    }
+  });
+
+  elements.navModePdf.addEventListener('click', () => {
+    elements.navModePdf.classList.add('active');
+    elements.navModeStudio.classList.remove('active');
+    
+    // Hide AI Image Studio page
+    elements.uploadLanding.classList.remove('active');
+    elements.editorWorkspace.classList.remove('active');
+    
+    // Show PDF pages
+    if (state.activePdfTool) {
+      elements.pdfEditorWorkspace.classList.add('active');
+    } else {
+      elements.pdfToolsLanding.classList.add('active');
+    }
+  });
+
+  // Clicking cards in landing grid
+  elements.pdfToolCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const tool = card.getAttribute('data-pdf-tool');
+      state.activePdfTool = tool;
+      
+      // Update UI title and configure uploader
+      let toolTitle = 'PDF Tool Settings';
+      let titleText = 'Upload PDF files';
+      let descText = 'or <span class="browse-link">browse PDF files</span> from your computer';
+      let isMerge = (tool === 'merge');
+      
+      switch (tool) {
+        case 'merge':
+          toolTitle = 'Merge PDF Settings';
+          break;
+        case 'split':
+          toolTitle = 'Split PDF Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'rotate':
+          toolTitle = 'Rotate PDF Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'organize':
+          toolTitle = 'Organize PDF Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'watermark':
+          toolTitle = 'PDF Watermark Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'compress':
+          toolTitle = 'Compress PDF Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'pdf-to-img':
+          toolTitle = 'PDF to Image Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'pdf-to-word':
+          toolTitle = 'PDF to Word Settings';
+          titleText = 'Upload PDF file';
+          descText = 'or <span class="browse-link">browse a PDF file</span> from your computer';
+          break;
+        case 'word-to-pdf':
+          toolTitle = 'Word to PDF Settings';
+          titleText = 'Upload Word file';
+          descText = 'or <span class="browse-link">browse a Word (.docx) file</span> from your computer';
+          break;
+      }
+      
+      document.getElementById('pdfActiveToolTitle').innerText = toolTitle;
+      document.getElementById('pdfHubUploadTitle').innerText = titleText;
+      document.getElementById('pdfHubUploadDesc').innerHTML = descText;
+      
+      elements.pdfHubFileInput.multiple = isMerge;
+      if (isMerge) {
+        elements.btnAddPdfFile.classList.remove('hidden');
+      } else {
+        elements.btnAddPdfFile.classList.add('hidden');
+      }
+      
+      const uploadLimits = document.getElementById('pdfHubUploadLimits');
+      const uploadIconBox = document.getElementById('pdfHubUploadIconBox');
+      const uploadIcon = document.getElementById('pdfHubUploadIcon');
+      
+      if (tool === 'word-to-pdf') {
+        elements.pdfHubFileInput.accept = '.docx';
+        if (uploadLimits) uploadLimits.innerText = 'Select a Word document (.docx). Up to 20MB.';
+        if (uploadIconBox) {
+          uploadIconBox.style.color = '#2563eb';
+          uploadIconBox.style.background = 'rgba(37, 99, 235, 0.08)';
+        }
+        if (uploadIcon) {
+          uploadIcon.className = 'fa-solid fa-file-word';
+        }
+      } else {
+        elements.pdfHubFileInput.accept = '.pdf';
+        if (uploadLimits) uploadLimits.innerText = isMerge ? 'Select one or more PDF documents. Up to 20MB.' : 'Select a PDF document. Up to 20MB.';
+        if (uploadIconBox) {
+          uploadIconBox.style.color = '#ef4444';
+          uploadIconBox.style.background = 'rgba(239, 68, 68, 0.08)';
+        }
+        if (uploadIcon) {
+          uploadIcon.className = 'fa-solid fa-file-pdf';
+        }
+      }
+      
+      // Show tool-specific config section
+      elements.pdfConfigSections.forEach(section => {
+        if (section.id === `pdf-config-${tool}`) {
+          section.classList.add('active');
+        } else {
+          section.classList.remove('active');
+        }
+      });
+      
+      // Reset PDF states for the new tool
+      state.pdfFiles = [];
+      state.pdfPagesList = [];
+      elements.pdfPagesPreviewGrid.innerHTML = '';
+      
+      elements.pdfDropZone.classList.remove('hidden');
+      elements.pdfPagesViewport.classList.add('hidden');
+      
+      // Navigate to PDF Editor Workspace
+      elements.pdfToolsLanding.classList.remove('active');
+      elements.pdfEditorWorkspace.classList.add('active');
+    });
+  });
+
+  // Back to Hub Button
+  elements.btnBackToPdfHub.addEventListener('click', () => {
+    state.activePdfTool = null;
+    state.pdfFiles = [];
+    state.pdfPagesList = [];
+    elements.pdfPagesPreviewGrid.innerHTML = '';
+    
+    elements.pdfEditorWorkspace.classList.remove('active');
+    elements.pdfToolsLanding.classList.add('active');
+  });
+
+  // File Upload Handlers (Click and Drag/Drop)
+  elements.pdfDropZone.addEventListener('click', (e) => {
+    if (e.target !== elements.pdfHubFileInput && !e.target.classList.contains('browse-link') && !e.target.closest('.browse-link')) {
+      elements.pdfHubFileInput.click();
+    }
+  });
+  
+  const browseLink = elements.pdfDropZone.querySelector('.browse-link');
+  if (browseLink) {
+    browseLink.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elements.pdfHubFileInput.click();
+    });
+  }
+
+  elements.pdfHubFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      loadPdfHubFiles(e.target.files);
+    }
+  });
+
+  elements.pdfDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    elements.pdfDropZone.classList.add('dragover');
+  });
+  
+  elements.pdfDropZone.addEventListener('dragleave', () => {
+    elements.pdfDropZone.classList.remove('dragover');
+  });
+  
+  elements.pdfDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    elements.pdfDropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+      loadPdfHubFiles(e.dataTransfer.files);
+    }
+  });
+
+  // Split PDF Mode buttons toggles
+  if (elements.pdfSplitModeGroup) {
+    const splitBtns = elements.pdfSplitModeGroup.querySelectorAll('.btn-toggle');
+    splitBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        splitBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.pdfSplitMode = btn.getAttribute('data-split-mode');
+        
+        if (state.pdfSplitMode === 'range') {
+          elements.pdfSplitRangePanel.classList.remove('hidden');
+        } else {
+          elements.pdfSplitRangePanel.classList.add('hidden');
+        }
+      });
+    });
+  }
+
+  // Compression Mode buttons toggles
+  if (elements.pdfCompressModeGroup) {
+    const compressBtns = elements.pdfCompressModeGroup.querySelectorAll('.btn-toggle');
+    compressBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        compressBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.pdfCompressLevel = btn.getAttribute('data-compress-level');
+      });
+    });
+  }
+
+  // Rotate All CW Button
+  if (elements.btnRotateAllCw) {
+    elements.btnRotateAllCw.addEventListener('click', () => {
+      state.pdfPagesList.forEach(p => {
+        if (!p.deleted) {
+          p.rotation = (p.rotation + 90) % 360;
+        }
+      });
+      renderPdfPagesGrid();
+    });
+  }
+
+  // Execute PDF Tool Trigger
+  elements.btnExecutePdfTool.addEventListener('click', () => {
+    executePdfTool();
+  });
+}
+
+async function loadPdfHubFiles(files) {
+  let filesArray;
+  if (state.activePdfTool === 'word-to-pdf') {
+    filesArray = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.docx'));
+    if (filesArray.length === 0) {
+      alert('Please select valid Word (.docx) files.');
+      return;
+    }
+  } else {
+    filesArray = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    if (filesArray.length === 0) {
+      alert('Please select valid PDF files.');
+      return;
+    }
+  }
+
+  const filesToLoad = state.activePdfTool === 'merge' ? filesArray : [filesArray[0]];
+  showGlobalLoader('Loading file...', `Parsing document data...`);
+
+  try {
+    // If not merge, clear previous files/pages
+    if (state.activePdfTool !== 'merge') {
+      state.pdfFiles = [];
+      state.pdfPagesList = [];
+    }
+
+    for (const file of filesToLoad) {
+      const arrayBuffer = await new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => resolve(e.target.result);
+        fileReader.onerror = () => reject(new Error('Failed to read file ' + file.name));
+        fileReader.readAsArrayBuffer(file);
+      });
+
+      if (state.activePdfTool === 'word-to-pdf') {
+        const mammothResult = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+        const text = mammothResult.value;
+        
+        // Chunk to pages
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.font = '14px Arial';
+        
+        const paragraphs = text.split('\n');
+        const lines = [];
+        paragraphs.forEach(p => {
+          const words = p.split(' ');
+          let currentLine = '';
+          words.forEach(word => {
+            const testLine = currentLine + word + ' ';
+            const metrics = tempCtx.measureText(testLine);
+            if (metrics.width > 420) {
+              lines.push(currentLine);
+              currentLine = word + ' ';
+            } else {
+              currentLine = testLine;
+            }
+          });
+          lines.push(currentLine);
+        });
+        
+        const docxPages = [];
+        const linesPerPage = 28;
+        for (let i = 0; i < lines.length; i += linesPerPage) {
+          docxPages.push(lines.slice(i, i + linesPerPage).join('\n'));
+        }
+        if (docxPages.length === 0) {
+          docxPages.push("Empty Document");
+        }
+        
+        const fileIndex = state.pdfFiles.length;
+        state.pdfFiles.push({
+          name: file.name,
+          isDocx: true,
+          text: text,
+          pages: docxPages
+        });
+
+        for (let i = 1; i <= docxPages.length; i++) {
+          const pageId = `page-${fileIndex}-${i}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          state.pdfPagesList.push({
+            id: pageId,
+            fileIndex: fileIndex,
+            pageNumber: i,
+            rotation: 0,
+            deleted: false
+          });
+        }
+      } else {
+        const pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        const fileIndex = state.pdfFiles.length;
+        state.pdfFiles.push({
+          name: file.name,
+          pdfDoc: pdfLibDoc,
+          pdfjsDoc: pdfjsDoc,
+          arrayBuffer: arrayBuffer
+        });
+
+        const numPages = pdfjsDoc.numPages;
+        for (let i = 1; i <= numPages; i++) {
+          const pageId = `page-${fileIndex}-${i}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          state.pdfPagesList.push({
+            id: pageId,
+            fileIndex: fileIndex,
+            pageNumber: i,
+            rotation: 0,
+            deleted: false
+          });
+        }
+      }
+    }
+
+    // Hide uploader drop zone, show viewport grid
+    elements.pdfDropZone.classList.add('hidden');
+    elements.pdfPagesViewport.classList.remove('hidden');
+
+    // Update Split inputs max limits if Split is active
+    if (state.activePdfTool === 'split' && state.pdfPagesList.length > 0) {
+      const totalPages = state.pdfPagesList.filter(p => !p.deleted).length;
+      elements.pdfSplitStartPage.max = totalPages;
+      elements.pdfSplitStartPage.value = 1;
+      elements.pdfSplitEndPage.max = totalPages;
+      elements.pdfSplitEndPage.value = totalPages;
+    }
+
+    renderPdfPagesGrid();
+    hideGlobalLoader();
+  } catch (err) {
+    console.error('Failed to load files:', err);
+    hideGlobalLoader();
+    alert('Error parsing document: ' + err.message);
+  }
+}
+
+function renderPdfPagesGrid() {
+  elements.pdfPagesPreviewGrid.innerHTML = '';
+  const activePages = state.pdfPagesList.filter(p => !p.deleted);
+
+  if (activePages.length === 0) {
+    elements.pdfDropZone.classList.remove('hidden');
+    elements.pdfPagesViewport.classList.add('hidden');
+    state.pdfFiles = [];
+    state.pdfPagesList = [];
+    return;
+  }
+
+  activePages.forEach((pageObj) => {
+    const card = document.createElement('div');
+    card.className = 'pdf-page-card';
+    card.setAttribute('draggable', 'true');
+    card.setAttribute('data-id', pageObj.id);
+
+    const canvas = document.createElement('canvas');
+    card.appendChild(canvas);
+
+    const label = document.createElement('div');
+    label.className = 'page-num';
+    
+    const truncate = (str, n) => (str.length > n) ? str.substr(0, n-1) + '…' : str;
+    label.innerText = state.activePdfTool === 'merge' 
+      ? `${truncate(state.pdfFiles[pageObj.fileIndex].name, 10)} - p. ${pageObj.pageNumber}`
+      : `Page ${pageObj.pageNumber}`;
+    card.appendChild(label);
+
+    // Page Actions (Rotate & Delete)
+    const actions = document.createElement('div');
+    actions.className = 'pdf-page-actions';
+
+    const rotateBtn = document.createElement('button');
+    rotateBtn.className = 'pdf-page-action-btn rotate-btn';
+    rotateBtn.title = 'Rotate 90°';
+    rotateBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+    rotateBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pageObj.rotation = (pageObj.rotation + 90) % 360;
+      renderPdfPagesGrid();
+    });
+    actions.appendChild(rotateBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'pdf-page-action-btn delete-btn';
+    deleteBtn.title = 'Delete Page';
+    deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pageObj.deleted = true;
+      
+      // Update Split max limit if needed
+      if (state.activePdfTool === 'split') {
+        const remaining = state.pdfPagesList.filter(p => !p.deleted).length;
+        if (remaining > 0) {
+          elements.pdfSplitStartPage.max = remaining;
+          elements.pdfSplitEndPage.max = remaining;
+          if (parseInt(elements.pdfSplitEndPage.value, 10) > remaining) {
+            elements.pdfSplitEndPage.value = remaining;
+          }
+        }
+      }
+      
+      renderPdfPagesGrid();
+    });
+    actions.appendChild(deleteBtn);
+
+    card.appendChild(actions);
+    elements.pdfPagesPreviewGrid.appendChild(card);
+
+    // Asynchronously render the thumbnail
+    const fileObj = state.pdfFiles[pageObj.fileIndex];
+    renderThumbnail(fileObj, pageObj.pageNumber, canvas, pageObj.rotation);
+
+    // HTML5 Drag and Drop events for reordering
+    card.addEventListener('dragstart', (e) => {
+      card.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', pageObj.id);
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+    });
+
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const srcId = e.dataTransfer.getData('text/plain');
+      const targetId = card.getAttribute('data-id');
+      
+      if (srcId === targetId) return;
+
+      const srcIndex = state.pdfPagesList.findIndex(p => p.id === srcId);
+      const targetIndex = state.pdfPagesList.findIndex(p => p.id === targetId);
+
+      if (srcIndex !== -1 && targetIndex !== -1) {
+        const [movedPage] = state.pdfPagesList.splice(srcIndex, 1);
+        state.pdfPagesList.splice(targetIndex, 0, movedPage);
+        renderPdfPagesGrid();
+      }
+    });
+  });
+}
+
+async function renderThumbnail(fileObj, pageNum, canvas, rotation) {
+  if (fileObj.pdfjsDoc) {
+    try {
+      const page = await fileObj.pdfjsDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 0.5, rotation: rotation });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      
+      const context = canvas.getContext('2d');
+      await page.render({
+        canvasContext: context,
+        viewport: viewport
+      }).promise;
+    } catch (err) {
+      console.error('Error rendering page thumbnail:', err);
+    }
+  } else if (fileObj.isDocx) {
+    const text = fileObj.pages[pageNum - 1] || '';
+    const width = 150;
+    const height = 212; // A4 aspect ratio scale 0.5
+    
+    if (rotation === 90 || rotation === 270) {
+      canvas.width = height;
+      canvas.height = width;
+    } else {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-width / 2, -height / 2);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, width, height);
+    
+    ctx.fillStyle = '#64748b';
+    const lines = text.split('\n');
+    let y = 15;
+    lines.slice(0, 18).forEach(line => {
+      ctx.font = '5.5px Arial';
+      ctx.fillText(line.substring(0, 28), 10, y);
+      y += 10;
+    });
+    
+    ctx.restore();
+  }
+}
+
+async function executePdfTool() {
+  const activePages = state.pdfPagesList.filter(p => !p.deleted);
+  if (activePages.length === 0) {
+    alert('Please upload a PDF file and ensure it has active pages.');
+    return;
+  }
+
+  showGlobalLoader('Processing PDF...', 'Starting PDF assembly client-side...');
+
+  try {
+    if (state.activePdfTool === 'merge') {
+      const mergedPdf = await PDFLib.PDFDocument.create();
+      for (const page of activePages) {
+        const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+        const [copiedPage] = await mergedPdf.copyPages(srcDoc, [page.pageNumber - 1]);
+        
+        // Apply rotation
+        const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+        copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+        
+        mergedPdf.addPage(copiedPage);
+      }
+      
+      const pdfBytes = await mergedPdf.save();
+      downloadPdfBytes(pdfBytes, 'merged_document.pdf');
+    }
+    
+    else if (state.activePdfTool === 'split') {
+      if (state.pdfSplitMode === 'range') {
+        const start = parseInt(elements.pdfSplitStartPage.value, 10);
+        const end = parseInt(elements.pdfSplitEndPage.value, 10);
+        
+        if (isNaN(start) || isNaN(end) || start < 1 || end < start || end > activePages.length) {
+          hideGlobalLoader();
+          alert('Invalid split page range.');
+          return;
+        }
+        
+        const splitPdf = await PDFLib.PDFDocument.create();
+        for (let i = start; i <= end; i++) {
+          const page = activePages[i - 1];
+          const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+          const [copiedPage] = await splitPdf.copyPages(srcDoc, [page.pageNumber - 1]);
+          
+          const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+          copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+          
+          splitPdf.addPage(copiedPage);
+        }
+        
+        const pdfBytes = await splitPdf.save();
+        downloadPdfBytes(pdfBytes, `split_document_page_${start}_to_${end}.pdf`);
+      } 
+      else if (state.pdfSplitMode === 'extract') {
+        for (let i = 0; i < activePages.length; i++) {
+          const page = activePages[i];
+          const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+          const singlePdf = await PDFLib.PDFDocument.create();
+          
+          const [copiedPage] = await singlePdf.copyPages(srcDoc, [page.pageNumber - 1]);
+          const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+          copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+          
+          singlePdf.addPage(copiedPage);
+          
+          const pdfBytes = await singlePdf.save();
+          downloadPdfBytes(pdfBytes, `extracted_page_${i + 1}.pdf`);
+        }
+      }
+    }
+    
+    else if (state.activePdfTool === 'rotate') {
+      const rotatedPdf = await PDFLib.PDFDocument.create();
+      for (const page of activePages) {
+        const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+        const [copiedPage] = await rotatedPdf.copyPages(srcDoc, [page.pageNumber - 1]);
+        
+        const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+        copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+        
+        rotatedPdf.addPage(copiedPage);
+      }
+      
+      const pdfBytes = await rotatedPdf.save();
+      downloadPdfBytes(pdfBytes, 'rotated_document.pdf');
+    }
+    
+    else if (state.activePdfTool === 'organize') {
+      const organizedPdf = await PDFLib.PDFDocument.create();
+      for (const page of activePages) {
+        const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+        const [copiedPage] = await organizedPdf.copyPages(srcDoc, [page.pageNumber - 1]);
+        
+        const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+        copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+        
+        organizedPdf.addPage(copiedPage);
+      }
+      
+      const pdfBytes = await organizedPdf.save();
+      downloadPdfBytes(pdfBytes, 'organized_document.pdf');
+    }
+    
+    else if (state.activePdfTool === 'watermark') {
+      const text = elements.pdfWatermarkText.value || 'CONFIDENTIAL';
+      const size = parseInt(elements.pdfWatermarkSize.value, 10) || 48;
+      const opacity = parseFloat(elements.pdfWatermarkOpacity.value) || 0.3;
+      
+      const watermarkedPdf = await PDFLib.PDFDocument.create();
+      const helveticaFont = await watermarkedPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+      
+      for (const page of activePages) {
+        const srcDoc = state.pdfFiles[page.fileIndex].pdfDoc;
+        const [copiedPage] = await watermarkedPdf.copyPages(srcDoc, [page.pageNumber - 1]);
+        
+        const currentRotation = copiedPage.getRotation() ? (copiedPage.getRotation().angle || 0) : 0;
+        copiedPage.setRotation(PDFLib.degrees((currentRotation + page.rotation) % 360));
+        
+        const { width, height } = copiedPage.getSize();
+        const textWidth = helveticaFont.widthOfTextAtSize(text, size);
+        
+        copiedPage.drawText(text, {
+          x: (width - textWidth * Math.cos(Math.PI/6)) / 2,
+          y: (height - textWidth * Math.sin(Math.PI/6)) / 2,
+          size: size,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.6, 0.6, 0.6),
+          opacity: opacity,
+          rotate: PDFLib.degrees(30)
+        });
+        
+        watermarkedPdf.addPage(copiedPage);
+      }
+      
+      const pdfBytes = await watermarkedPdf.save();
+      downloadPdfBytes(pdfBytes, 'watermarked_document.pdf');
+    }
+    
+    else if (state.activePdfTool === 'compress') {
+      const compressedPdf = await PDFLib.PDFDocument.create();
+      
+      let scale = 1.2;
+      let quality = 0.6;
+      
+      if (state.pdfCompressLevel === 'extreme') {
+        scale = 0.8;
+        quality = 0.3;
+      } else if (state.pdfCompressLevel === 'low') {
+        scale = 1.8;
+        quality = 0.8;
+      }
+      
+      for (let i = 0; i < activePages.length; i++) {
+        const pageObj = activePages[i];
+        const fileObj = state.pdfFiles[pageObj.fileIndex];
+        const page = await fileObj.pdfjsDoc.getPage(pageObj.pageNumber);
+        
+        const viewport = page.getViewport({ scale: scale, rotation: pageObj.rotation });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const context = canvas.getContext('2d');
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
+        const embeddedImg = await compressedPdf.embedJpg(imgDataUrl);
+        
+        const newPage = compressedPdf.addPage([embeddedImg.width, embeddedImg.height]);
+        newPage.drawImage(embeddedImg, {
+          x: 0,
+          y: 0,
+          width: embeddedImg.width,
+          height: embeddedImg.height
+        });
+      }
+      
+      const pdfBytes = await compressedPdf.save();
+      downloadPdfBytes(pdfBytes, 'compressed_document.pdf');
+    }
+    
+    else if (state.activePdfTool === 'pdf-to-img') {
+      const format = elements.pdfToImgFormat.value || 'jpeg';
+      const resolution = parseFloat(elements.pdfToImgResolution.value) || 2.0;
+      const colorSpace = elements.pdfToImgColorSpace.value || 'rgb';
+      
+      for (let i = 0; i < activePages.length; i++) {
+        const pageObj = activePages[i];
+        const fileObj = state.pdfFiles[pageObj.fileIndex];
+        const page = await fileObj.pdfjsDoc.getPage(pageObj.pageNumber);
+        
+        const viewport = page.getViewport({ scale: resolution, rotation: pageObj.rotation });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const context = canvas.getContext('2d');
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        if (colorSpace === 'cmyk') {
+          applyCMYKPrintGamutMapping(canvas);
+        }
+        
+        const mimeType = `image/${format === 'jpeg' ? 'jpeg' : format}`;
+        const imgDataUrl = canvas.toDataURL(mimeType, format === 'png' ? 1.0 : 0.9);
+        
+        const ext = format === 'jpeg' ? 'jpg' : format;
+        const link = document.createElement('a');
+        link.href = imgDataUrl;
+        link.download = `page_${i + 1}.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+    
+    else if (state.activePdfTool === 'pdf-to-word') {
+      showGlobalLoader('Converting PDF to Word...', 'Extracting text content from pages...');
+      let fullHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><title>Converted PDF Document</title><style>body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }</style></head>
+        <body>
+      `;
+      
+      for (let i = 0; i < activePages.length; i++) {
+        const pageObj = activePages[i];
+        const fileObj = state.pdfFiles[pageObj.fileIndex];
+        
+        const page = await fileObj.pdfjsDoc.getPage(pageObj.pageNumber);
+        const textContent = await page.getTextContent();
+        
+        let lastY = null;
+        let pageText = '';
+        
+        for (const item of textContent.items) {
+          if (lastY !== null && Math.abs(item.transform[5] - lastY) > 10) {
+            pageText += '<br>';
+          }
+          pageText += item.str + ' ';
+          lastY = item.transform[5];
+        }
+        
+        fullHtml += `<div class="word-page" style="page-break-after: always; margin-bottom: 40px;">`;
+        fullHtml += `<h2>Page ${i + 1}</h2>`;
+        fullHtml += `<p>${pageText}</p>`;
+        fullHtml += `</div>`;
+      }
+      
+      fullHtml += `</body></html>`;
+      
+      const blob = new Blob([fullHtml], { type: 'application/msword' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'converted_document.doc';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
+    
+    else if (state.activePdfTool === 'word-to-pdf') {
+      showGlobalLoader('Converting Word to PDF...', 'Generating PDF pages...');
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      for (let i = 0; i < activePages.length; i++) {
+        const pageObj = activePages[i];
+        const fileObj = state.pdfFiles[pageObj.fileIndex];
+        const pageText = fileObj.pages[pageObj.pageNumber - 1] || '';
+        const rotation = pageObj.rotation;
+        
+        if (i > 0) {
+          const orientation = (rotation === 90 || rotation === 270) ? 'l' : 'p';
+          doc.addPage('a4', orientation);
+        } else {
+          if (rotation === 90 || rotation === 270) {
+            doc.deletePage(1);
+            doc.addPage('a4', 'l');
+          }
+        }
+        
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(10);
+        
+        const margin = 20;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const maxLineWidth = pageWidth - (margin * 2);
+        
+        const lines = doc.splitTextToSize(pageText, maxLineWidth);
+        let y = margin;
+        
+        lines.forEach(line => {
+          if (y > pageHeight - margin) {
+            doc.addPage('a4', (rotation === 90 || rotation === 270) ? 'l' : 'p');
+            y = margin;
+          }
+          doc.text(line, margin, y);
+          y += 6;
+        });
+      }
+      
+      doc.save('converted_document.pdf');
+    }
+
+    hideGlobalLoader();
+  } catch (err) {
+    console.error('Error executing PDF tool:', err);
+    hideGlobalLoader();
+    alert('Failed to process PDF: ' + err.message);
+  }
+}
+
+function downloadPdfBytes(bytes, filename) {
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
