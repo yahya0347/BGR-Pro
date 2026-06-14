@@ -1287,7 +1287,7 @@ function runWatermarkInpaint() {
     state.inpaintWorker.terminate();
     state.inpaintWorker = null;
   }
-  state.inpaintWorker = new Worker('inpaint-worker.js?v=20');
+  state.inpaintWorker = new Worker('inpaint-worker.js?v=21');
   
   // Post data to worker
   state.inpaintWorker.postMessage({
