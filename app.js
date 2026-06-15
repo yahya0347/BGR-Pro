@@ -1008,8 +1008,8 @@ function initWatermarkEraserBase() {
   if (container) {
     const containerRect = container.getBoundingClientRect();
     if (containerRect.width > 0) maxW = containerRect.width - 16;
-    // Leave 180px vertical space to prevent cutting off the brush toolbar and gap (accounting for flex wraps)
-    if (containerRect.height > 0) maxH = containerRect.height - 180;
+    // Leave 250px vertical space to prevent cutting off the new top switcher, brush toolbar, and gaps
+    if (containerRect.height > 0) maxH = containerRect.height - 250;
   }
   
   const scaleW = maxW / w;

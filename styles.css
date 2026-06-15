@@ -775,6 +775,15 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
+.editor-canvas-wrapper .view-toggle-tabs {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin-bottom: 8px;
+  box-shadow: none;
+}
+
 /* --- View 2 & 3: Canvas Layers for Watermark tool --- */
 .editor-canvas-wrapper {
   display: flex;
@@ -1687,7 +1696,8 @@ dialog::backdrop {
   .sidebar-right {
     border-left: none !important;
     border-top: 1px solid var(--border-light) !important;
-    height: 240px !important;
+    max-height: 240px !important;
+    height: auto !important;
     width: 100% !important;
     background-color: var(--bg-darker) !important;
     overflow-y: auto !important;

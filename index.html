@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- PDF.js for client-side PDF rendering -->
@@ -206,6 +206,11 @@
           <!-- WATERMARK REMOVER VIEW -->
           <div class="workspace-view" id="view-wm-remover">
             <div class="editor-canvas-wrapper">
+              <!-- Workspace Mode Tabs -->
+              <div class="view-toggle-tabs" id="wmModeSwitcher">
+                <button class="view-toggle-btn btn-toggle active" data-wm-mode="brush"><i class="fa-solid fa-paint-brush"></i> Brush Mode</button>
+                <button class="view-toggle-btn btn-toggle" data-wm-mode="compare"><i class="fa-solid fa-arrows-left-right"></i> Slider View</button>
+              </div>
               <div class="canvas-bg-pattern">
                 <div class="canvas-layers">
                   <!-- The Base Image Canvas -->
@@ -334,55 +339,7 @@
         <div class="sidebar-config-section" id="config-wm-remover">
           <div class="sidebar-title">Watermark Eraser</div>
           
-          <!-- Mode Selector Segmented Pill -->
-          <div class="config-group" style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Eraser Workspace Mode</label>
-            <div class="toggle-btn-group" id="wmModeSwitcher" style="display: flex; gap: 4px; background: rgba(0, 0, 0, 0.2); padding: 4px; border-radius: var(--border-radius-md); border: 1px solid var(--border-light);">
-              <button class="btn btn-toggle active" data-wm-mode="brush" style="flex: 1; justify-content: center; font-size: 12px; padding: 6px 12px; border: none; border-radius: var(--border-radius-sm);"><i class="fa-solid fa-paint-brush" style="margin-right: 6px;"></i> Brush Mode</button>
-              <button class="btn btn-toggle" data-wm-mode="compare" style="flex: 1; justify-content: center; font-size: 12px; padding: 6px 12px; border: none; border-radius: var(--border-radius-sm);"><i class="fa-solid fa-arrows-left-right" style="margin-right: 6px;"></i> Slider View</button>
-            </div>
-          </div>
-
-          <!-- AI Auto-Detection Card -->
-          <div class="glass-card config-sub-card" style="margin-top: 15px; padding: 15px; border-radius: var(--border-radius-md); border: 1px solid var(--border-light); background: rgba(255,255,255,0.02); margin-bottom: 20px;">
-            <div style="font-weight: 600; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-bright);">
-              <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-primary);"></i> AI Auto-Detection
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
-              <!-- Toggle 1: Text -->
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                  <div style="font-weight: 500; font-size: 13px; color: var(--text-bright);">Remove Text</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Erases text labels & timestamps</div>
-                </div>
-                <label class="switch-ios" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                  <input type="checkbox" id="toggleDetectText" checked style="opacity: 0; width: 0; height: 0;">
-                  <span class="slider-ios" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px;"></span>
-                </label>
-              </div>
-
-              <!-- Toggle 2: Logo -->
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                  <div style="font-weight: 500; font-size: 13px; color: var(--text-bright);">Remove Logo</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Erases graphic logos & stickers</div>
-                </div>
-                <label class="switch-ios" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                  <input type="checkbox" id="toggleDetectLogo" checked style="opacity: 0; width: 0; height: 0;">
-                  <span class="slider-ios" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 24px;"></span>
-                </label>
-              </div>
-            </div>
-
-            <button class="btn btn-primary" id="btnAIDetectRemove" style="width: 100%; justify-content: center; gap: 8px;">
-              <i class="fa-solid fa-bolt"></i> Auto-Detect & Erase
-            </button>
-          </div>
-
-          <p class="config-instructions" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            <i class="fa-solid fa-info-circle"></i> Click **Auto-Detect** to let the AI scan & clean the image automatically, or paint manually in **Brush Mode**.
-          </p>
+          <!-- Clean layout, settings are shared below -->
         </div>
 
         <div class="sidebar-config-section" id="config-wm-maker">
@@ -922,6 +879,6 @@
   </dialog>
 
   <!-- Dynamic Javascript Bundle -->
-  <script type="module" src="app.js?v=26"></script>
+  <script type="module" src="app.js?v=27"></script>
 </body>
 </html>
