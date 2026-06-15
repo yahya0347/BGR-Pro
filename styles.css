@@ -2604,4 +2604,112 @@ dialog::backdrop {
   color: var(--text-bright);
 }
 
+/* ==========================================================================
+   FAQ Accordion Section
+   ========================================================================== */
+.faq-section {
+  width: 100%;
+  max-width: 680px;
+  margin: 60px auto 40px auto;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.faq-title {
+  font-family: var(--font-family-display);
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--primary);
+}
+
+.faq-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  font-size: 1rem;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: var(--bg-darker);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--box-shadow-glass);
+}
+
+.faq-item[open] {
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.05);
+}
+
+.faq-item summary {
+  padding: 18px 20px;
+  font-family: var(--font-family-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary:hover {
+  background-color: rgba(79, 70, 229, 0.02);
+}
+
+.faq-item summary .faq-toggle-icon {
+  font-size: 0.95rem;
+  color: var(--primary);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-item[open] summary .faq-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.faq-content {
+  padding: 0 20px 18px 20px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .faq-section {
+    margin: 40px auto 20px auto;
+  }
+  .faq-title {
+    font-size: 1.6rem;
+  }
+  .faq-item summary {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
+  .faq-content {
+    padding: 0 16px 14px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+
 
