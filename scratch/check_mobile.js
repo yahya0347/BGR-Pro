@@ -56,6 +56,18 @@ const path = require('path');
   await page.screenshot({ path: path.join(__dirname, 'mobile_wm_remover.png') });
   console.log("Captured mobile_wm_remover.png");
 
+  // Switch to Watermark Maker tab
+  console.log("Switching to Watermark Maker tab...");
+  await page.evaluate(() => {
+    const btn = document.querySelector('button[data-tab="wm-maker"]');
+    if (btn) btn.click();
+  });
+  await new Promise(r => setTimeout(r, 3000));
+
+  // Take a screenshot of the mobile Watermark Maker view
+  await page.screenshot({ path: path.join(__dirname, 'mobile_wm_maker.png') });
+  console.log("Captured mobile_wm_maker.png");
+
   await browser.close();
   console.log("Browser closed.");
 })();

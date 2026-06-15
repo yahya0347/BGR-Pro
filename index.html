@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=30">
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- PDF.js for client-side PDF rendering -->
@@ -207,9 +207,7 @@
               
               <!-- Transparent Canvas (Visible by default) -->
               <div class="preview-image-wrapper" id="bgRemoverResultContainer">
-                <div class="canvas-bg-pattern">
-                  <canvas id="bgRemoverCanvas"></canvas>
-                </div>
+                <canvas id="bgRemoverCanvas" class="checkerboard-bg"></canvas>
               </div>
             </div>
           </div>
@@ -263,9 +261,7 @@
           <!-- WATERMARK MAKER VIEW -->
           <div class="workspace-view" id="view-wm-maker">
             <div class="editor-canvas-wrapper">
-              <div class="canvas-bg-pattern">
-                <canvas id="wmMakerCanvas"></canvas>
-              </div>
+              <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
             </div>
           </div>
 
@@ -890,6 +886,6 @@
   </dialog>
 
   <!-- Dynamic Javascript Bundle -->
-  <script type="module" src="app.js?v=29"></script>
+  <script type="module" src="app.js?v=30"></script>
 </body>
 </html>
