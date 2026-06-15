@@ -2711,5 +2711,21 @@ dialog::backdrop {
   }
 }
 
+/* Left Sidebar Ad Slot (Desktop only) */
+.ads-left-sidebar {
+  display: none !important;
+}
+
+@media (min-width: 1025px) {
+  .ads-left-sidebar {
+    display: flex !important;
+    width: 100%;
+    height: 100px;
+    margin: 20px 0;
+    padding: 10px;
+  }
+}
+
+
 
 

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- PDF.js for client-side PDF rendering -->
@@ -294,21 +294,32 @@
       
       <!-- Toolbar Left Panel -->
       <aside class="sidebar-left">
-        <div class="sidebar-title">Tools</div>
-        <nav class="tool-tabs">
-          <button class="tab-btn active" data-tab="bg-remover">
-            <i class="fa-solid fa-scissors"></i>
-            <span>BG Remover</span>
-          </button>
-          <button class="tab-btn" data-tab="wm-remover">
-            <i class="fa-solid fa-eraser"></i>
-            <span>Watermark Eraser</span>
-          </button>
-          <button class="tab-btn" data-tab="wm-maker">
-            <i class="fa-solid fa-stamp"></i>
-            <span>Watermark Maker</span>
-          </button>
-        </nav>
+        <div class="sidebar-left-top">
+          <div class="sidebar-title">Tools</div>
+          <nav class="tool-tabs">
+            <button class="tab-btn active" data-tab="bg-remover">
+              <i class="fa-solid fa-scissors"></i>
+              <span>BG Remover</span>
+            </button>
+            <button class="tab-btn" data-tab="wm-remover">
+              <i class="fa-solid fa-eraser"></i>
+              <span>Watermark Eraser</span>
+            </button>
+            <button class="tab-btn" data-tab="wm-maker">
+              <i class="fa-solid fa-stamp"></i>
+              <span>Watermark Maker</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- ADSENSE BANNER 2 (Left Sidebar) -->
+        <div class="adsense-slot ads-left-sidebar">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-mock">
+            <i class="fa-solid fa-rectangle-ad"></i>
+            <span>Google AdSense Banner</span>
+          </div>
+        </div>
 
         <button class="btn btn-secondary back-to-upload-btn" id="backToUploadBtn">
           <i class="fa-solid fa-arrow-left"></i> <span>Upload New Image</span>
@@ -1027,6 +1038,6 @@
   </dialog>
 
   <!-- Dynamic Javascript Bundle -->
-  <script type="module" src="app.js?v=31"></script>
+  <script type="module" src="app.js?v=32"></script>
 </body>
 </html>
