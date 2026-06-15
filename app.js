@@ -358,6 +358,10 @@ function initUploadHandlers() {
   const landingTabBtns = document.querySelectorAll('.landing-tab-btn');
   const uploadTitle = document.getElementById('uploadTitle');
   const uploadDesc = document.getElementById('uploadDesc');
+  const heroGraphic = document.getElementById('landingHeroGraphic');
+  const heroGraphicImg = document.getElementById('heroGraphicImg');
+  const heroGraphicBadge = document.getElementById('heroGraphicBadge');
+  const btnUploadCTA = document.getElementById('btnUploadCTA');
   
   landingTabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -369,16 +373,28 @@ function initUploadHandlers() {
       landingTabBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      // Update titles and descriptions dynamically
+      // Update titles, descriptions and hero graphics dynamically
       if (tab === 'bg-remover') {
-        uploadTitle.innerText = 'Drag & Drop your image';
-        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to remove background';
+        uploadTitle.innerText = 'Remove Image Background';
+        uploadDesc.innerText = '100% Automatically and Free';
+        if (heroGraphic) heroGraphic.className = 'landing-hero-graphic bg-mode';
+        if (heroGraphicImg) heroGraphicImg.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80';
+        if (heroGraphicBadge) heroGraphicBadge.innerText = 'BG REMOVED';
+        if (btnUploadCTA) btnUploadCTA.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload Image';
       } else if (tab === 'wm-remover') {
-        uploadTitle.innerText = 'Upload image to erase watermark';
-        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to start erasing';
+        uploadTitle.innerText = 'Erase Image Watermark';
+        uploadDesc.innerText = 'Clean watermarks and texts in seconds';
+        if (heroGraphic) heroGraphic.className = 'landing-hero-graphic wm-remover-mode';
+        if (heroGraphicImg) heroGraphicImg.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=150&h=150&q=80';
+        if (heroGraphicBadge) heroGraphicBadge.innerText = 'ERASED';
+        if (btnUploadCTA) btnUploadCTA.innerHTML = '<i class="fa-solid fa-eraser"></i> Upload Image';
       } else if (tab === 'wm-maker') {
-        uploadTitle.innerText = 'Upload image to add watermark';
-        uploadDesc.innerHTML = 'or <span class="browse-link">browse files</span> from your computer to add logos/text';
+        uploadTitle.innerText = 'Add Image Watermark';
+        uploadDesc.innerText = 'Protect photos with custom logo or text';
+        if (heroGraphic) heroGraphic.className = 'landing-hero-graphic wm-maker-mode';
+        if (heroGraphicImg) heroGraphicImg.src = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=150&h=150&q=80';
+        if (heroGraphicBadge) heroGraphicBadge.innerText = 'PROTECTED';
+        if (btnUploadCTA) btnUploadCTA.innerHTML = '<i class="fa-solid fa-stamp"></i> Upload Image';
       }
     });
   });
@@ -762,7 +778,10 @@ function switchTab(tab) {
       renderBGRemoverCanvas();
     }
   } else if (tab === 'wm-remover') {
-    initWatermarkEraserBase();
+    setTimeout(() => {
+      initWatermarkEraserBase();
+      window.dispatchEvent(new Event('resize'));
+    }, 50);
   } else if (tab === 'wm-maker') {
     renderWMMakerCanvas();
   }
@@ -1008,8 +1027,8 @@ function initWatermarkEraserBase() {
   if (container) {
     const containerRect = container.getBoundingClientRect();
     if (containerRect.width > 0) maxW = containerRect.width - 16;
-    // Leave 250px vertical space to prevent cutting off the new top switcher, brush toolbar, and gaps
-    if (containerRect.height > 0) maxH = containerRect.height - 250;
+    // Leave 330px vertical space to prevent cutting off the new top switcher, brush toolbar, gaps, and history bar on mobile
+    if (containerRect.height > 0) maxH = containerRect.height - 330;
   }
   
   const scaleW = maxW / w;

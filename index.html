@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- PDF.js for client-side PDF rendering -->
@@ -91,16 +91,27 @@
 
         <div class="upload-area" id="dropZone">
           <input type="file" id="fileInput" accept="image/*,.pdf" hidden>
-          <div class="upload-icon-box">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
+          
+          <!-- Modern Dynamic Hero Graphic -->
+          <div class="landing-hero-graphic bg-mode" id="landingHeroGraphic">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80" alt="Hero Portrait" class="graphic-avatar" id="heroGraphicImg">
+            <div class="graphic-badge" id="heroGraphicBadge">BG REMOVED</div>
           </div>
-          <h2 id="uploadTitle">Drag & Drop your image</h2>
-          <p id="uploadDesc">or <span class="browse-link">browse files</span> from your computer to remove background</p>
+
+          <h2 id="uploadTitle">Remove Image Background</h2>
+          <p id="uploadDesc" class="upload-subtitle">100% Automatically and Free</p>
+          
+          <!-- Big upload button, same as remove.bg style -->
+          <button class="btn btn-primary btn-upload-cta" id="btnUploadCTA">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Image
+          </button>
+          
+          <span class="upload-drop-text">or drop a file here</span>
           <span class="upload-limits">Supports PNG, JPEG, WEBP, PDF. Up to 10MB.</span>
         </div>
 
         <div class="sample-images-section">
-          <h3>Try with sample images:</h3>
+          <h3>No image? Try one of these:</h3>
           <div class="sample-grid">
             <div class="sample-item" data-url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80">
               <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80" alt="Portrait Sample">
@@ -159,7 +170,7 @@
         </nav>
 
         <button class="btn btn-secondary back-to-upload-btn" id="backToUploadBtn">
-          <i class="fa-solid fa-arrow-left"></i> Upload New Image
+          <i class="fa-solid fa-arrow-left"></i> <span>Upload New Image</span>
         </button>
       </aside>
 
@@ -236,10 +247,10 @@
                 </div>
                 <div class="brush-btn-group">
                   <button class="btn btn-icon-text" id="undoBrush" title="Undo stroke">
-                    <i class="fa-solid fa-undo"></i> Undo
+                    <i class="fa-solid fa-undo"></i> <span>Undo</span>
                   </button>
                   <button class="btn btn-icon-text" id="clearBrush" title="Clear all brush strokes">
-                    <i class="fa-solid fa-trash-can"></i> Clear
+                    <i class="fa-solid fa-trash-can"></i> <span>Clear</span>
                   </button>
                   <button class="btn btn-primary animate-pulse" id="btnEraseWatermark">
                     <i class="fa-solid fa-magic"></i> Erase Watermark
@@ -613,10 +624,10 @@
       <!-- Left Sidebar -->
       <aside class="sidebar-left">
         <button class="btn btn-secondary btn-full back-to-pdf-hub-btn" id="btnBackToPdfHub">
-          <i class="fa-solid fa-arrow-left"></i> Back to PDF Hub
+          <i class="fa-solid fa-arrow-left"></i> <span>Back to PDF Hub</span>
         </button>
         <button class="btn btn-secondary btn-full hidden" id="btnAddPdfFile" style="margin-top: 10px; border-color: var(--primary); color: var(--primary);">
-          <i class="fa-solid fa-plus"></i> Add More PDFs
+          <i class="fa-solid fa-plus"></i> <span>Add More PDFs</span>
         </button>
       </aside>
 
@@ -879,6 +890,6 @@
   </dialog>
 
   <!-- Dynamic Javascript Bundle -->
-  <script type="module" src="app.js?v=27"></script>
+  <script type="module" src="app.js?v=28"></script>
 </body>
 </html>
