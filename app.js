@@ -1002,7 +1002,6 @@ function initWatermarkEraserBase() {
   brushCanvas.height = h;
   
   // Set Canvas wrapper responsive max-height and max-width to fit parent container bounds
-  const container = baseCanvas.closest('.canvas-box') || baseCanvas.parentElement;
   let maxW = window.innerWidth - 32;
   let maxH = window.innerHeight * 0.55;
   
