@@ -802,9 +802,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .preview-image-wrapper .canvas-bg-pattern {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   max-width: 100%;
   max-height: 100%;
 }
@@ -1568,15 +1566,33 @@ dialog::backdrop {
   /* Responsive App Header */
   .app-header {
     flex-direction: column !important;
-    padding: 12px 16px !important;
-    gap: 12px !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
     align-items: stretch !important;
     text-align: center !important;
+    position: relative !important;
   }
   
   .header-logo {
     justify-content: center !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .header-logo h1 {
+    font-size: 1.1rem !important;
+  }
+
+  .header-logo p {
+    font-size: 0.65rem !important;
+  }
+
+  .logo-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .logo-icon i {
+    font-size: 0.85rem !important;
   }
   
   .header-nav-modes {
@@ -1597,23 +1613,58 @@ dialog::backdrop {
   }
   
   .header-actions {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    gap: 0 !important;
     display: flex !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    width: 100% !important;
+    align-items: center !important;
   }
   
   .sub-badge {
-    padding: 4px 10px !important;
-    font-size: 0.7rem !important;
-    justify-content: center !important;
+    display: none !important;
   }
   
   .btn-premium {
-    padding: 6px 12px !important;
-    font-size: 0.7rem !important;
-    flex: 1 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3) !important;
+    color: white !important;
+  }
+
+  .btn-premium span {
+    display: none !important;
+  }
+
+  .btn-premium i {
+    font-size: 0.85rem !important;
+    margin: 0 !important;
+  }
+
+  #headerManageBtn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #headerManageBtn span {
+    display: none !important;
+  }
+
+  #headerManageBtn i {
+    font-size: 0.85rem !important;
+    margin: 0 !important;
   }
 
   /* Responsive Upload Landing Screen */
@@ -1663,7 +1714,7 @@ dialog::backdrop {
   }
 
   body:has(#editorWorkspace.active) .app-container, body:has(#pdfEditorWorkspace.active) .app-container {
-    height: calc(100dvh - 68px) !important; /* Subtract header height */
+    height: calc(100dvh - 90px) !important; /* Subtract mobile header height */
     overflow: hidden !important;
   }
 
