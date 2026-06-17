@@ -1,2 +1,23 @@
 # Local Netlify folder
 .netlify
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Test output and screenshots
+scratch/*.png
+*diff*.png
+*half*.png
+*crop*.png
+button_*.png
+left.png
+right.png
+br_*.png
+cardamom_*.png
+cleaned_*.png
+extracted_*.png
+init_*.png
+local_*.png
+star_*.png
+bilateral_*.png

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SEO & Blog Writing Guide - EraserPro AI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1e293b;
+      line-height: 1.6;
+      margin: 40px;
+      padding: 0;
+      background-color: #ffffff;
+      font-size: 14px;
+    }
+    
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      color: #0f172a;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      text-align: center;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 16px;
+      margin-bottom: 30px;
+      color: #4f46e5;
+    }
+    
+    h2 {
+      font-size: 18px;
+      color: #4f46e5;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+      margin-top: 32px;
+    }
+    
+    h3 {
+      font-size: 15px;
+      color: #0f172a;
+    }
+    
+    p {
+      margin-bottom: 16px;
+    }
+    
+    ol, ul {
+      margin-bottom: 20px;
+      padding-left: 20px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    code {
+      font-family: Consolas, Monaco, monospace;
+      background-color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+      font-size: 13px;
+    }
+    
+    pre {
+      font-family: Consolas, Monaco, monospace;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    
+    .note {
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    
+    .tip {
+      background-color: #ecfdf5;
+      border-left: 4px solid #10b981;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>EraserPro AI: Step-by-Step SEO & Blog Writing Integration Guide</h1>
+  
+  <p>Welcome! This guide outlines the exact workflow for writing SEO-optimized articles, managing the static site architecture, adding metadata, and deploying blog updates to the live production site of <strong>EraserPro AI</strong> (hosted at <a href="https://bg-eraser-pro.com">bg-eraser-pro.com</a>).</p>
+
+  <div class="note">
+    <strong>Site Architecture Note:</strong> EraserPro AI is built as a high-performance static HTML/CSS/JS web application. There is no server database. Every new blog post will be created as a static HTML file inside a <code>/blog/</code> subdirectory. This structure guarantees lightning-fast page loads (improving LCP) and makes it extremely easy for search engines like Google to index and crawl your articles.
+  </div>
+
+  <h2>Step 1: Accessing the Codebase</h2>
+  <p>To begin working on the website, request collaborator access to the GitHub repository. Once added, follow these steps to set up your environment:</p>
+  <ol>
+    <li><strong>Clone the Repository:</strong> Open your terminal and run:
+      <pre>git clone https://github.com/yahya0347/BGR-Pro.git
+cd BGR-Pro</pre>
+    </li>
+    <li><strong>Run a Local Preview Server:</strong> To view your changes in real-time before deploying, start a local server:
+      <pre>python3 -m http.server 8080</pre>
+      Now open your browser and navigate to <code>http://localhost:8080</code>.
+    </li>
+  </ol>
+
+  <h2>Step 2: Creating a New Blog Article</h2>
+  <p>All blog articles are stored in a subdirectory named <code>/blog/</code>. Follow this structure to add a post:</p>
+  <ol>
+    <li>Create a subfolder structure like <code>blog/how-to-remove-image-watermarks.html</code>. Use short, lowercase, hyphenated URL slugs containing your main target keywords (e.g. <code>how-to-remove-bg-free.html</code>).</li>
+    <li><strong>Use the Shared Template:</strong> Copy the header, footer, styles, and font links from the main <code>index.html</code> to ensure that your blog page looks consistent with the main site branding (off-white premium theme).</li>
+    <li>Add a wrapper container for your article content to make it readable:
+      <pre>&lt;article class="blog-container"&gt;
+  &lt;h1 class="blog-title"&gt;How to Remove Watermarks from Photos Without Quality Loss&lt;/h1&gt;
+  &lt;div class="blog-meta"&gt;Published on June 15, 2026 by SEO Expert&lt;/div&gt;
+  
+  &lt;p&gt;Start writing your content here...&lt;/p&gt;
+&lt;/article&gt;</pre>
+    </li>
+  </ol>
+
+  <div class="page-break"></div>
+
+  <h2>Step 3: On-Page SEO Optimization Guidelines</h2>
+  <p>To rank for high-value terms (e.g. "free AI background eraser", "remove watermarks online"), ensure every article conforms to the following standards:</p>
+  <ul>
+    <li><strong>Title Tag:</strong> Place a unique title tag in the head. Keep it between 50-60 characters and put the primary keyword at the beginning:
+      <pre>&lt;title&gt;Remove Watermarks Online Free (No Quality Loss) - EraserPro AI&lt;/title&gt;</pre>
+    </li>
+    <li><strong>Meta Description:</strong> Write an engaging description (140-160 characters) to boost Click-Through Rate (CTR):
+      <pre>&lt;meta name="description" content="Erase watermarks, logos, and text from your images instantly with our free AI tool. No software installation required. Get clean, high-quality photos now."&gt;</pre>
+    </li>
+    <li><strong>Heading Hierarchy:</strong> Use exactly one <code>&lt;h1&gt;</code> tag per page for the article title. Organize subsections using structured <code>&lt;h2&gt;</code> and <code>&lt;h3&gt;</code> tags.</li>
+    <li><strong>Image Alt Attributes:</strong> Always provide descriptive alt text containing keywords for any images in the blog:
+      <pre>&lt;img src="images/watermark-eraser-example.jpg" alt="AI watermark eraser tool interface cleaning photo"&gt;</pre>
+    </li>
+    <li><strong>Internal Link Building:</strong> Proactively link back to the home page tools using keyword anchor text (e.g., "use our <a href="/">free AI background remover</a> to transparentize your PNGs"). This distributes page authority and boosts the rankings of the core tool workspace.</li>
+  </ul>
+
+  <h2>Step 4: JSON-LD Blog Schema Markup</h2>
+  <p>To help search engines display rich snippets, insert structured JSON-LD data inside the <code>&lt;head&gt;</code> of the article:</p>
+  <pre>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Remove Watermarks from Photos Without Quality Loss",
+  "image": "https://bg-eraser-pro.com/blog/images/cover.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "SEO Expert"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "EraserPro AI",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://bg-eraser-pro.com/stripe_product_logo.png"
+    }
+  },
+  "datePublished": "2026-06-15",
+  "description": "A step-by-step guide to erasing watermarks, logos, and text overlays from images using AI reconstruction techniques."
+}
+&lt;/script&gt;</pre>
+
+  <div class="page-break"></div>
+
+  <h2>Step 5: Testing and Deployment</h2>
+  <p>Once the blog post is finalized and styled, verify and push it to production:</p>
+  <ol>
+    <li><strong>Local Verification:</strong> Run your local server and inspect the layout on both desktop and mobile viewports. Check for any broken links, images, or spelling errors.</li>
+    <li><strong>Git Commit:</strong> Commit the changes to your local git branch:
+      <pre>git add .
+git commit -m "Add blog article: How to remove watermarks without quality loss"</pre>
+    </li>
+    <li><strong>Push to GitHub:</strong> Pushing your commits will automatically trigger Netlify's continuous integration if connected:
+      <pre>git push origin main</pre>
+    </li>
+    <li><strong>Manual Netlify Deploy (If continuous integration is not set up):</strong>
+      <pre>npx netlify deploy --dir=.
+# promoting the deploy ID to production:
+npx netlify api restoreSiteDeploy --data '{ "site_id": "c88981c4-43ce-41b1-8919-72ee4d6dec98", "deploy_id": "&lt;deploy_id&gt;" }'</pre>
+    </li>
+  </ol>
+
+  <div class="tip">
+    <strong>Best Practice Tip:</strong> Keep style modifications scoped strictly to a separate <code>blog.css</code> or inline style blocks within the article, and avoid editing the core <code>styles.css</code> to prevent breaking the editor workspace views.
+  </div>
+
+</body>
+</html>
