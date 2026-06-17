@@ -3,6 +3,50 @@
  * Core Application Script
  */
 
+// OpenCV.js readiness check
+window.cvReady = false;
+
+function initializeOpenCvReadiness() {
+  if (typeof cv !== 'undefined') {
+    // If runtime initialized hook exists, hook into it
+    if (cv.onRuntimeInitialized !== undefined) {
+      cv.onRuntimeInitialized = function() {
+        window.cvReady = true;
+        console.log("OpenCV.js WebAssembly runtime initialized.");
+      };
+      // Check if already initialized
+      if (cv.getBuildInformation) {
+        window.cvReady = true;
+      }
+    } else {
+      window.cvReady = true;
+      console.log("OpenCV.js initialized synchronously.");
+    }
+  }
+}
+
+window.onOpenCvReady = function() {
+  console.log("OpenCV.js script load event fired.");
+  initializeOpenCvReadiness();
+  // Poll as a safety net in case WASM runtime initialization is delayed
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    initializeOpenCvReadiness();
+    if (window.cvReady || attempts > 50) {
+      clearInterval(interval);
+      if (window.cvReady) {
+        console.log("OpenCV.js fully ready.");
+      } else {
+        console.warn("OpenCV.js failed to initialize in time.");
+      }
+    }
+  }, 100);
+};
+
+// Check immediately in case the script was already loaded
+initializeOpenCvReadiness();
+
 // Global Application State
 const state = {
   isPro: false,
@@ -20,6 +64,7 @@ const state = {
   // Watermark Eraser state
   eraserBaseImage: null,    // Image object of current erased image version
   brushStrokes: [],
+  appliedStrokes: [],       // Non-destructive applied watermark eraser strokes
   redoStrokes: [],
   isDrawing: false,
   brushSize: 25,
@@ -70,11 +115,11 @@ const state = {
 const wmHistory = {
   undoStack: [],
   redoStack: [],
-  maxStates: 10,
+  maxStates: 20,
   
-  push(canvas) {
-    const ctx = canvas.getContext('2d');
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  push(maskCanvas) {
+    const ctx = maskCanvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
     this.undoStack.push(imgData);
     if (this.undoStack.length > this.maxStates) {
       this.undoStack.shift();
@@ -83,24 +128,34 @@ const wmHistory = {
     this.updateButtons();
   },
   
-  undo(canvas) {
-    if (this.undoStack.length <= 1) return; // Keep at least the initial state
+  undo() {
+    if (this.undoStack.length <= 1) return; // Keep at least the initial state (empty black mask)
     const currentState = this.undoStack.pop();
     this.redoStack.push(currentState);
     
     const previousState = this.undoStack[this.undoStack.length - 1];
-    const ctx = canvas.getContext('2d');
-    ctx.putImageData(previousState, 0, 0);
+    const maskCanvas = elements.wmRemoverMaskCanvas;
+    if (maskCanvas) {
+      const ctx = maskCanvas.getContext('2d');
+      ctx.putImageData(previousState, 0, 0);
+    }
+    
+    runWatermarkInpaint(true); // run inpaint with the restored mask
     this.updateButtons();
   },
   
-  redo(canvas) {
+  redo() {
     if (this.redoStack.length === 0) return;
     const nextState = this.redoStack.pop();
     this.undoStack.push(nextState);
     
-    const ctx = canvas.getContext('2d');
-    ctx.putImageData(nextState, 0, 0);
+    const maskCanvas = elements.wmRemoverMaskCanvas;
+    if (maskCanvas) {
+      const ctx = maskCanvas.getContext('2d');
+      ctx.putImageData(nextState, 0, 0);
+    }
+    
+    runWatermarkInpaint(true);
     this.updateButtons();
   },
   
@@ -513,6 +568,9 @@ function processUploadedImage(img) {
   state.eraserBaseImage = img;
   state.bgRemoved = false;
   state.aiDetectionRun = false;
+  state.brushStrokes = [];
+  state.appliedStrokes = [];
+  wmHistory.clear();
   
   // Default sizes
   state.exportWidth = img.width;
@@ -1077,8 +1135,17 @@ function initWatermarkEraserBase() {
   baseCtx.drawImage(state.eraserBaseImage, 0, 0);
   
   // Setup Undo History initially
+  if (!elements.wmRemoverMaskCanvas) {
+    elements.wmRemoverMaskCanvas = document.createElement('canvas');
+  }
+  elements.wmRemoverMaskCanvas.width = w;
+  elements.wmRemoverMaskCanvas.height = h;
+  const maskCtx = elements.wmRemoverMaskCanvas.getContext('2d');
+  
   if (wmHistory.undoStack.length === 0) {
-    wmHistory.push(baseCanvas);
+    maskCtx.fillStyle = '#000000';
+    maskCtx.fillRect(0, 0, w, h);
+    wmHistory.push(elements.wmRemoverMaskCanvas);
   }
   
   // Clear brush canvas
@@ -1106,31 +1173,30 @@ function initWMEraserHandlers() {
   // Clear brush overlays, strokes history, and reset to original image state
   elements.clearBrushBtn.addEventListener('click', () => {
     state.brushStrokes = [];
+    state.appliedStrokes = [];
     brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
     
     // Reset back to brush mode
     setWMEraserMode('brush');
     
-    if (state.originalImage) {
+    if (state.eraserBaseImage) {
       const baseCanvas = elements.wmRemoverBaseCanvas;
       const baseCtx = baseCanvas.getContext('2d');
       baseCtx.clearRect(0, 0, baseCanvas.width, baseCanvas.height);
-      baseCtx.drawImage(state.originalImage, 0, 0);
+      baseCtx.drawImage(state.eraserBaseImage, 0, 0);
       
       // Reset state and transparent caches
-      state.transparentImage = state.originalImage;
-      state.eraserBaseImage = state.originalImage;
+      state.transparentImage = state.eraserBaseImage;
       
       // Update history item
       const item = state.history.find(h => h.id === state.currentHistoryId);
       if (item) {
-        item.transparentImage = state.originalImage;
-        item.eraserBaseImage = state.originalImage;
+        item.transparentImage = state.eraserBaseImage;
       }
       
       // Reset undo history stacks
       wmHistory.clear();
-      wmHistory.push(baseCanvas);
+      wmHistory.push([]); // Push empty appliedStrokes as the initial state
       
       // Re-render and update UI
       renderBGRemoverCanvas();
@@ -1196,7 +1262,6 @@ function initWMEraserHandlers() {
     });
   }
   
-  // Undo stroke action (normal click)
   elements.undoBrushBtn.addEventListener('click', (e) => {
     if (state.brushStrokes.length > 0) {
       // Undo drawing stroke
@@ -1205,18 +1270,9 @@ function initWMEraserHandlers() {
       wmHistory.updateButtons();
     } else {
       // Undo inpaint action
-      wmHistory.undo(elements.wmRemoverBaseCanvas);
+      wmHistory.undo();
       // Switch back to brush mode when undoing inpainting so they see the editor
       setWMEraserMode('brush');
-      
-      // Refresh base transparent cache
-      const canvas = elements.wmRemoverBaseCanvas;
-      const cacheImg = new Image();
-      cacheImg.onload = () => {
-        state.transparentImage = cacheImg;
-        state.eraserBaseImage = cacheImg;
-      };
-      cacheImg.src = canvas.toDataURL();
     }
   });
   
@@ -1332,8 +1388,37 @@ function initWMEraserHandlers() {
   });
 }
 
-// Spawn CPU Worker to run Laplace relaxation inpainting
-function runWatermarkInpaint() {
+// Copy red brush strokes onto our offscreen black-and-white mask canvas
+function applyBrushToMask(brushCanvas, maskCanvas) {
+  const bCtx = brushCanvas.getContext('2d');
+  const mCtx = maskCanvas.getContext('2d');
+  
+  const w = brushCanvas.width;
+  const h = brushCanvas.height;
+  
+  const bData = bCtx.getImageData(0, 0, w, h);
+  const mData = mCtx.getImageData(0, 0, w, h);
+  
+  for (let i = 0; i < w * h; i++) {
+    const idx = i * 4;
+    // If brush canvas pixel has any alpha
+    if (bData.data[idx + 3] > 10) {
+      mData.data[idx] = 255;     // R
+      mData.data[idx + 1] = 255; // G
+      mData.data[idx + 2] = 255; // B
+      mData.data[idx + 3] = 255; // A (fully opaque white)
+    }
+  }
+  mCtx.putImageData(mData, 0, 0);
+}
+
+// Run OpenCV Telea FMM inpainting
+function runWatermarkInpaint(isUndoOrRedo = false) {
+  if (!window.cvReady) {
+    showToastNotification('AI engine is still loading, please try again in a second.');
+    return;
+  }
+  
   const baseCanvas = elements.wmRemoverBaseCanvas;
   const brushCanvas = elements.wmRemoverBrushCanvas;
   
@@ -1343,65 +1428,95 @@ function runWatermarkInpaint() {
   const w = baseCanvas.width;
   const h = baseCanvas.height;
   
-  const baseImgData = baseCtx.getImageData(0, 0, w, h);
-  const brushImgData = brushCtx.getImageData(0, 0, w, h);
-  
-  showGlobalLoader('Erasing Watermark...', 'Reconstructing texture with patch-based inpainting...');
-  
-  // Always create a fresh worker to ensure latest algorithm is loaded
-  if (state.inpaintWorker) {
-    state.inpaintWorker.terminate();
-    state.inpaintWorker = null;
-  }
-  state.inpaintWorker = new Worker('inpaint-worker.js?v=24');
-  
-  // Post data to worker
-  state.inpaintWorker.postMessage({
-    imgWidth: w,
-    imgHeight: h,
-    imgPixels: baseImgData.data,
-    maskPixels: brushImgData.data
-  });
-  
-  // Worker callback
-  state.inpaintWorker.onmessage = (e) => {
-    const resultPixels = e.data.result;
-    
-    // Write back to canvas
-    const newImgData = new ImageData(resultPixels, w, h);
-    baseCtx.putImageData(newImgData, 0, 0);
-    
-    // Clear brush overlay and strokes history
+  if (!isUndoOrRedo) {
+    // If not undo/redo, commit current active strokes to elements.wmRemoverMaskCanvas
+    if (elements.wmRemoverMaskCanvas) {
+      applyBrushToMask(brushCanvas, elements.wmRemoverMaskCanvas);
+    }
     state.brushStrokes = [];
     brushCtx.clearRect(0, 0, w, h);
-    
-    // Push base canvas to Undo Stack
-    wmHistory.push(baseCanvas);
-    
-    // Update local cache variables
-    const updatedImg = new Image();
-    updatedImg.onload = () => {
-      state.transparentImage = updatedImg;
-      state.eraserBaseImage = updatedImg;
+  }
+  
+  showGlobalLoader('Erasing Watermark...', 'Reconstructing background texture using OpenCV AI...');
+  
+  // Use setTimeout to yield execution so the loader spinner displays
+  setTimeout(() => {
+    try {
+      // Create offscreen original canvas of correct dimensions
+      const originalCanvas = document.createElement('canvas');
+      originalCanvas.width = w;
+      originalCanvas.height = h;
+      const origCtx = originalCanvas.getContext('2d');
+      origCtx.drawImage(state.eraserBaseImage, 0, 0);
       
-      // Update history item
-      const item = state.history.find(h => h.id === state.currentHistoryId);
-      if (item) {
-        item.transparentImage = updatedImg;
-        item.eraserBaseImage = updatedImg;
+      const maskCanvas = elements.wmRemoverMaskCanvas;
+      
+      // OpenCV.js Inpainting
+      const src = cv.imread(originalCanvas);
+      const maskM = cv.imread(maskCanvas);
+      
+      const srcRGB = new cv.Mat();
+      cv.cvtColor(src, srcRGB, cv.COLOR_RGBA2RGB);
+      
+      const maskGray = new cv.Mat();
+      cv.cvtColor(maskM, maskGray, cv.COLOR_RGBA2GRAY);
+      cv.threshold(maskGray, maskGray, 10, 255, cv.THRESH_BINARY);
+      
+      // Slightly grow the mask (dilate) to fully cover aliased watermark boundaries
+      const kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(3, 3));
+      cv.dilate(maskGray, maskGray, kernel);
+      
+      const dst = new cv.Mat();
+      const inpaintRadius = 3;
+      cv.inpaint(srcRGB, maskGray, dst, inpaintRadius, cv.INPAINT_TELEA);
+      
+      // Draw result back to display canvas
+      cv.imshow(baseCanvas, dst);
+      
+      // Free OpenCV matrices immediately
+      src.delete();
+      maskM.delete();
+      srcRGB.delete();
+      maskGray.delete();
+      dst.delete();
+      kernel.delete();
+      
+      // Push state of elements.wmRemoverMaskCanvas to wmHistory (only if not undo/redo)
+      if (!isUndoOrRedo) {
+        wmHistory.push(elements.wmRemoverMaskCanvas);
       }
       
-      // Update background remover views as well
-      renderBGRemoverCanvas();
-      updateHistoryUI();
+      // Update local cache variables with the new inpainted result
+      const updatedImg = new Image();
+      updatedImg.onload = () => {
+        state.transparentImage = updatedImg;
+        // DO NOT overwrite state.eraserBaseImage! Keep it pristine!
+        
+        // Update history item
+        const item = state.history.find(h => h.id === state.currentHistoryId);
+        if (item) {
+          item.transparentImage = updatedImg;
+        }
+        
+        // Update background remover views
+        renderBGRemoverCanvas();
+        updateHistoryUI();
+        
+        // Auto switch to comparison slider mode (only on manual erase click, not undo/redo)
+        if (!isUndoOrRedo) {
+          setWMEraserMode('compare');
+        }
+        
+        hideGlobalLoader();
+      };
+      updatedImg.src = baseCanvas.toDataURL();
       
-      // Auto switch to comparison slider mode so the user sees the side-by-side result instantly!
-      setWMEraserMode('compare');
-      
+    } catch (error) {
+      console.error("OpenCV inpainting error:", error);
       hideGlobalLoader();
-    };
-    updatedImg.src = baseCanvas.toDataURL();
-  };
+      alert("Watermark erasure failed: " + error.message);
+    }
+  }, 50);
 }
 
 // ==========================================================================
@@ -2098,6 +2213,49 @@ function updateResolutionDimensionsByPreset(preset) {
   }
 }
 
+/**
+ * Exports a canvas to a Blob.
+ * @param {HTMLCanvasElement} sourceCanvas - the canvas holding the final image
+ * @param {string} format - 'image/png' | 'image/jpeg' | 'image/webp'
+ * @param {string} bgColor - background color for JPEG (default white)
+ * @param {number} quality - 0..1 (used by jpeg/webp)
+ */
+function exportCanvasToBlob(sourceCanvas, format, bgColor = '#FFFFFF', quality = 0.92) {
+  return new Promise((resolve, reject) => {
+    if (!sourceCanvas || sourceCanvas.width === 0 || sourceCanvas.height === 0) {
+      reject(new Error('Export canvas is empty (width/height = 0).'));
+      return;
+    }
+
+    let canvasToExport = sourceCanvas;
+
+    // JPEG cannot store transparency -> transparent pixels become BLACK.
+    // Fix: flatten onto an opaque background first.
+    if (format === 'image/jpeg') {
+      const flat = document.createElement('canvas');
+      flat.width = sourceCanvas.width;
+      flat.height = sourceCanvas.height;
+      const ctx = flat.getContext('2d');
+      ctx.fillStyle = bgColor;                 // opaque background
+      ctx.fillRect(0, 0, flat.width, flat.height);
+      ctx.drawImage(sourceCanvas, 0, 0);       // image on top
+      canvasToExport = flat;
+    }
+
+    canvasToExport.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error('toBlob returned null — canvas may be tainted (CORS) or too large.'));
+        } else {
+          resolve(blob);
+        }
+      },
+      format,
+      quality
+    );
+  });
+}
+
 // Master Canvas Compiler Exporter
 function triggerImageDownload() {
   if (!state.originalImage) return;
@@ -2181,23 +2339,34 @@ function triggerImageDownload() {
     // Normal Image export formats
     let mimeType = 'image/png';
     let fileExt = 'png';
-    let quality = undefined;
     
     if (chosenFormat === 'jpg') {
       mimeType = 'image/jpeg';
       fileExt = 'jpg';
-      quality = 0.92;
     } else if (chosenFormat === 'webp') {
       mimeType = 'image/webp';
       fileExt = 'webp';
-      quality = 0.92;
     }
     
-    const dataURL = exportCanvas.toDataURL(mimeType, quality);
-    const link = document.createElement('a');
-    link.download = `${state.originalFilename}_processed_${w}x${h}.${fileExt}`;
-    link.href = dataURL;
-    link.click();
+    // Default to white background, or use background color if active
+    let bg = '#FFFFFF';
+    if (state.activeTab === 'bg-remover' && state.bgType === 'color' && state.bgColor) {
+      bg = state.bgColor;
+    }
+    
+    exportCanvasToBlob(exportCanvas, mimeType, bg, 0.92)
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${state.originalFilename}_processed_${w}x${h}.${fileExt}`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Download failed: ' + err.message);
+      });
   }
 }
 
@@ -2320,6 +2489,7 @@ function loadHistoryItem(id) {
   
   // Clear brush drawing overlays
   state.brushStrokes = [];
+  state.appliedStrokes = [];
   state.redoStrokes = [];
   wmHistory.clear();
   
