@@ -884,6 +884,8 @@ h1, h2, h3, h4, h5, h6 {
 #wmRemoverBaseCanvas {
   display: block;
   z-index: 1;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 #wmRemoverBrushCanvas {
@@ -892,6 +894,8 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   z-index: 2;
   cursor: crosshair;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* Brushing tools config bar */
