@@ -35,8 +35,8 @@ const path = require('path');
       downloadPath: downloadPath
     });
 
-    console.log("Navigating to http://localhost:8080 ...");
-    await page.goto('http://localhost:8080', { waitUntil: 'networkidle2' });
+    await page.goto('http://localhost:8080', { waitUntil: 'domcontentloaded' });
+    await new Promise(r => setTimeout(r, 5000)); // Wait 5s for page scripts to load
 
     console.log("Clicking the first sample item...");
     await page.click('.sample-item');

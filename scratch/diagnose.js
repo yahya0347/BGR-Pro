@@ -31,7 +31,8 @@ const puppeteer = require('puppeteer-core');
   });
 
   console.log("=== Loading page ===");
-  await page.goto('http://localhost:8080', { waitUntil: 'networkidle2', timeout: 30000 });
+  await page.goto('http://localhost:8080', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await new Promise(r => setTimeout(r, 5000)); // Wait 5s for scripts to run/load
   await new Promise(r => setTimeout(r, 3000));
 
   console.log("\n=== CONSOLE ERRORS ===");

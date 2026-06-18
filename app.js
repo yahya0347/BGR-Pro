@@ -1412,24 +1412,18 @@ function applyBrushToMask(brushCanvas, maskCanvas) {
   mCtx.putImageData(mData, 0, 0);
 }
 
-// Run OpenCV Telea FMM inpainting
+// Run watermark inpainting — tries LaMa AI backend first, falls back to local OpenCV
 function runWatermarkInpaint(isUndoOrRedo = false) {
-  if (!window.cvReady) {
-    showToastNotification('AI engine is still loading, please try again in a second.');
-    return;
-  }
-  
   const baseCanvas = elements.wmRemoverBaseCanvas;
   const brushCanvas = elements.wmRemoverBrushCanvas;
   
-  const baseCtx = baseCanvas.getContext('2d');
   const brushCtx = brushCanvas.getContext('2d');
   
   const w = baseCanvas.width;
   const h = baseCanvas.height;
   
   if (!isUndoOrRedo) {
-    // If not undo/redo, commit current active strokes to elements.wmRemoverMaskCanvas
+    // Commit current active strokes to the persistent mask canvas
     if (elements.wmRemoverMaskCanvas) {
       applyBrushToMask(brushCanvas, elements.wmRemoverMaskCanvas);
     }
@@ -1437,21 +1431,83 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     brushCtx.clearRect(0, 0, w, h);
   }
   
-  showGlobalLoader('Erasing Watermark...', 'Reconstructing background texture using OpenCV AI...');
+  // Build the original image + mask as data URIs
+  const originalCanvas = document.createElement('canvas');
+  originalCanvas.width = w;
+  originalCanvas.height = h;
+  const origCtx = originalCanvas.getContext('2d');
+  origCtx.drawImage(state.eraserBaseImage, 0, 0);
   
-  // Use setTimeout to yield execution so the loader spinner displays
+  const imageDataURL = originalCanvas.toDataURL('image/png');
+  const maskDataURL  = elements.wmRemoverMaskCanvas.toDataURL('image/png');
+  
+  // ── Gate: Pro users get AI LaMa, free users get local OpenCV ────────
+  if (!isProUser()) {
+    _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
+    return;
+  }
+  
+  showGlobalLoader('Erasing Watermark...', 'Reconstructing background with AI...');
+  
+  // ── Try LaMa backend first ──────────────────────────────────────────
+  _tryLamaInpaint(imageDataURL, maskDataURL)
+    .then(resultDataURI => {
+      // LaMa succeeded — draw the result onto the display canvas
+      const resultImg = new Image();
+      resultImg.onload = () => {
+        const ctx = baseCanvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(resultImg, 0, 0, w, h);
+        _handleInpaintResult(baseCanvas, isUndoOrRedo);
+      };
+      resultImg.onerror = () => {
+        console.warn('LaMa result image failed to load, falling back to OpenCV.');
+        _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
+      };
+      resultImg.src = resultDataURI;
+    })
+    .catch(err => {
+      console.warn('LaMa AI backend unavailable, falling back to local OpenCV:', err.message || err);
+      showToastNotification('AI cleanup failed. Using local mode instead.');
+      _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
+    });
+}
+
+// PHASE 1 placeholder — replace with real subscription check in Phase 2.
+function isProUser() {
+  return true;
+}
+
+// ── LaMa backend call ─────────────────────────────────────────────────
+async function _tryLamaInpaint(imageDataURL, maskDataURL) {
+  const res = await fetch('/.netlify/functions/inpaint-lama', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: imageDataURL, mask: maskDataURL })
+  });
+  
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || ('Server ' + res.status));
+  
+  return data.resultBase64; // data URI — no CORS/taint issues
+}
+
+// ── Local OpenCV fallback ─────────────────────────────────────────────
+function _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo) {
+  if (!window.cvReady) {
+    hideGlobalLoader();
+    showToastNotification('AI engines unavailable. Please reload the page and try again.');
+    return;
+  }
+  
+  showGlobalLoader('Erasing Watermark...', 'Using local OpenCV engine (fallback)...');
+  
   setTimeout(() => {
     try {
-      // Create offscreen original canvas of correct dimensions
-      const originalCanvas = document.createElement('canvas');
-      originalCanvas.width = w;
-      originalCanvas.height = h;
-      const origCtx = originalCanvas.getContext('2d');
-      origCtx.drawImage(state.eraserBaseImage, 0, 0);
-      
+      const w = baseCanvas.width;
+      const h = baseCanvas.height;
       const maskCanvas = elements.wmRemoverMaskCanvas;
       
-      // OpenCV.js Inpainting
       const src = cv.imread(originalCanvas);
       const maskM = cv.imread(maskCanvas);
       
@@ -1462,15 +1518,12 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
       cv.cvtColor(maskM, maskGray, cv.COLOR_RGBA2GRAY);
       cv.threshold(maskGray, maskGray, 10, 255, cv.THRESH_BINARY);
       
-      // Slightly grow the mask (dilate) to fully cover aliased watermark boundaries
       const kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(3, 3));
       cv.dilate(maskGray, maskGray, kernel);
       
       const dst = new cv.Mat();
-      const inpaintRadius = 3;
-      cv.inpaint(srcRGB, maskGray, dst, inpaintRadius, cv.INPAINT_TELEA);
+      cv.inpaint(srcRGB, maskGray, dst, 3, cv.INPAINT_TELEA);
       
-      // Draw result back to display canvas
       cv.imshow(baseCanvas, dst);
       
       // Free OpenCV matrices immediately
@@ -1481,35 +1534,7 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
       dst.delete();
       kernel.delete();
       
-      // Push state of elements.wmRemoverMaskCanvas to wmHistory (only if not undo/redo)
-      if (!isUndoOrRedo) {
-        wmHistory.push(elements.wmRemoverMaskCanvas);
-      }
-      
-      // Update local cache variables with the new inpainted result
-      const updatedImg = new Image();
-      updatedImg.onload = () => {
-        state.transparentImage = updatedImg;
-        // DO NOT overwrite state.eraserBaseImage! Keep it pristine!
-        
-        // Update history item
-        const item = state.history.find(h => h.id === state.currentHistoryId);
-        if (item) {
-          item.transparentImage = updatedImg;
-        }
-        
-        // Update background remover views
-        renderBGRemoverCanvas();
-        updateHistoryUI();
-        
-        // Auto switch to comparison slider mode (only on manual erase click, not undo/redo)
-        if (!isUndoOrRedo) {
-          setWMEraserMode('compare');
-        }
-        
-        hideGlobalLoader();
-      };
-      updatedImg.src = baseCanvas.toDataURL();
+      _handleInpaintResult(baseCanvas, isUndoOrRedo);
       
     } catch (error) {
       console.error("OpenCV inpainting error:", error);
@@ -1517,6 +1542,36 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
       alert("Watermark erasure failed: " + error.message);
     }
   }, 50);
+}
+
+// ── Shared post-inpaint handler ───────────────────────────────────────
+function _handleInpaintResult(baseCanvas, isUndoOrRedo) {
+  // Push mask state to history (only on new erase, not undo/redo)
+  if (!isUndoOrRedo) {
+    wmHistory.push(elements.wmRemoverMaskCanvas);
+  }
+  
+  // Update local cache with the inpainted result
+  const updatedImg = new Image();
+  updatedImg.onload = () => {
+    state.transparentImage = updatedImg;
+    // DO NOT overwrite state.eraserBaseImage! Keep it pristine!
+    
+    const item = state.history.find(h => h.id === state.currentHistoryId);
+    if (item) {
+      item.transparentImage = updatedImg;
+    }
+    
+    renderBGRemoverCanvas();
+    updateHistoryUI();
+    
+    if (!isUndoOrRedo) {
+      setWMEraserMode('compare');
+    }
+    
+    hideGlobalLoader();
+  };
+  updatedImg.src = baseCanvas.toDataURL();
 }
 
 // ==========================================================================

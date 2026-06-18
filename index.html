@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=37">
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- PDF.js for client-side PDF rendering -->
@@ -96,7 +96,7 @@
         "name": "Are my uploaded photos safe and private?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, privacy is our top priority. All image processing is done securely, and your uploaded files are automatically deleted from our servers after processing."
+          "text": "Yes, privacy is our top priority. AI image processing (for background removal and AI watermark erasing) is performed securely via APIs and your image data is not stored after processing. For all other tools, processing is done entirely on your device and never sent to any server."
         }
       }
     ]
@@ -324,7 +324,7 @@
               <i class="fa-solid fa-chevron-down faq-toggle-icon"></i>
             </summary>
             <div class="faq-content">
-              Yes, privacy is our top priority. All image processing is done securely, and your uploaded files are automatically deleted from our servers after processing.
+              Yes, privacy is our top priority. AI image processing (for background removal and AI watermark erasing) is performed securely via APIs and your image data is not stored after processing. For all other tools, processing is done entirely on your device and never sent to any server.
             </div>
           </details>
         </div>
@@ -1080,6 +1080,6 @@
   </dialog>
 
   <!-- Dynamic Javascript Bundle -->
-  <script type="module" src="app.js?v=36"></script>
+  <script type="module" src="app.js?v=37"></script>
 </body>
 </html>
