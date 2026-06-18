@@ -2,9 +2,12 @@
  * Netlify Serverless Function: LaMa AI Inpainting via Replicate
  *
  * Proxies watermark-erasure requests to Replicate's twn39/lama model.
+ * Gated behind user authentication and credit balances.
  * Rate-limited to 10 requests per IP per minute.
- * Requires REPLICATE_API_TOKEN environment variable.
+ * Requires REPLICATE_API_TOKEN and FIREBASE_SERVICE_ACCOUNT environment variables.
  */
+
+const admin = require('firebase-admin');
 
 // ── In-memory rate limiter (per-instance; resets on cold-start) ──────────
 const RATE_WINDOW_MS = 60_000; // 1 minute
@@ -20,6 +23,20 @@ function isRateLimited(ip) {
   return false;
 }
 
+// ── Initialize Firebase Admin SDK ─────────────────────────────────────────
+function initFirebaseAdmin() {
+  if (!admin.apps.length) {
+    const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!serviceAccountStr) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not configured.');
+    }
+    const serviceAccount = JSON.parse(serviceAccountStr);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 function clientIP(event) {
   return (
@@ -28,6 +45,34 @@ function clientIP(event) {
     event.headers['client-ip'] ||
     'unknown'
   );
+}
+
+function getBearerToken(headers) {
+  const authHeader = headers['authorization'];
+  if (!authHeader) return null;
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') return null;
+  return parts[1];
+}
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  };
+}
+
+function respond(status, body) {
+  return {
+    statusCode: status,
+    headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  };
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ── Handler ──────────────────────────────────────────────────────────────
@@ -41,16 +86,47 @@ exports.handler = async (event) => {
     return respond(405, { error: 'POST only' });
   }
 
-  // Rate-limit check
+  // Rate-limit check (IP level)
   const ip = clientIP(event);
   if (isRateLimited(ip)) {
     return respond(429, { error: 'Too many requests, try again shortly.' });
   }
 
-  // Check for API token
+  // Check for Replicate API token
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
     return respond(503, { error: 'AI inpainting service is not configured.' });
+  }
+
+  // Verify Auth and Credits
+  let uid;
+  let db;
+  let userRef;
+  
+  try {
+    initFirebaseAdmin();
+    const idToken = getBearerToken(event.headers);
+    if (!idToken) {
+      return respond(401, { error: 'UNAUTHORIZED', details: 'ID token is required' });
+    }
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    uid = decodedToken.uid;
+    
+    db = admin.firestore();
+    userRef = db.collection('users').doc(uid);
+    
+    const docSnap = await userRef.get();
+    const credits = docSnap.exists ? (docSnap.data().credits || 0) : 0;
+    
+    if (credits < 1) {
+      return respond(402, { error: 'NO_CREDITS' });
+    }
+  } catch (err) {
+    console.error('Auth / Credit check failed:', err);
+    if (err.message === 'FIREBASE_SERVICE_ACCOUNT environment variable is not configured.') {
+      return respond(503, { error: 'Authentication service not configured.' });
+    }
+    return respond(401, { error: 'UNAUTHORIZED', details: err.message });
   }
 
   try {
@@ -105,35 +181,28 @@ exports.handler = async (event) => {
     const buf = Buffer.from(await imgResp.arrayBuffer());
     const resultBase64 = 'data:image/png;base64,' + buf.toString('base64');
 
-    return {
-      statusCode: 200,
-      headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resultBase64 })
-    };
+    // ── 4) Deduct 1 credit atomically on success ──────────────────────────
+    try {
+      await db.runTransaction(async (transaction) => {
+        const dSnap = await transaction.get(userRef);
+        const currentCredits = dSnap.exists ? (dSnap.data().credits || 0) : 0;
+        if (currentCredits < 1) {
+          throw new Error('NO_CREDITS');
+        }
+        transaction.update(userRef, { credits: currentCredits - 1 });
+      });
+    } catch (txError) {
+      console.error('Credit deduction transaction failed:', txError.message);
+      if (txError.message === 'NO_CREDITS') {
+        return respond(402, { error: 'NO_CREDITS' });
+      }
+      throw txError;
+    }
+
+    return respond(200, { resultBase64 });
 
   } catch (error) {
     console.error('inpaint-lama function error:', error);
     return respond(500, { error: error.message });
   }
 };
-
-// ── Utilities ────────────────────────────────────────────────────────────
-function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  };
-}
-
-function respond(status, body) {
-  return {
-    statusCode: status,
-    headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  };
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}

@@ -1,7 +1,33 @@
-/**
- * AI Background & Watermark Studio Pro
- * Core Application Script
- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  sendEmailVerification 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Firebase Config Placeholder (User can override or set window.firebaseConfig)
+const firebaseConfig = window.firebaseConfig || {
+  apiKey: "AIzaSyFakeKeyPlaceholderForTestingPhase2",
+  authDomain: "bg-eraser-pro.firebaseapp.com",
+  projectId: "bg-eraser-pro",
+  storageBucket: "bg-eraser-pro.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef1234567890"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // OpenCV.js readiness check
 window.cvReady = false;
@@ -108,7 +134,12 @@ const state = {
   activePdfTool: null,
   pdfPagesList: [],
   pdfSplitMode: 'range',
-  pdfCompressLevel: 'recommended'
+  pdfCompressLevel: 'recommended',
+  
+  // Auth / Credit state variables
+  user: null,
+  credits: 0,
+  unsubscribeCredits: null
 };
 
 // Undo/Redo stack for Watermark Eraser
@@ -309,7 +340,14 @@ const elements = {
   pdfCompressModeGroup: document.getElementById('pdfCompressModeGroup'),
   pdfToImgFormat: document.getElementById('pdfToImgFormat'),
   pdfToImgResolution: document.getElementById('pdfToImgResolution'),
-  pdfToImgColorSpace: document.getElementById('pdfToImgColorSpace')
+  pdfToImgColorSpace: document.getElementById('pdfToImgColorSpace'),
+  
+  // Auth Modal elements
+  authModal: document.getElementById('authModal'),
+  closeAuthModalBtn: document.getElementById('closeAuthModalBtn'),
+  btnHeaderAuth: document.getElementById('btnHeaderAuth'),
+  creditsBadge: document.getElementById('creditsBadge'),
+  creditsCount: document.getElementById('creditsCount')
 };
 
 /* ==========================================================================
@@ -346,19 +384,294 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Setup subscription state from localStorage and URL redirect parameters
+// Setup subscription / credit state and Auth State Changed listener
 function initSubscription() {
-  // Check if redirected from Stripe checkout success
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('subscribed') === 'true') {
-    localStorage.setItem('eraser_pro_subscribed', 'true');
-    // Clean up URL parameters so it looks nice
-    window.history.replaceState({}, document.title, window.location.pathname);
+  // ── 1) Setup Auth State Change Listener ────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    state.user = user;
+    if (user) {
+      // If email is verified, try granting signup credits (once)
+      if (user.emailVerified) {
+        try {
+          const token = await user.getIdToken();
+          fetch('/.netlify/functions/grant-free-credits', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).then(res => {
+            if (res.ok) {
+              console.log("Free credits checked/granted.");
+            }
+          }).catch(err => console.error("Error calling grant-free-credits:", err));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
+      // Listen to real-time credit updates from Firestore
+      state.unsubscribeCredits = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+        if (docSnap.exists()) {
+          state.credits = docSnap.data().credits || 0;
+        } else {
+          state.credits = 0;
+        }
+        updateCreditsUI();
+      }, (error) => {
+        console.error("Firestore credits listener error:", error);
+      });
+      
+    } else {
+      // Guest mode
+      if (state.unsubscribeCredits) {
+        state.unsubscribeCredits();
+        state.unsubscribeCredits = null;
+      }
+      state.credits = 0;
+      updateCreditsUI();
+    }
+  });
+
+  // ── 2) Setup Auth Modal Events ─────────────────────────────────────
+  const authModal = elements.authModal;
+  if (authModal) {
+    // Open auth modal
+    if (elements.btnHeaderAuth) {
+      elements.btnHeaderAuth.addEventListener('click', () => {
+        document.getElementById('loginError').classList.add('hidden');
+        document.getElementById('registerError').classList.add('hidden');
+        document.getElementById('authVerificationBanner').classList.add('hidden');
+        authModal.showModal();
+      });
+    }
+    
+    // Close auth modal
+    const closeBtn = document.getElementById('closeAuthModalBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => authModal.close());
+    }
+    
+    // Auth Tab Switcher
+    const authTabBtns = document.querySelectorAll('.auth-tab-btn');
+    authTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        authTabBtns.forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'transparent';
+          b.style.color = 'var(--text)';
+        });
+        btn.classList.add('active');
+        btn.style.background = 'var(--primary)';
+        btn.style.color = 'white';
+        
+        const tab = btn.getAttribute('data-auth-tab');
+        if (tab === 'login') {
+          document.getElementById('loginForm').classList.remove('hidden');
+          document.getElementById('registerForm').classList.add('hidden');
+        } else {
+          document.getElementById('loginForm').classList.add('hidden');
+          document.getElementById('registerForm').classList.remove('hidden');
+        }
+      });
+    });
+    
+    // Handle Login Form Submit
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPassword').value;
+      const errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
+      
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        authModal.close();
+        showToastNotification('Successfully signed in!');
+      } catch (err) {
+        console.error(err);
+        errEl.innerText = err.message.replace("Firebase: ", "");
+        errEl.classList.remove('hidden');
+      }
+    });
+    
+    // Handle Register Form Submit
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('registerEmail').value;
+      const pass = document.getElementById('registerPassword').value;
+      const confirmPass = document.getElementById('registerConfirmPassword').value;
+      const errEl = document.getElementById('registerError');
+      errEl.classList.add('hidden');
+      
+      if (pass !== confirmPass) {
+        errEl.innerText = "Passwords do not match.";
+        errEl.classList.remove('hidden');
+        return;
+      }
+      
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        // Send email verification
+        await sendEmailVerification(cred.user);
+        document.getElementById('authVerificationBanner').classList.remove('hidden');
+        showToastNotification('Account created! Please check your email to verify your account.');
+      } catch (err) {
+        console.error(err);
+        errEl.innerText = err.message.replace("Firebase: ", "");
+        errEl.classList.remove('hidden');
+      }
+    });
+    
+    // Handle Google Sign In
+    document.getElementById('btnGoogleSignIn').addEventListener('click', async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+        authModal.close();
+        showToastNotification('Signed in with Google!');
+      } catch (err) {
+        console.error(err);
+        alert('Google Sign-In failed: ' + err.message);
+      }
+    });
+  }
+
+  // ── 3) Setup Credits purchase and controls ─────────────────────────
+  const checkoutModal = elements.checkoutModal;
+  if (checkoutModal) {
+    // Open/Close
+    if (elements.headerUpgradeBtn) {
+      elements.headerUpgradeBtn.addEventListener('click', () => {
+        checkoutModal.showModal();
+      });
+    }
+    if (elements.closeCheckoutBtn) {
+      elements.closeCheckoutBtn.addEventListener('click', () => checkoutModal.close());
+    }
+    if (elements.btnDismissSuccess) {
+      elements.btnDismissSuccess.addEventListener('click', () => {
+        elements.checkoutSuccessScreen.classList.add('hidden');
+        elements.checkoutForm.classList.remove('hidden');
+        checkoutModal.close();
+      });
+    }
+    
+    // Buy 150 Credits Pack
+    document.getElementById('btnBuyPack150').addEventListener('click', async () => {
+      await redirectToStripeCheckout('pack150');
+    });
+    
+    // Pay-As-You-Go Picker and purchase
+    const inputQty = document.getElementById('inputQuantityPAYG');
+    const totalPriceEl = document.getElementById('paygTotalPrice');
+    
+    const updatePAYGPrice = () => {
+      const qty = parseInt(inputQty.value) || 0;
+      const price = (qty * 0.50).toFixed(2);
+      totalPriceEl.innerText = `$${price}`;
+    };
+    
+    document.getElementById('btnDecPAYG').addEventListener('click', () => {
+      let val = parseInt(inputQty.value) || 10;
+      if (val > 1) {
+        inputQty.value = val - 1;
+        updatePAYGPrice();
+      }
+    });
+    
+    document.getElementById('btnIncPAYG').addEventListener('click', () => {
+      let val = parseInt(inputQty.value) || 10;
+      inputQty.value = val + 1;
+      updatePAYGPrice();
+    });
+    
+    inputQty.addEventListener('input', updatePAYGPrice);
+    
+    document.getElementById('btnBuyPAYG').addEventListener('click', async () => {
+      const qty = parseInt(inputQty.value) || 10;
+      await redirectToStripeCheckout('payg', qty);
+    });
+  }
+
+  // Handle logout
+  if (elements.headerManageBtn) {
+    elements.headerManageBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to log out?')) {
+        try {
+          await signOut(auth);
+          showToastNotification('Logged out successfully.');
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
   }
   
-  const isSubscribed = localStorage.getItem('eraser_pro_subscribed') === 'true';
-  state.isPro = isSubscribed;
+  // Check success query param (Stripe redirect back)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('checkout_success') === 'true') {
+    elements.checkoutForm.classList.add('hidden');
+    elements.checkoutSuccessScreen.classList.remove('hidden');
+    elements.checkoutModal.showModal();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+function updateCreditsUI() {
+  const subBadge = elements.subStatusBadge;
+  const creditsBadge = document.getElementById('creditsBadge');
+  const creditsCount = document.getElementById('creditsCount');
+  const authBtn = document.getElementById('btnHeaderAuth');
+  const buyBtn = elements.headerUpgradeBtn;
+  const logoutBtn = elements.headerManageBtn;
+  
+  if (state.user) {
+    if (subBadge) subBadge.classList.add('hidden');
+    if (creditsBadge) creditsBadge.classList.remove('hidden');
+    if (creditsCount) creditsCount.innerText = `${state.credits} Credits`;
+    if (authBtn) authBtn.classList.add('hidden');
+    if (buyBtn) buyBtn.classList.remove('hidden');
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+    
+    state.isPro = state.credits > 0;
+  } else {
+    if (subBadge) subBadge.classList.remove('hidden');
+    if (creditsBadge) creditsBadge.classList.add('hidden');
+    if (authBtn) authBtn.classList.remove('hidden');
+    if (buyBtn) buyBtn.classList.add('hidden');
+    if (logoutBtn) logoutBtn.classList.add('hidden');
+    
+    state.isPro = false;
+  }
+  
   updateSubUI();
+}
+
+async function redirectToStripeCheckout(type, quantity = 0) {
+  if (!state.user) {
+    showToastNotification('Please sign in to purchase credits.');
+    elements.authModal.showModal();
+    return;
+  }
+  
+  showGlobalLoader('Preparing Checkout...', 'Redirecting to secure Stripe checkout...');
+  try {
+    const token = await state.user.getIdToken();
+    const res = await fetch('/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ type, quantity })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create checkout session.');
+    
+    window.location.href = data.url;
+  } catch (err) {
+    hideGlobalLoader();
+    alert('Stripe redirect failed: ' + err.message);
+  }
 }
 
 function updateSubUI() {
@@ -1468,21 +1781,37 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     })
     .catch(err => {
       console.warn('LaMa AI backend unavailable, falling back to local OpenCV:', err.message || err);
-      showToastNotification('AI cleanup failed. Using local mode instead.');
-      _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
+      if (err.message === 'NO_CREDITS') {
+        hideGlobalLoader();
+        elements.checkoutModal.showModal();
+        showToastNotification('You have run out of credits. Please purchase a credit pack.');
+      } else if (err.message === 'UNAUTHORIZED') {
+        hideGlobalLoader();
+        elements.authModal.showModal();
+        showToastNotification('Please sign in to use the AI Watermark Eraser.');
+      } else {
+        showToastNotification('AI cleanup failed. Using local mode instead.');
+        _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
+      }
     });
 }
 
 // PHASE 1 placeholder — replace with real subscription check in Phase 2.
 function isProUser() {
-  return true;
+  return state.user && state.credits > 0;
 }
 
 // ── LaMa backend call ─────────────────────────────────────────────────
 async function _tryLamaInpaint(imageDataURL, maskDataURL) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.user) {
+    const token = await state.user.getIdToken();
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const res = await fetch('/.netlify/functions/inpaint-lama', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     body: JSON.stringify({ image: imageDataURL, mask: maskDataURL })
   });
   

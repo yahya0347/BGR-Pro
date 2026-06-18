@@ -2768,6 +2768,179 @@ dialog::backdrop {
   }
 }
 
+/* ==========================================================================
+   Authentication & Credit Purchase Styles
+   ========================================================================== */
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px;
+  font-family: var(--font-family-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn.active {
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: transparent !important;
+}
+
+.auth-tab-btn:not(.active):hover {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-error-msg {
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  background-color: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: var(--border-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.auth-divider {
+  margin: 20px 0;
+  text-align: center;
+  position: relative;
+}
+
+.auth-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-light);
+  z-index: 1;
+}
+
+.auth-divider span {
+  position: relative;
+  background: var(--bg-darker);
+  padding: 0 10px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.verification-banner {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px dashed var(--primary);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.verification-banner i {
+  color: var(--primary);
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+/* Buy Credits Modal Sizing */
+.credit-pack-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-darkest);
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.credit-pack-option:hover {
+  border-color: var(--primary);
+  box-shadow: var(--box-shadow-glass);
+}
+
+.credit-payg-option {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-darkest);
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.credit-payg-option:hover {
+  border-color: var(--primary);
+  box-shadow: var(--box-shadow-glass);
+}
+
+.quantity-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-picker button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-picker input {
+  width: 60px;
+  text-align: center;
+  height: 36px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-light);
+  font-weight: bold;
+  background: var(--bg-darker);
+  color: var(--text-primary);
+  padding: 0;
+  outline: none;
+}
+
+.quantity-picker input::-webkit-outer-spin-button,
+.quantity-picker input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
 
 
 

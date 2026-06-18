@@ -128,20 +128,30 @@
     </div>
     
     <div class="header-actions">
-      <!-- Subscription Badge -->
+      <!-- Auth Status / Credits Badge (displays credits when signed in) -->
       <div class="sub-badge free-badge" id="subStatusBadge">
         <i class="fa-solid fa-circle-dot"></i>
         <span>Free Tier</span>
       </div>
+
+      <div class="sub-badge hidden" id="creditsBadge" style="background: rgba(79, 70, 229, 0.1); color: var(--primary); font-weight: 600; border-color: var(--primary);">
+        <i class="fa-solid fa-coins"></i>
+        <span id="creditsCount">0 Credits</span>
+      </div>
+
+      <!-- Login/Register button -->
+      <button class="btn btn-secondary" id="btnHeaderAuth">
+        <i class="fa-solid fa-sign-in-alt"></i> <span>Sign In</span>
+      </button>
       
-      <!-- Upgrade Action Button -->
-      <button class="btn btn-premium" id="headerUpgradeBtn">
-        <i class="fa-solid fa-crown"></i> <span>Go Pro — $3.99/mo</span>
+      <!-- Buy Credits Button (Hidden by default) -->
+      <button class="btn btn-premium hidden" id="headerUpgradeBtn">
+        <i class="fa-solid fa-coins"></i> <span>Buy Credits</span>
       </button>
 
-      <!-- Manage Subscription Button (Hidden by default) -->
-      <button class="btn btn-secondary hidden" id="headerManageBtn">
-        <i class="fa-solid fa-credit-card"></i> <span>Manage Sub</span>
+      <!-- Log Out Button (Hidden by default) -->
+      <button class="btn btn-secondary btn-icon-only hidden" id="headerManageBtn" title="Log Out">
+        <i class="fa-solid fa-sign-out-alt"></i> <span>Log Out</span>
       </button>
     </div>
   </header>
@@ -706,8 +716,8 @@
         </button>
         
         <div class="pro-ad-banner" id="sidebarProBanner">
-          <div class="pro-badge"><i class="fa-solid fa-crown"></i> PRO FEATURE</div>
-          <p>Get full resolution and custom sized downloads for just <strong>$3.99/mo</strong>.</p>
+          <div class="pro-badge" style="background: var(--primary); color: white;"><i class="fa-solid fa-coins"></i> AI ENGINE</div>
+          <p>Unlock high-fidelity AI Watermark Eraser using credit packs or pay-as-you-go.</p>
         </div>
 
         <!-- ADSENSE BANNER 3 (Right Sidebar) -->
@@ -992,8 +1002,7 @@
 
   </main>
 
-  <!-- MOCK BILLING CHECKOUT DIALOG MODAL -->
-  <!-- MANDATORY: closedby="any" for modern HTML dialog light dismissal -->
+  <!-- BUY CREDITS DIALOG MODAL -->
   <dialog id="checkoutModal" closedby="any" aria-labelledby="modalTitle">
     <div class="modal-card">
       <button class="modal-close-btn" id="closeCheckoutBtn" aria-label="Close dialog">
@@ -1002,35 +1011,48 @@
 
       <div class="modal-header">
         <div class="crown-icon">
-          <i class="fa-solid fa-crown"></i>
+          <i class="fa-solid fa-coins"></i>
         </div>
-        <h2 id="modalTitle">EraserPro AI Premium</h2>
-        <p class="modal-price">$3.99<span>/month</span></p>
-        <p class="modal-subtitle">Unlock high-resolution processing and custom dimensions download options.</p>
+        <h2 id="modalTitle">Purchase AI Credits</h2>
+        <p class="modal-subtitle">AI watermark cleanup requires credits. Buy a credit pack or choose pay-as-you-go.</p>
       </div>
 
       <!-- Checkout Content -->
       <div id="checkoutForm" class="modal-form-stripe">
-        <div class="checkout-features">
-          <div class="feature-item">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>Original High-Resolution Downloads</span>
+        <!-- Package 1: 150 credits pack -->
+        <div class="credit-pack-option" id="optionPack150" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: var(--bg-card); gap: 16px;">
+          <div class="pack-info" style="flex: 1;">
+            <div class="pack-title" style="font-size: 1.15rem; font-weight: 700; font-family: var(--font-family-display);">150 Credits Pack</div>
+            <div class="pack-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Best value! One-time purchase, credits never expire.</div>
           </div>
-          <div class="feature-item">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>Custom Width & Height Exporter (locked aspect ratio)</span>
-          </div>
-          <div class="feature-item">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>Fastest local WebGL/WASM background removal processing</span>
-          </div>
+          <div class="pack-price" style="font-size: 1.35rem; font-weight: 800; color: var(--primary);">$7.99</div>
+          <button class="btn btn-primary" id="btnBuyPack150">Select Pack</button>
         </div>
 
-        <a href="https://buy.stripe.com/test_aFabIUeZA1JabnN5eOenS00" target="_blank" class="btn btn-primary btn-full btn-large" id="btnSubmitCheckout" style="text-decoration: none;">
-          Upgrade Now via Stripe — $3.99/mo
-        </a>
+        <div class="auth-divider" style="margin: 20px 0; text-align: center; position: relative;">
+          <span style="background: var(--bg-modal); padding: 0 10px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">or</span>
+        </div>
 
-        <p class="secure-checkout-text">
+        <!-- Package 2: Pay-As-You-Go -->
+        <div class="credit-payg-option" id="optionPAYG" style="display: flex; flex-direction: column; padding: 16px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background: var(--bg-card); gap: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+            <div class="pack-info" style="flex: 1;">
+              <div class="pack-title" style="font-size: 1.15rem; font-weight: 700; font-family: var(--font-family-display);">Pay-As-You-Go</div>
+              <div class="pack-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Buy exactly the credits you need. $0.50 per credit.</div>
+            </div>
+          </div>
+          <div class="payg-controls" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 4px;">
+            <div class="quantity-picker" style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn btn-secondary btn-icon-only" id="btnDecPAYG" style="width: 36px; height: 36px; border-radius: var(--border-radius-sm); font-size: 1.2rem; font-weight: bold; padding: 0;">-</button>
+              <input type="number" id="inputQuantityPAYG" value="10" min="1" max="500" style="width: 60px; text-align: center; height: 36px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); font-weight: bold; background: var(--bg-card); color: var(--text); padding: 0;">
+              <button class="btn btn-secondary btn-icon-only" id="btnIncPAYG" style="width: 36px; height: 36px; border-radius: var(--border-radius-sm); font-size: 1.2rem; font-weight: bold; padding: 0;">+</button>
+            </div>
+            <div class="payg-total-price" id="paygTotalPrice" style="font-size: 1.35rem; font-weight: 800; color: var(--primary);">$5.00</div>
+          </div>
+          <button class="btn btn-secondary btn-full" id="btnBuyPAYG" style="margin-top: 8px;">Purchase PAYG Credits</button>
+        </div>
+
+        <p class="secure-checkout-text" style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: var(--text-muted);">
           <i class="fa-solid fa-lock"></i> Payments processed securely by Stripe.
         </p>
       </div>
@@ -1040,11 +1062,81 @@
         <div class="success-icon-box animate-scale-up">
           <i class="fa-solid fa-check"></i>
         </div>
-        <h2>Welcome to EraserPro!</h2>
-        <p>Your premium access has been activated. Enjoy unlimited processing, original resolutions, and custom dimensions.</p>
+        <h2>Credits Purchased!</h2>
+        <p>Your transaction completed successfully. Your credit balance has been updated!</p>
         <button class="btn btn-primary btn-full" id="btnDismissSuccess">Start Editing</button>
       </div>
 
+    </div>
+  </dialog>
+
+  <!-- AUTHENTICATION DIALOG MODAL -->
+  <dialog id="authModal" closedby="any" aria-labelledby="authModalTitle">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="closeAuthModalBtn" aria-label="Close dialog">
+        <i class="fa-solid fa-times"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="crown-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary);">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <h2 id="authModalTitle">Sign In / Register</h2>
+        <p class="modal-subtitle">Log in or sign up to access the AI Watermark Eraser and manage your credit balance.</p>
+      </div>
+
+      <!-- Auth Tabs Switcher -->
+      <div class="auth-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px;">
+        <button class="auth-tab-btn active" data-auth-tab="login" style="flex: 1; padding: 10px; font-weight: 600; border-radius: var(--border-radius-sm); border: none; background: var(--primary); color: white; cursor: pointer;">Sign In</button>
+        <button class="auth-tab-btn" data-auth-tab="register" style="flex: 1; padding: 10px; font-weight: 600; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: transparent; color: var(--text); cursor: pointer;">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="loginEmail" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com" required style="padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text);">
+        </div>
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="loginPassword" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required style="padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text);">
+        </div>
+        <div class="auth-error-msg hidden" id="loginError" style="color: #ef4444; font-size: 0.85rem; font-weight: 600;"></div>
+        <button type="submit" class="btn btn-primary btn-full btn-large">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="registerEmail" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Email Address</label>
+          <input type="email" id="registerEmail" placeholder="you@example.com" required style="padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text);">
+        </div>
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="registerPassword" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Password</label>
+          <input type="password" id="registerPassword" placeholder="Minimum 6 characters" required style="padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text);">
+        </div>
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="registerConfirmPassword" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Confirm Password</label>
+          <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required style="padding: 10px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text);">
+        </div>
+        <div class="auth-error-msg hidden" id="registerError" style="color: #ef4444; font-size: 0.85rem; font-weight: 600;"></div>
+        <button type="submit" class="btn btn-primary btn-full btn-large">Create Account</button>
+      </form>
+
+      <div class="auth-divider" style="margin: 20px 0; text-align: center; position: relative;">
+        <span style="background: var(--bg-modal); padding: 0 10px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">or</span>
+      </div>
+
+      <!-- Social Provider login -->
+      <button class="btn btn-secondary btn-full btn-large" id="btnGoogleSignIn">
+        <i class="fa-brands fa-google"></i> Continue with Google
+      </button>
+
+      <!-- Verification Banner -->
+      <div class="verification-banner hidden" id="authVerificationBanner" style="margin-top: 16px; padding: 12px; border-radius: var(--border-radius-sm); background: rgba(79, 70, 229, 0.08); border: 1px dashed var(--primary); display: flex; align-items: flex-start; gap: 10px; color: var(--text); font-size: 0.85rem; line-height: 1.4;">
+        <i class="fa-solid fa-envelope" style="color: var(--primary); font-size: 1.1rem; margin-top: 2px;"></i>
+        <span>An email verification link has been sent. Please verify your email and sign in to claim your 3 free credits!</span>
+      </div>
     </div>
   </dialog>
 
