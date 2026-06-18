@@ -1,28 +1,30 @@
 /**
- * Netlify Serverless Function: Secure remove.bg API Proxy
+ * Vercel Serverless Function: Secure remove.bg API Proxy
  */
 
 const API_KEY = 'tLpSUjHq9fYYV9A1sMQw2ikS';
 
-exports.handler = async (event, context) => {
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method Not Allowed' })
-    };
+export default async function handler(req, res) {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const { image } = JSON.parse(event.body);
+    const { image } = req.body;
     if (!image) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Missing image data' })
-      };
+      return res.status(400).json({ error: 'Missing image data' });
     }
 
-    // Call remove.bg API using the secure API Key (try 'auto' size first for high-res)
+    // Call remove.bg API using the secure API Key
     let response = await fetch('https://api.remove.bg/v1.0/removebg', {
       method: 'POST',
       headers: {
@@ -35,7 +37,7 @@ exports.handler = async (event, context) => {
       })
     });
 
-    // If 402/403/400 error occurs (e.g. no premium credits), auto-retry using 'preview' size (which uses free API calls)
+    // If 402/403/400 error occurs (e.g. no premium credits), auto-retry using 'preview' size
     if (!response.ok && (response.status === 402 || response.status === 403 || response.status === 400)) {
       console.log('Retrying with size: preview due to premium credit limits...');
       response = await fetch('https://api.remove.bg/v1.0/removebg', {
@@ -54,31 +56,19 @@ exports.handler = async (event, context) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('remove.bg API error:', errorText);
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: 'Failed to process background removal', details: errorText })
-      };
+      return res.status(response.status).json({ error: 'Failed to process background removal', details: errorText });
     }
 
     // Read the binary response and convert to a Buffer
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Return the binary image content decoded back to the client
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'image/png'
-      },
-      body: buffer.toString('base64'),
-      isBase64Encoded: true
-    };
+    // Return the binary image content
+    res.setHeader('Content-Type', 'image/png');
+    return res.status(200).send(buffer);
 
   } catch (error) {
     console.error('Serverless function error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
-    };
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
-};
+}

@@ -1,5 +1,5 @@
-const admin = require('firebase-admin');
-const stripeLib = require('stripe');
+import admin from 'firebase-admin';
+import stripeLib from 'stripe';
 
 // ── Initialize Firebase Admin SDK ─────────────────────────────────────────
 function initFirebaseAdmin() {
@@ -16,45 +16,32 @@ function initFirebaseAdmin() {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-function getBearerToken(headers) {
-  const authHeader = headers['authorization'];
+function getBearerToken(req) {
+  const authHeader = req.headers['authorization'];
   if (!authHeader) return null;
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') return null;
   return parts[1];
 }
 
-function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-  };
-}
-
-function respond(status, body) {
-  return {
-    statusCode: status,
-    headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  };
-}
-
 // ── Handler ──────────────────────────────────────────────────────────────
-exports.handler = async (event) => {
-  // CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: corsHeaders(), body: '' };
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
   }
 
-  if (event.httpMethod !== 'POST') {
-    return respond(405, { error: 'POST only' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'POST only' });
   }
 
   // Check Stripe configuration
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeSecretKey) {
-    return respond(503, { error: 'Stripe payments service is not configured.' });
+    return res.status(503).json({ error: 'Stripe payments service is not configured.' });
   }
   const stripe = stripeLib(stripeSecretKey);
 
@@ -62,21 +49,21 @@ exports.handler = async (event) => {
   let uid;
   try {
     initFirebaseAdmin();
-    const token = getBearerToken(event.headers);
+    const token = getBearerToken(req);
     if (!token) {
-      return respond(401, { error: 'UNAUTHORIZED', details: 'ID token is required' });
+      return res.status(401).json({ error: 'UNAUTHORIZED', details: 'ID token is required' });
     }
     const decodedToken = await admin.auth().verifyIdToken(token);
     uid = decodedToken.uid;
   } catch (err) {
     console.error('Auth verification failed:', err);
-    return respond(401, { error: 'UNAUTHORIZED', details: err.message });
+    return res.status(401).json({ error: 'UNAUTHORIZED', details: err.message });
   }
 
   try {
-    const { type, quantity } = JSON.parse(event.body || '{}');
+    const { type, quantity } = req.body;
     if (!type) {
-      return respond(400, { error: 'Payment type (pack150 or payg) is required.' });
+      return res.status(400).json({ error: 'Payment type (pack150 or payg) is required.' });
     }
 
     let line_items = [];
@@ -98,7 +85,7 @@ exports.handler = async (event) => {
     } else if (type === 'payg') {
       const qty = parseInt(quantity);
       if (isNaN(qty) || qty < 1) {
-        return respond(400, { error: 'Valid pay-as-you-go quantity is required.' });
+        return res.status(400).json({ error: 'Valid pay-as-you-go quantity is required.' });
       }
       creditsToGrant = qty;
       line_items = [{
@@ -113,11 +100,11 @@ exports.handler = async (event) => {
         quantity: qty
       }];
     } else {
-      return respond(400, { error: 'Invalid purchase type.' });
+      return res.status(400).json({ error: 'Invalid purchase type.' });
     }
 
     // Determine return origin dynamically
-    const origin = event.headers.origin || event.headers.referer || 'http://localhost:8080';
+    const origin = req.headers.origin || req.headers.referer || 'http://localhost:8080';
     const cleanOrigin = origin.split('?')[0].replace(/\/$/, '');
     
     // Create Stripe Checkout Session
@@ -133,10 +120,10 @@ exports.handler = async (event) => {
       cancel_url: `${cleanOrigin}/`
     });
 
-    return respond(200, { url: session.url });
+    return res.status(200).json({ url: session.url });
 
   } catch (error) {
     console.error('create-checkout error:', error);
-    return respond(500, { error: error.message });
+    return res.status(500).json({ error: error.message });
   }
-};
+}

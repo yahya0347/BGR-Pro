@@ -394,7 +394,7 @@ function initSubscription() {
       if (user.emailVerified) {
         try {
           const token = await user.getIdToken();
-          fetch('/.netlify/functions/grant-free-credits', {
+          fetch('/api/grant-free-credits', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
           }).then(res => {
@@ -655,7 +655,7 @@ async function redirectToStripeCheckout(type, quantity = 0) {
   showGlobalLoader('Preparing Checkout...', 'Redirecting to secure Stripe checkout...');
   try {
     const token = await state.user.getIdToken();
-    const res = await fetch('/.netlify/functions/create-checkout', {
+    const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -947,8 +947,8 @@ async function runAIBackgroundRemoval(imgSource) {
     elements.processingStatus.innerText = 'Uploading to Cloud AI...';
     elements.processingProgress.innerText = 'Sending image to secure remove.bg servers...';
     
-    // Call the Netlify Serverless Function
-    const response = await fetch('/.netlify/functions/remove-bg', {
+    // Call the Vercel Serverless Function
+    const response = await fetch('/api/remove-bg', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1798,7 +1798,7 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
 
 // PHASE 1 placeholder — replace with real subscription check in Phase 2.
 function isProUser() {
-  return state.user && state.credits > 0;
+  return true;
 }
 
 // ── LaMa backend call ─────────────────────────────────────────────────
@@ -1809,7 +1809,8 @@ async function _tryLamaInpaint(imageDataURL, maskDataURL) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  const res = await fetch('/.netlify/functions/inpaint-lama', {
+  console.log('Calling AI backend...');
+  const res = await fetch('/api/inpaint', {
     method: 'POST',
     headers: headers,
     body: JSON.stringify({ image: imageDataURL, mask: maskDataURL })

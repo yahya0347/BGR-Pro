@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI Background & Watermark Studio",
   "main": "index.html",
+  "type": "module",
   "dependencies": {
     "firebase-admin": "^12.0.0",
     "stripe": "^14.19.0"

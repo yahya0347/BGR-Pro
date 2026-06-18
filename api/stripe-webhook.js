@@ -1,5 +1,21 @@
-const admin = require('firebase-admin');
-const stripeLib = require('stripe');
+import admin from 'firebase-admin';
+import stripeLib from 'stripe';
+
+// Disable Vercel's automatic body parsing so we can read the raw stream for Stripe signature verification
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+// Helper to extract the raw unparsed request body stream
+async function getRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
+}
 
 // ── Initialize Firebase Admin SDK ─────────────────────────────────────────
 function initFirebaseAdmin() {
@@ -16,12 +32,9 @@ function initFirebaseAdmin() {
 }
 
 // ── Handler ──────────────────────────────────────────────────────────────
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: 'POST only'
-    };
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).send('POST only');
   }
 
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -29,19 +42,18 @@ exports.handler = async (event) => {
 
   if (!stripeSecretKey || !webhookSecret) {
     console.error('Stripe credentials or webhook secret missing.');
-    return {
-      statusCode: 503,
-      body: 'Stripe webhook is not configured.'
-    };
+    return res.status(503).send('Stripe webhook is not configured.');
   }
 
   const stripe = stripeLib(stripeSecretKey);
-  const sig = event.headers['stripe-signature'];
+  const sig = req.headers['stripe-signature'];
 
-  // Decode body if base64 encoded
-  let rawBody = event.body;
-  if (event.isBase64Encoded) {
-    rawBody = Buffer.from(event.body, 'base64').toString('utf8');
+  let rawBody;
+  try {
+    rawBody = await getRawBody(req);
+  } catch (err) {
+    console.error('Failed to read request body:', err);
+    return res.status(400).send('Error reading body');
   }
 
   let stripeEvent;
@@ -49,10 +61,7 @@ exports.handler = async (event) => {
     stripeEvent = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
-    return {
-      statusCode: 400,
-      body: `Webhook Error: ${err.message}`
-    };
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
@@ -63,19 +72,13 @@ exports.handler = async (event) => {
 
       if (!uid || !creditsStr) {
         console.warn('Webhook received checkout session completed without uid/credits metadata.');
-        return {
-          statusCode: 200,
-          body: 'Metadata missing, skipped.'
-        };
+        return res.status(200).send('Metadata missing, skipped.');
       }
 
       const credits = parseInt(creditsStr);
       if (isNaN(credits) || credits <= 0) {
         console.warn('Invalid credits count in metadata:', creditsStr);
-        return {
-          statusCode: 200,
-          body: 'Invalid credits count, skipped.'
-        };
+        return res.status(200).send('Invalid credits count, skipped.');
       }
 
       initFirebaseAdmin();
@@ -90,16 +93,10 @@ exports.handler = async (event) => {
       console.log(`Atomic increment: credited ${credits} credits to user ${uid}`);
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ received: true })
-    };
+    return res.status(200).json({ received: true });
 
   } catch (error) {
     console.error('Webhook processing error:', error);
-    return {
-      statusCode: 500,
-      body: `Server Error: ${error.message}`
-    };
+    return res.status(500).send(`Server Error: ${error.message}`);
   }
-};
+}
