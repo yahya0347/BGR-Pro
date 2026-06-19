@@ -1402,39 +1402,13 @@ function initWatermarkEraserBase() {
   
   if (container) {
     const containerRect = container.getBoundingClientRect();
-    if (containerRect.width > 0) maxW = containerRect.width - 16;
-    if (containerRect.height > 0) {
-      // Calculate other layout elements height dynamically to maximize canvas space
-      const modeSwitcher = document.getElementById('wmModeSwitcher');
-      const brushBar = document.querySelector('.brush-control-bar');
-      
-      let siblingHeight = 0;
-      if (modeSwitcher) {
-        const switcherRect = modeSwitcher.getBoundingClientRect();
-        siblingHeight += switcherRect.height > 0 ? switcherRect.height : 45;
-      } else {
-        siblingHeight += 45;
-      }
-      
-      if (brushBar) {
-        const rect = brushBar.getBoundingClientRect();
-        siblingHeight += rect.height > 0 ? rect.height : 65;
-      } else {
-        siblingHeight += 65;
-      }
-      
-      // Determine padding and spacing based on screen width
-      const paddingAndGaps = window.innerWidth <= 768 ? 32 : 60;
-      const totalSubtract = siblingHeight + paddingAndGaps;
-      
-      // Calculate maxH but leave a safe minimum
-      maxH = Math.max(150, containerRect.height - totalSubtract);
-    }
+    if (containerRect.width > 0) maxW = containerRect.width - 24;
+    if (containerRect.height > 0) maxH = containerRect.height - 24;
   }
   
   const scaleW = maxW / w;
   const scaleH = maxH / h;
-  const screenScale = Math.min(1, scaleW, scaleH);
+  const screenScale = Math.min(scaleW, scaleH);
   
   const displayW = w * screenScale;
   const displayH = h * screenScale;
@@ -1448,6 +1422,18 @@ function initWatermarkEraserBase() {
   const layersDiv = baseCanvas.parentElement;
   layersDiv.style.width = `${displayW}px`;
   layersDiv.style.height = `${displayH}px`;
+  
+  // Reset zoom & pan states
+  state.zoom = 1.0;
+  state.panX = 0;
+  state.panY = 0;
+  state.panMode = false;
+  const panToggleBtn = document.getElementById('panToggleBtn');
+  if (panToggleBtn) {
+    panToggleBtn.classList.remove('active');
+    elements.wmRemoverBrushCanvas.style.cursor = 'crosshair';
+  }
+  applyZoomPan();
   
   const baseCtx = baseCanvas.getContext('2d');
   baseCtx.drawImage(state.eraserBaseImage, 0, 0);
@@ -1476,6 +1462,22 @@ function initWatermarkEraserBase() {
     compareImg.src = state.originalImage.src;
   }
   setWMEraserMode(state.wmMode || 'brush');
+}
+
+function applyZoomPan() {
+  const baseCanvas = elements.wmRemoverBaseCanvas;
+  if (!baseCanvas) return;
+  const layersDiv = baseCanvas.parentElement; // .canvas-layers
+  if (!layersDiv) return;
+  
+  // Apply the CSS transform
+  layersDiv.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+  
+  // Update the zoom level label
+  const zoomLevelVal = document.getElementById('zoomLevelVal');
+  if (zoomLevelVal) {
+    zoomLevelVal.innerText = `${Math.round(state.zoom * 100)}%`;
+  }
 }
 
 function initWMEraserHandlers() {
@@ -1618,6 +1620,7 @@ function initWMEraserHandlers() {
   
   const startDrawing = (e) => {
     if (state.wmMode === 'compare') return;
+    if (state.panMode || window.isSpacePressed || e.button === 1 || e.button === 2 || (e.touches && e.touches.length > 1)) return;
     state.isDrawing = true;
     const { x, y } = getCoordinates(e);
     const canvasBrushSize = getCanvasBrushSize();
@@ -1699,6 +1702,184 @@ function initWMEraserHandlers() {
   brushCanvas.addEventListener('touchstart', startDrawing);
   brushCanvas.addEventListener('touchmove', draw);
   window.addEventListener('touchend', stopDrawing);
+
+  // Initialize Zoom & Pan Handlers
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const zoomFitBtn = document.getElementById('zoomFitBtn');
+  const panToggleBtn = document.getElementById('panToggleBtn');
+  const canvasBox = brushCanvas.closest('.canvas-box');
+  
+  if (zoomInBtn && zoomOutBtn && zoomFitBtn && panToggleBtn) {
+    zoomInBtn.addEventListener('click', () => {
+      state.zoom = Math.min(5.0, state.zoom + 0.15);
+      applyZoomPan();
+    });
+    
+    zoomOutBtn.addEventListener('click', () => {
+      state.zoom = Math.max(0.2, state.zoom - 0.15);
+      applyZoomPan();
+    });
+    
+    zoomFitBtn.addEventListener('click', () => {
+      state.zoom = 1.0;
+      state.panX = 0;
+      state.panY = 0;
+      applyZoomPan();
+    });
+    
+    panToggleBtn.addEventListener('click', () => {
+      state.panMode = !state.panMode;
+      panToggleBtn.classList.toggle('active', state.panMode);
+      if (state.panMode) {
+        brushCanvas.style.cursor = 'grab';
+      } else {
+        brushCanvas.style.cursor = 'crosshair';
+      }
+    });
+  }
+
+  // Wheel Zoom (Mouse scroll zoom)
+  if (canvasBox) {
+    canvasBox.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = 0.05;
+      if (e.deltaY < 0) {
+        state.zoom = Math.min(5.0, state.zoom + zoomFactor);
+      } else {
+        state.zoom = Math.max(0.2, state.zoom - zoomFactor);
+      }
+      applyZoomPan();
+    }, { passive: false });
+  }
+
+  // Drag Pan Mechanics
+  let isPanning = false;
+  let startPanX = 0;
+  let startPanY = 0;
+  
+  const startPan = (clientX, clientY) => {
+    isPanning = true;
+    startPanX = clientX - state.panX;
+    startPanY = clientY - state.panY;
+    if (state.panMode) {
+      brushCanvas.style.cursor = 'grabbing';
+    }
+  };
+  
+  const movePan = (clientX, clientY) => {
+    if (!isPanning) return;
+    state.panX = clientX - startPanX;
+    state.panY = clientY - startPanY;
+    applyZoomPan();
+  };
+  
+  const endPan = () => {
+    if (isPanning) {
+      isPanning = false;
+      if (state.panMode) {
+        brushCanvas.style.cursor = 'grab';
+      } else if (window.isSpacePressed) {
+        brushCanvas.style.cursor = 'grab';
+      } else {
+        brushCanvas.style.cursor = 'crosshair';
+      }
+    }
+  };
+  
+  // Hook up panning drag handlers
+  brushCanvas.addEventListener('mousedown', (e) => {
+    const isSpacePressed = window.isSpacePressed;
+    const isMiddleOrRightClick = e.button === 1 || e.button === 2;
+    if (state.panMode || isSpacePressed || isMiddleOrRightClick) {
+      e.preventDefault();
+      startPan(e.clientX, e.clientY);
+    }
+  });
+  
+  window.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+      e.preventDefault();
+      movePan(e.clientX, e.clientY);
+    }
+  });
+  
+  window.addEventListener('mouseup', endPan);
+  
+  // Touch Panning & Pinch-to-Zoom
+  let touchStartDist = 0;
+  let touchStartZoom = 1.0;
+  let isPinching = false;
+  
+  brushCanvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      isPinching = true;
+      e.preventDefault();
+      touchStartDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchStartZoom = state.zoom;
+      
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      startPan(midX, midY);
+    } else if (e.touches.length === 1 && state.panMode) {
+      e.preventDefault();
+      startPan(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  });
+  
+  brushCanvas.addEventListener('touchmove', (e) => {
+    if (isPinching && e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const factor = dist / touchStartDist;
+      state.zoom = Math.max(0.2, Math.min(5.0, touchStartZoom * factor));
+      
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      movePan(midX, midY);
+    } else if (isPanning && e.touches.length === 1 && state.panMode) {
+      e.preventDefault();
+      movePan(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+  
+  brushCanvas.addEventListener('touchend', (e) => {
+    if (isPinching) isPinching = false;
+    endPan();
+  });
+
+  // Track spacebar globally
+  if (!window.hasSpaceListeners) {
+    window.hasSpaceListeners = true;
+    window.isSpacePressed = false;
+    
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+          window.isSpacePressed = true;
+          if (state.activeTab === 'wm-remover') {
+            e.preventDefault();
+            brushCanvas.style.cursor = 'grab';
+          }
+        }
+      }
+    });
+    
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        window.isSpacePressed = false;
+        if (state.activeTab === 'wm-remover') {
+          brushCanvas.style.cursor = state.panMode ? 'grab' : 'crosshair';
+        }
+      }
+    });
+  }
   
   // Inpaint trigger event
   elements.btnEraseWatermark.addEventListener('click', () => {
