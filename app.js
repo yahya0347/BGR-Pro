@@ -1403,7 +1403,33 @@ function initWatermarkEraserBase() {
   if (container) {
     const containerRect = container.getBoundingClientRect();
     if (containerRect.width > 0) maxW = containerRect.width - 24;
-    if (containerRect.height > 0) maxH = containerRect.height - 24;
+    if (containerRect.height > 0) {
+      // Calculate other layout elements height dynamically to maximize canvas space
+      const modeSwitcher = document.getElementById('wmModeSwitcher');
+      const brushBar = document.querySelector('.brush-control-bar');
+      
+      let siblingHeight = 0;
+      if (modeSwitcher) {
+        const switcherRect = modeSwitcher.getBoundingClientRect();
+        siblingHeight += switcherRect.height > 0 ? switcherRect.height : 45;
+      } else {
+        siblingHeight += 45;
+      }
+      
+      if (brushBar) {
+        const rect = brushBar.getBoundingClientRect();
+        siblingHeight += rect.height > 0 ? rect.height : 65;
+      } else {
+        siblingHeight += 65;
+      }
+      
+      // Determine padding and spacing based on screen width
+      const paddingAndGaps = window.innerWidth <= 768 ? 16 : 40;
+      const totalSubtract = siblingHeight + paddingAndGaps;
+      
+      // Calculate maxH but leave a safe minimum
+      maxH = Math.max(150, containerRect.height - totalSubtract);
+    }
   }
   
   const scaleW = maxW / w;
