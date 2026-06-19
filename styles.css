@@ -681,20 +681,29 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Canvas transparent pattern background */
-.canvas-bg-pattern, .checkerboard-bg {
+.checkerboard-bg {
   background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
                     linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
                     linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
-                    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+                    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%) !important;
+  background-size: 20px 20px !important;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
+  background-color: transparent !important;
+}
+
+.canvas-bg-pattern {
+  background-color: #f8fafc;
+  background-image: radial-gradient(var(--border-light) 1px, transparent 1px);
   background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
   border-radius: var(--border-radius-md);
   box-shadow: 0 5px 25px rgba(15, 23, 42, 0.06);
-  display: inline-block;
-  position: relative;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 .workspace-view {
@@ -880,6 +889,8 @@ h1, h2, h3, h4, h5, h6 {
 .canvas-layers {
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
+  transform-origin: center center;
 }
 
 /* Align canvases exactly */
@@ -908,33 +919,38 @@ h1, h2, h3, h4, h5, h6 {
   width: 240px;
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--border-radius-lg);
-  padding: 14px;
-  z-index: 110;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  left: 20px;
+  top: 20px;
+  width: 250px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1), 0 4px 8px rgba(15, 23, 42, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
+  padding: 16px;
+  gap: 16px;
+  z-index: 50;
+  color: var(--text);
 }
 
 .panel-drag-handle {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: move;
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: grab;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
   user-select: none;
 }
-
+.panel-drag-handle:active {
+  cursor: grabbing;
+}
 .panel-drag-handle i {
-  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -974,6 +990,18 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
+.floating-eraser-panel .btn-icon-text {
+  background-color: var(--bg-main);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+  justify-content: flex-start;
+  transition: all 0.2s ease;
+}
+
+.floating-eraser-panel .btn-icon-text:hover {
+  background-color: #e2e8f0;
+}
+
 .brush-slider-group {
   display: flex;
   flex-direction: column;
@@ -995,7 +1023,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .brush-slider-group span {
   font-weight: 700;
-  color: white;
+  color: var(--text);
   width: auto;
 }
 
@@ -3032,27 +3060,26 @@ dialog::backdrop {
 /* --- Zoom & Pan Toolbar Styles --- */
 .zoom-toolbar {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--border-radius-full);
-  padding: 6px 12px;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 100px;
+  padding: 8px 16px;
   z-index: 100;
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
 }
 
 .zoom-btn {
   background: transparent;
   border: none;
-  color: var(--text-primary);
-  width: 28px;
-  height: 28px;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -3062,22 +3089,21 @@ dialog::backdrop {
 }
 
 .zoom-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--accent-primary);
+  background: var(--bg-main);
+  color: var(--primary);
 }
 
 .zoom-btn.active {
-  background: var(--accent-primary) !important;
-  color: #ffffff !important;
+  background: var(--bg-main) !important;
+  color: var(--primary) !important;
 }
 
 .zoom-level {
-  color: var(--text-primary);
-  font-size: 0.8rem;
+  color: var(--text);
   font-weight: 600;
-  min-width: 44px;
+  font-size: 14px;
+  min-width: 48px;
   text-align: center;
-  user-select: none;
 }
 
 /* Ensure comparison images and slider handle pan & zoom transform correctly */

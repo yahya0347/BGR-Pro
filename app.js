@@ -859,6 +859,7 @@ function initUploadHandlers() {
 // Convert uploaded file to Image object
 function handleImageFile(file) {
   state.originalFilename = file.name.substring(0, file.name.lastIndexOf('.')) || 'image';
+  state.originalFileType = file.type;
   
   if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
     loadPdfFile(file);
@@ -889,6 +890,19 @@ function processUploadedImage(img) {
   state.brushStrokes = [];
   state.appliedStrokes = [];
   wmHistory.clear();
+  
+  // Toggle checkerboard background based on whether image format supports transparency
+  const isTransparent = state.originalFileType === 'image/png' || state.originalFileType === 'image/webp' || state.originalFileType === 'image/gif';
+  const patternBgs = document.querySelectorAll('.canvas-bg-pattern');
+  patternBgs.forEach(bg => {
+    if (isTransparent) {
+      bg.classList.add('checkerboard-bg');
+      bg.style.backgroundColor = 'transparent';
+    } else {
+      bg.classList.remove('checkerboard-bg');
+      bg.style.backgroundColor = '#f8fafc'; // Light dotted-grid background fallback color
+    }
+  });
   
   // Default sizes
   state.exportWidth = img.width;
@@ -1497,34 +1511,30 @@ function initWatermarkEraserBase() {
   
   if (container) {
     const containerRect = container.getBoundingClientRect();
-    if (containerRect.width > 0) maxW = containerRect.width - 24;
-    if (containerRect.height > 0) {
-      // Since the control panel is floating/absolute overlay, it doesn't take vertical space in the normal flex layout.
-      // We only subtract a small padding margin to keep the canvas nicely centered.
-      const margin = window.innerWidth <= 768 ? 16 : 32;
-      maxH = Math.max(150, containerRect.height - margin);
-    }
+    if (containerRect.width > 0) maxW = containerRect.width;
+    if (containerRect.height > 0) maxH = containerRect.height;
   }
+  
+  // We want to fit to 90% of the container to leave a nice padding
+  maxW = maxW * 0.9;
+  maxH = maxH * 0.9;
   
   const scaleW = maxW / w;
   const scaleH = maxH / h;
   const screenScale = Math.min(scaleW, scaleH);
   
-  const displayW = w * screenScale;
-  const displayH = h * screenScale;
+  // Canvas layout dimensions should be exactly the original image dimensions
+  baseCanvas.style.width = `${w}px`;
+  baseCanvas.style.height = `${h}px`;
+  brushCanvas.style.width = `${w}px`;
+  brushCanvas.style.height = `${h}px`;
   
-  baseCanvas.style.width = `${displayW}px`;
-  baseCanvas.style.height = `${displayH}px`;
-  brushCanvas.style.width = `${displayW}px`;
-  brushCanvas.style.height = `${displayH}px`;
-  
-  // Set parent container layout dimensions matching scaled canvas
   const layersDiv = baseCanvas.parentElement;
-  layersDiv.style.width = `${displayW}px`;
-  layersDiv.style.height = `${displayH}px`;
+  layersDiv.style.width = `${w}px`;
+  layersDiv.style.height = `${h}px`;
   
-  // Reset zoom & pan states
-  state.zoom = 1.0;
+  // Set default zoom to fit the screen
+  state.zoom = screenScale;
   state.panX = 0;
   state.panY = 0;
   state.panMode = false;
@@ -1822,7 +1832,16 @@ function initWMEraserHandlers() {
     });
     
     zoomFitBtn.addEventListener('click', () => {
-      state.zoom = 1.0;
+      let maxW = window.innerWidth * 0.9;
+      let maxH = window.innerHeight * 0.55 * 0.9;
+      if (canvasBox) {
+        const rect = canvasBox.getBoundingClientRect();
+        if (rect.width > 0) maxW = rect.width * 0.9;
+        if (rect.height > 0) maxH = rect.height * 0.9;
+      }
+      const scaleW = maxW / state.eraserBaseImage.width;
+      const scaleH = maxH / state.eraserBaseImage.height;
+      state.zoom = Math.min(scaleW, scaleH);
       state.panX = 0;
       state.panY = 0;
       applyZoomPan();
