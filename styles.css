@@ -874,6 +874,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   max-width: 100%;
   max-height: 100%;
+  position: relative;
 }
 
 .canvas-layers {
@@ -899,35 +900,95 @@ h1, h2, h3, h4, h5, h6 {
   max-height: 100%;
 }
 
-/* Brushing tools config bar */
-.brush-control-bar {
-  background-color: var(--bg-darker);
-  border: 1px solid var(--border-light);
-  border-radius: var(--border-radius-md);
-  padding: 12px 20px;
+/* Floating Eraser Panel docked on the LEFT */
+.floating-eraser-panel {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 240px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--border-radius-lg);
+  padding: 14px;
+  z-index: 110;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.panel-drag-handle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: move;
+  user-select: none;
+}
+
+.panel-drag-handle i {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.floating-eraser-panel .view-toggle-tabs {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  display: flex;
+  width: 100%;
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  padding: 3px;
+  box-shadow: none;
+}
+
+.floating-eraser-panel .view-toggle-btn {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 700px;
-  gap: 16px;
+  gap: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.floating-eraser-panel .view-toggle-btn.active {
+  background-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
 .brush-slider-group {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  flex: 1;
-  min-width: 250px;
 }
 
 .brush-slider-group label {
   white-space: nowrap;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 6px;
 }
@@ -935,13 +996,14 @@ h1, h2, h3, h4, h5, h6 {
 .brush-slider-group span {
   font-weight: 700;
   color: white;
-  width: 45px;
+  width: auto;
 }
 
 .brush-btn-group {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 /* Watermark Maker Canvas */
@@ -1860,24 +1922,24 @@ dialog::backdrop {
   #view-wm-remover.workspace-view.active {
     display: flex !important;
     flex-direction: column !important;
-    padding: 8px !important;
-    gap: 8px !important;
-    overflow: visible !important;
-    height: auto !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    height: 100% !important;
   }
   
   /* Editor canvas wrapper — shrinks to leave room for brush bar */
   .editor-canvas-wrapper {
-    flex: none !important;
-    height: auto !important;
-    max-height: none !important;
+    flex: 1 !important;
+    height: 100% !important;
+    max-height: 100% !important;
     width: 100% !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 8px !important;
+    justify-content: center !important;
+    gap: 0 !important;
     position: relative !important;
   }
   
@@ -1888,67 +1950,92 @@ dialog::backdrop {
     overflow: visible !important;
   }
   
-  /* Brush control bar — FIXED to flow layout, NOT absolute */
-  .brush-control-bar {
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    transform: none !important;
-    z-index: 10 !important;
-    background: rgba(15, 23, 42, 0.92) !important;
+  /* Floating Eraser Panel on mobile — keep it floating overlaying canvas, but more compact */
+  .floating-eraser-panel {
+    position: absolute !important;
+    left: 8px !important;
+    top: 8px !important;
+    width: 180px !important;
+    padding: 10px !important;
+    gap: 8px !important;
+    border-radius: var(--border-radius-md) !important;
+    z-index: 110 !important;
+    background: rgba(15, 23, 42, 0.9) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    width: 100% !important;
-    max-width: none !important;
-    padding: 10px 12px !important;
-    border-radius: var(--border-radius-md) !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2) !important;
-    flex-shrink: 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+    display: flex !important;
     flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 8px !important;
     box-sizing: border-box !important;
   }
   
-  /* Brush slider row */
-  .brush-slider-group {
+  .panel-drag-handle {
     font-size: 0.75rem !important;
-    gap: 8px !important;
-    width: 100% !important;
+    padding-bottom: 6px !important;
   }
   
-  .brush-slider-group input[type="range"] {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-  
-  /* Brush buttons row — wrap for small screens */
-  .brush-btn-group {
+  .floating-eraser-panel .view-toggle-tabs {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
     display: flex !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: 2px !important;
+    box-shadow: none !important;
+  }
+  
+  .floating-eraser-panel .view-toggle-btn {
+    flex: 1 !important;
+    padding: 4px 6px !important;
+    font-size: 0.68rem !important;
+    border-radius: var(--border-radius-sm) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    border: none !important;
+    cursor: pointer !important;
+  }
+  
+  .floating-eraser-panel .view-toggle-btn.active {
+    background-color: var(--primary) !important;
+    color: white !important;
+  }
+  
+  .floating-eraser-panel .view-toggle-btn span {
+    display: none !important; /* Hide text on mobile tabs to save horizontal space, only show icon */
+  }
+  
+  .floating-eraser-panel .brush-slider-group {
+    font-size: 0.68rem !important;
+    gap: 4px !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .floating-eraser-panel .brush-btn-group {
+    display: flex !important;
+    flex-direction: column !important;
     gap: 6px !important;
-    flex-wrap: wrap !important;
     width: 100% !important;
   }
   
-  .brush-btn-group .btn {
-    flex: 1 !important;
-    min-width: 0 !important;
-    padding: 8px 10px !important;
-    font-size: 0.72rem !important;
+  .floating-eraser-panel .brush-btn-group .btn {
+    padding: 6px 10px !important;
+    font-size: 0.7rem !important;
     border-radius: var(--border-radius-sm) !important;
-    text-align: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
+    width: 100% !important;
+    flex: none !important;
   }
   
-  /* Erase watermark button — make it prominent */
-  .brush-btn-group #btnEraseWatermark {
-    flex: 2 !important;
-    font-weight: 700 !important;
-    font-size: 0.78rem !important;
-  }
-
   #undoBrush span, #clearBrush span {
     display: none !important;
   }

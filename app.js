@@ -1369,6 +1369,101 @@ function renderBGRemoverCanvas() {
   state.processedImage = canvas;
 }
 
+/* Helper to make a panel draggable relative to its parent container */
+function makeElementDraggable(elmnt, dragTrigger) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  const trigger = dragTrigger || elmnt;
+  
+  trigger.addEventListener('mousedown', dragMouseDown);
+  trigger.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    // Don't drag if clicking buttons, links, or inputs inside the panel
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+    
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.addEventListener('mouseup', closeDragElement);
+    document.addEventListener('mousemove', elementDrag);
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    
+    // Bounds checking relative to parent
+    const parent = elmnt.parentElement;
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const elmntRect = elmnt.getBoundingClientRect();
+    
+    let newTop = elmnt.offsetTop - pos2;
+    let newLeft = elmnt.offsetLeft - pos1;
+    
+    // Constrain to parent bounds
+    if (newTop < 8) newTop = 8;
+    if (newTop > parentRect.height - elmntRect.height - 8) newTop = parentRect.height - elmntRect.height - 8;
+    if (newLeft < 8) newLeft = 8;
+    if (newLeft > parentRect.width - elmntRect.width - 8) newLeft = parentRect.width - elmntRect.width - 8;
+    
+    elmnt.style.top = `${newTop}px`;
+    elmnt.style.left = `${newLeft}px`;
+    elmnt.style.right = 'auto'; // override absolute initial right/bottom alignment
+    elmnt.style.bottom = 'auto';
+  }
+
+  function closeDragElement() {
+    document.removeEventListener('mouseup', closeDragElement);
+    document.removeEventListener('mousemove', elementDrag);
+  }
+
+  function dragTouchStart(e) {
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+    const touch = e.touches[0];
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    document.addEventListener('touchend', closeDragTouch);
+    document.addEventListener('touchmove', elementTouchDrag, { passive: false });
+  }
+
+  function elementTouchDrag(e) {
+    const touch = e.touches[0];
+    pos1 = pos3 - touch.clientX;
+    pos2 = pos4 - touch.clientY;
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    
+    const parent = elmnt.parentElement;
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const elmntRect = elmnt.getBoundingClientRect();
+    
+    let newTop = elmnt.offsetTop - pos2;
+    let newLeft = elmnt.offsetLeft - pos1;
+    
+    if (newTop < 8) newTop = 8;
+    if (newTop > parentRect.height - elmntRect.height - 8) newTop = parentRect.height - elmntRect.height - 8;
+    if (newLeft < 8) newLeft = 8;
+    if (newLeft > parentRect.width - elmntRect.width - 8) newLeft = parentRect.width - elmntRect.width - 8;
+    
+    elmnt.style.top = `${newTop}px`;
+    elmnt.style.left = `${newLeft}px`;
+    elmnt.style.right = 'auto';
+    elmnt.style.bottom = 'auto';
+  }
+
+  function closeDragTouch() {
+    document.removeEventListener('touchend', closeDragTouch);
+    document.removeEventListener('touchmove', elementTouchDrag);
+  }
+}
+
 /* ==========================================================================
    Tool 2: Watermark Eraser Canvas and Custom Laplace Inpainter
    ========================================================================== */
@@ -1404,31 +1499,10 @@ function initWatermarkEraserBase() {
     const containerRect = container.getBoundingClientRect();
     if (containerRect.width > 0) maxW = containerRect.width - 24;
     if (containerRect.height > 0) {
-      // Calculate other layout elements height dynamically to maximize canvas space
-      const modeSwitcher = document.getElementById('wmModeSwitcher');
-      const brushBar = document.querySelector('.brush-control-bar');
-      
-      let siblingHeight = 0;
-      if (modeSwitcher) {
-        const switcherRect = modeSwitcher.getBoundingClientRect();
-        siblingHeight += switcherRect.height > 0 ? switcherRect.height : 45;
-      } else {
-        siblingHeight += 45;
-      }
-      
-      if (brushBar) {
-        const rect = brushBar.getBoundingClientRect();
-        siblingHeight += rect.height > 0 ? rect.height : 65;
-      } else {
-        siblingHeight += 65;
-      }
-      
-      // Determine padding and spacing based on screen width
-      const paddingAndGaps = window.innerWidth <= 768 ? 16 : 40;
-      const totalSubtract = siblingHeight + paddingAndGaps;
-      
-      // Calculate maxH but leave a safe minimum
-      maxH = Math.max(150, containerRect.height - totalSubtract);
+      // Since the control panel is floating/absolute overlay, it doesn't take vertical space in the normal flex layout.
+      // We only subtract a small padding margin to keep the canvas nicely centered.
+      const margin = window.innerWidth <= 768 ? 16 : 32;
+      maxH = Math.max(150, containerRect.height - margin);
     }
   }
   
@@ -1911,6 +1985,13 @@ function initWMEraserHandlers() {
   elements.btnEraseWatermark.addEventListener('click', () => {
     runWatermarkInpaint();
   });
+
+  // Make the floating panel draggable
+  const floatingPanel = document.getElementById('floatingEraserPanel');
+  const dragHeader = document.getElementById('floatingEraserHeader');
+  if (floatingPanel && dragHeader) {
+    makeElementDraggable(floatingPanel, dragHeader);
+  }
 }
 
 // Copy red brush strokes onto our offscreen black-and-white mask canvas
