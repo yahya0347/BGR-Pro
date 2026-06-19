@@ -390,24 +390,29 @@ function initSubscription() {
   onAuthStateChanged(auth, async (user) => {
     state.user = user;
     if (user) {
-      // If email is verified, try granting signup credits (once)
-      if (user.emailVerified) {
-        try {
-          const token = await user.getIdToken();
-          fetch('/api/grant-free-credits', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-          }).then(res => {
-            if (res.ok) {
-              console.log("Free credits checked/granted.");
-            }
-          }).catch(err => console.error("Error calling grant-free-credits:", err));
-        } catch (e) {
-          console.error(e);
-        }
+      // Initialize the user and ensure they have 3 free credits
+      try {
+        const token = await user.getIdToken();
+        fetch('/api/init-user', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          }
+        }).then(res => res.json())
+          .then(data => {
+            console.log("User doc checked/initialized:", data);
+          })
+          .catch(err => console.error("Error calling init-user:", err));
+      } catch (e) {
+        console.error("Failed to get ID token for user initialization:", e);
       }
       
       // Listen to real-time credit updates from Firestore
+      if (state.unsubscribeCredits) {
+        state.unsubscribeCredits();
+        state.unsubscribeCredits = null;
+      }
       state.unsubscribeCredits = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
         if (docSnap.exists()) {
           state.credits = docSnap.data().credits || 0;
