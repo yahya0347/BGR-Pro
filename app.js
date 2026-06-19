@@ -17,12 +17,12 @@ import {
 
 // Firebase Config Placeholder (User can override or set window.firebaseConfig)
 const firebaseConfig = window.firebaseConfig || {
-  apiKey: "AIzaSyFakeKeyPlaceholderForTestingPhase2",
-  authDomain: "bg-eraser-pro.firebaseapp.com",
-  projectId: "bg-eraser-pro",
-  storageBucket: "bg-eraser-pro.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef1234567890"
+  apiKey: "AIzaSyByiFnvrKM2W8mfd6GJmjyAuSGqF0MPEsQ",
+  authDomain: "bg-eraser-pro-64137.firebaseapp.com",
+  projectId: "bg-eraser-pro-64137",
+  storageBucket: "bg-eraser-pro-64137.firebasestorage.app",
+  messagingSenderId: "881998487714",
+  appId: "1:881998487714:web:a1b39d4784ef2c8ff8b7fb"
 };
 
 const app = initializeApp(firebaseConfig);
