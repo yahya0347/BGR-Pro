@@ -3,10 +3,10 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>EraserPro - Remove Image Background</title>
+<title>EraserPro Editor Workspace</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
@@ -14,56 +14,53 @@
             theme: {
                 extend: {
                     "colors": {
-                        "surface-container-lowest": "#ffffff",
-                        "surface-white": "#ffffff",
-                        "background": "#f8f9ff",
-                        "tertiary": "#924700",
-                        "on-tertiary-fixed-variant": "#723600",
-                        "surface": "#f8f9ff",
-                        "on-background": "#121c2a",
-                        "on-primary-container": "#fefcff",
-                        "on-surface-variant": "#424754",
-                        "outline": "#727785",
-                        "surface-container-highest": "#d9e3f6",
-                        "primary-fixed-dim": "#adc6ff",
-                        "on-secondary-fixed": "#001d34",
-                        "secondary-fixed": "#d0e4ff",
-                        "on-primary-fixed-variant": "#004395",
-                        "inverse-surface": "#27313f",
-                        "surface-variant": "#d9e3f6",
-                        "on-secondary-container": "#00355a",
-                        "outline-variant": "#c2c6d6",
-                        "on-tertiary-container": "#fffbff",
+                        "secondary-container": "#fea619",
+                        "primary-fixed-dim": "#d2bbff",
                         "on-error-container": "#93000a",
-                        "inverse-on-surface": "#eaf1ff",
-                        "secondary": "#00629f",
-                        "border-light": "#e5e7eb",
-                        "primary-container": "#2170e4",
-                        "surface-dim": "#d0dbed",
-                        "primary-fixed": "#d8e2ff",
-                        "error-container": "#ffdad6",
-                        "surface-tint": "#005ac2",
-                        "surface-container-low": "#eff4ff",
-                        "tertiary-fixed-dim": "#ffb786",
-                        "error": "#ba1a1a",
-                        "on-secondary-fixed-variant": "#004a79",
-                        "on-secondary": "#ffffff",
-                        "surface-container-high": "#dee9fc",
-                        "on-primary-fixed": "#001a42",
+                        "background": "#fef7ff",
+                        "inverse-primary": "#d2bbff",
+                        "on-primary-fixed": "#25005a",
+                        "outline": "#7b7487",
                         "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#2a1700",
                         "tertiary-fixed": "#ffdcc6",
-                        "surface-container": "#e6eeff",
-                        "tertiary-container": "#b75b00",
+                        "surface": "#fef7ff",
+                        "on-tertiary-fixed": "#301400",
+                        "primary": "#630ed4",
+                        "on-surface-variant": "#4a4455",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb784",
+                        "primary-fixed": "#eaddff",
+                        "on-surface": "#1d1a24",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffddb8",
+                        "inverse-on-surface": "#f6eefc",
+                        "surface-dim": "#dfd7e6",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-background": "#1d1a24",
+                        "surface-container-highest": "#e8dfee",
+                        "on-tertiary-fixed-variant": "#713700",
+                        "surface-variant": "#e8dfee",
+                        "tertiary": "#7d3d00",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#ccc3d8",
+                        "surface-tint": "#732ee4",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "inverse-surface": "#332f39",
+                        "on-primary-container": "#ede0ff",
+                        "surface-container-high": "#ede5f4",
+                        "surface-container-low": "#f9f1ff",
+                        "tertiary-container": "#a15100",
+                        "on-secondary-container": "#684000",
+                        "secondary": "#855300",
+                        "primary-container": "#7c3aed",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fef7ff",
+                        "on-tertiary-container": "#ffe0cd",
                         "on-tertiary": "#ffffff",
-                        "secondary-fixed-dim": "#9bcbff",
-                        "background-subtle": "#f8f9fa",
-                        "inverse-primary": "#adc6ff",
-                        "on-surface": "#121c2a",
-                        "on-tertiary-fixed": "#311400",
-                        "surface-bright": "#f8f9ff",
-                        "primary": "#0058be",
-                        "secondary-container": "#1ca1fd",
-                        "on-error": "#ffffff"
+                        "surface-container": "#f3ebfa"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -72,189 +69,346 @@
                         "full": "9999px"
                     },
                     "spacing": {
-                        "margin-desktop": "40px",
-                        "section-gap": "80px",
-                        "margin-mobile": "16px",
-                        "container-max-width": "1200px",
-                        "gutter": "24px",
-                        "unit": "8px"
+                        "lg": "24px",
+                        "toolbar-width": "64px",
+                        "base": "4px",
+                        "md": "16px",
+                        "sm": "12px",
+                        "xs": "8px",
+                        "sidebar-width": "280px",
+                        "xl": "32px"
                     },
                     "fontFamily": {
-                        "display-lg": ["Inter"],
-                        "label-sm": ["Inter"],
                         "body-lg": ["Inter"],
-                        "headline-md": ["Inter"],
-                        "display-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
                         "body-md": ["Inter"],
-                        "label-md": ["Inter"]
+                        "headline-md": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "mono-label": ["Inter"],
+                        "headline-lg": ["Inter"]
                     },
                     "fontSize": {
-                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
-                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
                         "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
-                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }]
-                    },
-                    "boxShadow": {
-                        'soft-ambient': '0 10px 40px rgba(0, 0, 0, 0.04)'
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "mono-label": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
                     }
-                },
-            },
+                }
+            }
         }
     </script>
 <style>
-        body {
-            background-color: #f8f9fa;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        
-        .upload-zone {
-            transition: all 0.3s ease;
-        }
-        
-        .upload-zone.dragover {
-            border-color: #0058be;
-            background-color: #eff4ff;
-        }
-        
-        .thumbnail-hover {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .thumbnail-hover:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        .bg-dotted-grid {
+            background-color: #f8f9ff;
+            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
         }
     </style>
+
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>window.onOpenCvReady = function(){};</script>
+<script async src="https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.3/dist/opencv.js" onload="if(window.onOpenCvReady) window.onOpenCvReady();"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
 </head>
-<body class="font-sans antialiased text-on-background min-h-screen flex flex-col">
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-background font-body-md text-on-surface">
 <!-- TopNavBar Component -->
-<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20 px-margin-desktop max-w-container-max-width mx-auto bg-surface-white/80 dark:bg-surface-container-lowest/80 backdrop-blur-md border-b border-border-light/50">
-<div class="flex items-center">
-<span class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-background">EraserPro</span>
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface border-b border-outline-variant flat no shadows">
+<div class="flex items-center gap-xl">
+<div class="font-headline-md text-headline-md font-bold text-primary">
+                EraserPro
+            </div>
+<div class="hidden md:flex items-center gap-lg h-full pt-2">
+<a id="backToUploadBtn" style="cursor:pointer;" class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="javascript:void(0)">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="https://pdfhub.vercel.app" target="_blank">PDF Hub</a>
+
+
 </div>
-<nav class="hidden md:flex items-center gap-6">
-<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary pb-1 text-label-md font-label-md" href="#">Remove Background</a>
-<a class="text-on-surface-variant dark:text-outline-variant font-medium text-label-md font-label-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Pricing</a>
+</div>
+<div class="flex items-center gap-md">
+
+<button id="headerUpgradeBtn" class="px-4 py-2 font-label-md text-label-md bg-[#f59e0b] text-white rounded-[16px] hover:opacity-90 transition-opacity">Go Pro</button>
+<button id="headerManageBtn" class="px-4 py-2 font-label-md text-label-md bg-surface-container-low text-on-surface rounded-[16px] hover:bg-surface-container-high transition-colors hidden">Manage</button>
+<button id="btnDownloadImage" class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-[16px] hover:opacity-90 transition-opacity">Export</button>
+<button id="btnHeaderAuth" class="rounded-full flex items-center justify-center hover:opacity-80 transition-opacity">
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A small circular user profile picture showing a professional headshot of a person against a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUPW-EYoALq29ZWXJI5gcgmkBKfDsqgn3mmHaA0Tg2k8fpfGXrDFz4WNVOkOz4JiIy6cWPOry-vWrCeykrqQO0i9u94Nal0Sr70Bs8q-UjHwMqXIOAQ30P2DvMimvaT8Y_u-MOlEEzd85U8UXA7jtd26GwhYg6upfVs-llRB5he9_yRVkN6pvd7q43JBDh2Q29HvOXDdb-T3h01dZFWEKnSSl4BqabCU1uRpALybHzUFvb_s6Mdnz2wy63282yXIeFhB1lFDk8e7E"/>
+</div>
+</button>
+</div>
 </nav>
-<div class="flex items-center">
-<button class="bg-surface-white text-on-surface-variant border border-border-light px-4 py-2 rounded-full text-label-md font-label-md hover:text-primary hover:border-primary transition-colors duration-200">Login</button>
-</div>
-</header>
-<!-- Main Content Canvas -->
-<main class="flex-grow pt-[120px] pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max-width mx-auto w-full flex flex-col items-center">
-<!-- Hero Section -->
-<div class="text-center mb-12 max-w-3xl w-full">
-<h1 class="text-display-lg-mobile md:text-display-lg font-display-lg-mobile md:font-display-lg text-on-surface mb-4">Remove Image Background</h1>
-<h2 class="text-headline-md font-headline-md text-on-surface-variant font-normal">100% Automatically and Free</h2>
-</div>
-<!-- Upload Card -->
-<div class="w-full max-w-2xl bg-surface-white rounded-[16px] shadow-soft-ambient border border-border-light/50 p-8 md:p-16 flex flex-col items-center justify-center text-center upload-zone mb-16 relative overflow-hidden group cursor-pointer" id="drop-zone">
-<input type="file" id="fileInput" accept="image/*" class="hidden">
-<!-- Progress Bar -->
-<div class="absolute top-0 left-0 w-full h-1 bg-surface-container-low overflow-hidden hidden" id="progress-container">
-<div class="h-full bg-primary w-1/3 animate-pulse"></div>
-</div>
-<button class="bg-primary hover:bg-primary-container text-on-primary rounded-full px-8 py-4 flex items-center gap-3 transition-transform duration-200 active:scale-98 shadow-md mb-6 z-10" onclick="document.getElementById('fileInput').click()">
-<span class="material-symbols-outlined font-[300]" style="font-variation-settings: 'FILL' 0;">cloud_upload</span>
-<span class="text-body-lg font-body-lg font-semibold">Upload Image</span>
+<!-- Main Workspace Area -->
+
+<!-- Upload Landing Area -->
+<main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col items-center justify-center bg-background z-50">
+    <div class="max-w-2xl w-full mx-auto px-4 text-center">
+        <h1 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mb-8">Drag and drop an image here, or click to browse your files.</p>
+        
+        <div id="dropZone" class="w-full h-64 rounded-2xl border-2 border-dashed border-primary bg-primary/5 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors duration-200">
+            <span class="material-symbols-outlined text-5xl text-primary mb-4">cloud_upload</span>
+            <div class="font-label-lg text-label-lg text-primary">Click or drag image to upload</div>
+            <div class="font-body-md text-body-md text-on-surface-variant mt-2">Supports JPG, PNG, WEBP (Max 10MB)</div>
+        </div>
+        
+        <button id="btnUploadCTA" class="mt-8 px-8 py-3 bg-primary text-on-primary rounded-full font-label-lg text-label-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-200">
+            Browse Files
+        </button>
+        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden">
+    </div>
+</main>
+
+<main id="editorWorkspace" class="flex-1 relative workspace-section canvas-workspace" mt-toolbar-width bg-dotted-grid overflow-hidden">
+<!-- Floating Header Pill (Top Left) -->
+<div class="absolute top-md left-md z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 flex items-center gap-2 shadow-sm">
+<button class="text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
 </button>
-<p class="text-body-md font-body-md text-on-surface-variant mb-6 z-10">or drop a file here</p>
-<p class="text-label-sm font-label-sm text-outline mt-auto z-10">Supports PNG, JPEG, WEBP. Up to 10MB.</p>
-<div class="absolute inset-4 border-2 border-dashed border-transparent group-hover:border-primary/30 rounded-xl transition-colors duration-300 pointer-events-none"></div>
+<span class="font-label-md text-label-md text-on-surface">Image_edited.png</span>
 </div>
-<!-- Sample Images Section -->
-<div class="w-full max-w-3xl flex flex-col items-center">
-<p class="text-body-md font-body-md text-on-surface-variant mb-6">No image? Try one of these:</p>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-<!-- Samples -->
-<button class="thumbnail-hover aspect-square rounded-lg overflow-hidden bg-surface-container-lowest border border-border-light relative focus:outline-none focus:ring-2 focus:ring-primary sample-item">
-<img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80" data-full-url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80"/>
-</button>
-<button class="thumbnail-hover aspect-square rounded-lg overflow-hidden bg-surface-container-lowest border border-border-light relative focus:outline-none focus:ring-2 focus:ring-primary sample-item">
-<img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=150&h=150&q=80" data-full-url="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"/>
-</button>
-<button class="thumbnail-hover aspect-square rounded-lg overflow-hidden bg-surface-container-lowest border border-border-light relative focus:outline-none focus:ring-2 focus:ring-primary sample-item">
-<img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=150&h=150&q=80" data-full-url="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"/>
-</button>
-<button class="thumbnail-hover aspect-square rounded-lg overflow-hidden bg-surface-container-lowest border border-border-light relative focus:outline-none focus:ring-2 focus:ring-primary sample-item">
-<img class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=150&h=150&q=80" data-full-url="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80"/>
+<!-- Floating Left Panel: Remove Watermark -->
+<div class="absolute top-xl left-md z-40 w-sidebar-width bg-surface-container-lowest border border-outline-variant rounded-[16px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex flex-col mt-8">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-label-bold text-label-bold text-on-surface">Remove Watermark</h3>
+<button class="text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">close</span>
 </button>
 </div>
+<div class="p-md flex flex-col gap-4">
+<!-- Segmented Control -->
+<div class="bg-[#f8f9ff] p-1 rounded-lg border border-outline-variant flex w-full">
+<button id="clearBrush" class="flex-1 py-1.5 font-label-md text-label-md bg-surface-container-lowest shadow-sm rounded-md text-on-surface">Clear Brush</button>
+<button id="undoBrush" class="flex-1 py-1.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface">Undo Brush</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+                    
+<div class="mt-4 mb-2 flex items-center justify-between">
+    <label for="brushSize" class="text-sm font-medium">Brush Size</label>
+    <span id="brushSizeVal" class="text-sm">25px</span>
+</div>
+<input type="range" id="brushSize" min="5" max="100" value="25" class="w-full accent-primary">
+
+                </p>
+<button id="btnEraseWatermark" class="w-full py-2.5 mt-2 bg-primary-container text-on-primary rounded-[16px] font-label-bold text-label-bold hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+                    Erase Watermark
+                </button>
+</div>
+</div>
+<!-- Center Canvas (The Image) -->
+<div class="absolute inset-0 flex items-center justify-center p-xl">
+<div class="relative shadow-[0_8px_24px_rgba(0,0,0,0.08)] rounded-lg overflow-visible max-w-[80%] max-h-[80%]">
+
+<div class="canvas-box" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="processingOverlay" style="position: absolute; z-index: 100; background: rgba(0,0,0,0.5); color: white; display: none;">
+      <h3 id="processingStatus">Processing...</h3>
+    </div>
+    
+    <!-- WATERMARK REMOVER VIEW -->
+    <div class="workspace-view active" id="view-wm-remover" style="position: relative;">
+        <div class="editor-canvas-wrapper" style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
+            <div class="canvas-bg-pattern" style="position: relative;">
+                <div class="canvas-layers" style="position: relative;">
+                    <canvas id="wmRemoverBaseCanvas"></canvas>
+                    <canvas id="wmRemoverBrushCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BG REMOVER VIEW (Hidden) -->
+    <div class="workspace-view" id="view-bg-remover" style="display:none;">
+        <div class="preview-container">
+            <div class="preview-image-wrapper" id="bgRemoverResultContainer">
+                <canvas id="bgRemoverCanvas" class="checkerboard-bg"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- WATERMARK MAKER VIEW (Hidden) -->
+    <div class="workspace-view" id="view-wm-maker" style="display:none;">
+        <div class="editor-canvas-wrapper">
+            <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Download Icon on Image -->
+<button class="absolute -top-4 -right-4 w-10 h-10 bg-surface-container-lowest border border-outline-variant rounded-full flex items-center justify-center shadow-md hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Floating Bottom Toolbar (Center) -->
+<div class="absolute bottom-lg left-1/2 transform -translate-x-1/2 z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-2 py-2 flex items-center gap-1 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
+<span class="material-symbols-outlined text-[20px] mb-0.5">content_cut</span>
+</button>
+<div class="w-px h-8 bg-outline-variant mx-1"></div>
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center bg-primary-container text-on-primary transition-colors shadow-sm tab-btn active" data-tab="wm-remover" title="Watermark Eraser">
+<span class="material-symbols-outlined text-[20px] mb-0.5" style="font-variation-settings: 'FILL' 1;">ink_eraser</span>
+</button>
+<div class="w-px h-8 bg-outline-variant mx-1"></div>
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
+<span class="material-symbols-outlined text-[20px] mb-0.5">approval</span>
+</button>
+</div>
+<!-- Right Side: Layers/Thumbnails -->
+<div class="absolute right-md top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border-2 border-primary-container overflow-hidden shadow-sm relative cursor-pointer">
+<img class="w-full h-full object-cover opacity-90 hover:opacity-100" data-alt="A small square thumbnail showing a brightly lit portrait of a woman, acting as the currently selected layer in an image editor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4MEX_F84e2lCvRVKdCiBxhRHRtn1ns78RAffM0BUbxK5HxFvYl_wx9I9uEitjN8hYksM7--zCAfv8u6ZcGyw_RQOROXz5pKhH2LWc9dUBMi7ihyeG9IQBlFIIWYNz_Pab2lN90mIkiOXra8Jdgvi94mrSW9oqf037Imloit28qI8f1xygKePcgi7m58mT69B23-LtW6Y9MtCa0lmam0cSKlMk8GAiJmTG8Xb6Myk-9xh_N18gaFtnQPnyNphIUzAIVJoo7Bgq0WA"/>
+<div class="absolute inset-0 border-2 border-primary-container rounded-lg pointer-events-none"></div>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-outline-variant overflow-hidden shadow-sm cursor-pointer hover:border-primary-container/50 transition-colors">
+<img class="w-full h-full object-cover opacity-70 hover:opacity-100" data-alt="A small square thumbnail showing a slightly blurred background element, acting as a background layer in an image editor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTILce-Jbw8WqEgTPoc_HvKDHMpvPoBBFYMemkXeeCC-h_KpNIKjlrkJz2-UIVnBNHv1HeD35_Ce5l2NYvPYI28ZFAv33mZKH6swgcNNyWfwIxnI0qY57Do5kwWBF8UZSAsLUDj2ZyUM8rHfxx76eB_P8vGL5qMm4M12OTzlzc1lZzzd_Pl6IyMH_w4MTeEjwYREtIP5wrBB4Alq13cUEZDEGwaSIAfX6aYwsY0-Vk7r3UId_eRWWMr-6YFjqri6-IYjvhzhOX08I"/>
+</div>
+<button class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-dashed border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<!-- Bottom Right Controls -->
+<div class="absolute bottom-lg right-md z-40 flex items-center gap-3">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 flex items-center gap-3 shadow-sm h-10">
+<span id="zoomLevelVal" class="font-mono-label text-mono-label text-on-surface-variant">100%</span>
+<div class="w-px h-4 bg-outline-variant"></div>
+<button id="zoomInBtn" class="font-mono-label text-mono-label text-on-surface-variant hover:text-primary">+</button><div class="w-px h-4 bg-outline-variant"></div><button id="zoomOutBtn" class="font-mono-label text-mono-label text-on-surface-variant hover:text-primary">-</button>
+</div>
+<button class="w-10 h-10 bg-surface-container-lowest border border-outline-variant rounded-lg flex items-center justify-center shadow-sm hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
 </div>
 </main>
-<footer class="w-full py-12 px-margin-desktop flex flex-col md:flex-row justify-between items-center max-w-container-max-width mx-auto bg-background dark:bg-on-surface border-t border-border-light dark:border-outline/20 mt-auto">
-<div class="mb-4 md:mb-0 text-headline-md font-headline-md font-bold text-on-surface dark:text-on-background">EraserPro</div>
-<div class="text-on-surface-variant dark:text-outline-variant text-label-sm font-label-sm mb-4 md:mb-0">© 2024 EraserPro AI. All rights reserved.</div>
-<nav class="flex flex-wrap justify-center gap-4">
-<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors text-label-sm font-label-sm" href="#">Terms of Service</a>
-<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors text-label-sm font-label-sm" href="#">Privacy Policy</a>
-</nav>
-</footer>
-<script>
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        function handleFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Save the image data to localStorage so editor.html can read it
-                localStorage.setItem('eraserpro_uploaded_image', event.target.result);
-                localStorage.setItem('eraserpro_uploaded_filename', file.name);
-                window.location.href = 'editor.html';
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // Handle sample images click
-        document.querySelectorAll('.sample-item').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const img = btn.querySelector('img');
-                const url = img.getAttribute('data-full-url');
-                
-                // Fetch the sample image and convert to base64 to behave exactly like an upload
-                fetch(url)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            localStorage.setItem('eraserpro_uploaded_image', event.target.result);
-                            localStorage.setItem('eraserpro_uploaded_filename', 'sample_image.jpg');
-                            window.location.href = 'editor.html';
-                        };
-                        reader.readAsDataURL(blob);
-                    });
-            });
-        });
-    </script>
+<script type="module" src="app.js?v=37"></script>
+<div id="dummy-elements" style="display: none;">
+  <div id="pdfActiveToolTitle"></div>
+  <div id="pdfSplitStartPage"></div>
+  <div id="pdfWatermarkSize"></div>
+    <div id="wmRotationVal"></div>
+  <div id="closeAuthModalBtn"></div>
+  <div id="btnConfirmPdfPage"></div>
+  <div id="pdfHubUploadTitle"></div>
+  <div id="bg-color-config"></div>
+  <div id="btnUploadBackdrop"></div>
+  <div id="closeCheckoutBtn"></div>
+  <div id="inputQuantityPAYG"></div>
+  <div id="wmRemoverCompareImg"></div>
+    <div id="wmText"></div>
+  <div id="pdfTotalPages"></div>
+  <div id="bgColorPicker"></div>
+  <div id="pdfToImgColorSpace"></div>
+  <div id="checkoutSuccessScreen"></div>
+  <div id="toggleDetectLogo"></div>
+  <div id="authVerificationBanner"></div>
+  <div id="btnDecPAYG"></div>
+  <div id="btnBuyPack150"></div>
+  <div id="pdfSplitModeGroup"></div>
+  <div id="btnAddPdfFile"></div>
+  <div id="btnPrevPdfPage"></div>
+  <div id="wmComparisonSlider"></div>
+  <div id="btnNextPdfPage"></div>
+  <div id="bgImageInput"></div>
+  <div id="pdfEditorWorkspace"></div>
+  <div id="processingProgress"></div>
+  <div id="wmFont"></div>
+  <div id="navModePdf"></div>
+  <div id="authModal"></div>
+  <div id="registerEmail"></div>
+  <div id="comparisonSlider"></div>
+  <div id="creditsCount"></div>
+  <div id="loginError"></div>
+  <div id="previewOriginalWrapper"></div>
+  <div id="wmOpacityVal"></div>
+  <div id="loginPassword"></div>
+  <div id="wmPosition"></div>
+  <div id="imgBefore"></div>
+  <div id="checkoutModal"></div>
+  <div id="bg-image-config"></div>
+  <div id="btnRotateAllCw"></div>
+  <div id="btnGoogleSignIn"></div>
+  <div id="pdfToolsLanding"></div>
+  <div id="pdfDropZone"><div class="browse-link"></div></div>
+  <div id="subStatusBadge"><span></span><i></i></div>
+  <div id="btnExecutePdfTool"></div>
+  <div id="pdfSplitEndPage"></div>
+  <div id="btnUploadWMLogo"></div>
+  <div id="wmSize"></div>
+    <div id="customWidth"></div>
+    <div id="toast-notification-container"></div>
+  <div id="panToggleBtn"></div>
+  <div id="sidebarProBanner"></div>
+  <div id="exportColorSpace"></div>
+  <div id="landingHeroGraphic"></div>
+  <div id="wm-text-config"></div>
+  <div id="progressBar"></div>
+  <div id="btnAIDetectRemove"></div>
+  <div id="wm-image-config"></div>
+  <div id="btnIncPAYG"></div>
+  <div id="wmModeSwitcher"></div>
+  <div id="btnBackToPdfHub"></div>
+  <div id="registerForm"></div>
+  <div id="pdfCompressModeGroup"></div>
+  <div id="zoomFitBtn"></div>
+  <div id="registerError"></div>
+  <div id="btnDismissSuccess"></div>
+  <div id="wmOpacity"></div>
+  <div id="creditsBadge"></div>
+  <div id="pdfPageModal"></div>
+  <div id="heroGraphicBadge"></div>
+  <div id="pdfSplitRangePanel"></div>
+  <div id="floatingEraserHeader"></div>
+  <div id="historyBar"></div>
+  <div id="pdfHubFileInput"></div>
+  <div id="wmTextColor"></div>
+  <div id="wm-single-position-group"></div>
+  <div id="uploadTitle"></div>
+  <div id="wmLogoPreview"></div>
+  <div id="wmLogoInput"></div>
+  <div id="loginForm"></div>
+  <div id="checkoutForm"></div>
+  <div id="btnSubmitCheckout"></div>
+  <div id="paygTotalPrice"></div>
+  <div id="wmSizeVal"></div>
+    <div id="toggleDetectText"></div>
+  <div id="navModeStudio"></div>
+  <div id="closePdfModalBtn"></div>
+  <div id="pdfWatermarkOpacity"></div>
+  <div id="historyList"></div>
+    <div id="wmTextColorHex"></div>
+  <div id="btnClearWMLogo"></div>
+  <div id="customHeight"></div>
+  <div id="resolutionPreset"></div>
+  <div id="pdfHubUploadLimits"></div>
+  <div id="wmLogoPreviewContainer"></div>
+  <div id="wmRotation"></div>
+  <div id="pdfCurrentPageDisplay"></div>
+  <div id="pdfToImgResolution"></div>
+    <div id="pdfWatermarkText"></div>
+  <div id="pdfPagesPreviewGrid"></div>
+  <div id="customResolutionPanel"></div>
+  <div id="heroGraphicImg"></div>
+  <div id="floatingEraserPanel"></div>
+  <div id="pdfPagesViewport"></div>
+  <div id="exportFormat"></div>
+  <div id="aspectRatioLock"></div>
+  <div id="pdfToImgFormat"></div>
+  <div id="loginEmail"></div>
+  <div id="registerPassword"></div>
+  <div id="uploadDesc"></div>
+  <div id="pdfHubUploadIconBox"></div>
+  <div id="btnBuyPAYG"></div>
+  <div id="pdfHubUploadIcon"></div>
+  <div id="pdfHubUploadDesc"></div>
+  <div id="registerConfirmPassword"></div>
+  <div class="header-logo"></div>
+</div>
 </body></html>

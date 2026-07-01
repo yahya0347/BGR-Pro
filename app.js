@@ -841,9 +841,18 @@ function initUploadHandlers() {
     });
   });
   
-  // Back to upload button (triggers file selector directly instead of leaving workspace)
+  // Back to upload button (Home button) resets to upload landing
   elements.backToUploadBtn.addEventListener('click', () => {
-    elements.fileInput.click();
+    state.originalImage = null;
+    state.transparentImage = null;
+    state.eraserBaseImage = null;
+    state.brushStrokes = [];
+    state.redoStrokes = [];
+    state.bgRemoved = false;
+    wmHistory.clear();
+    
+    if (elements.editorWorkspace) elements.editorWorkspace.classList.remove('active');
+    if (elements.uploadLanding) elements.uploadLanding.classList.add('active');
   });
 
   // Logo click listener (acts as "home" button to reset workspace and return to landing page)
@@ -4288,3 +4297,9 @@ function downloadPdfBytes(bytes, filename) {
   document.body.removeChild(link);
   URL.revokeObjectURL(link.href);
 }
+  
+  // Also bind CTA button
+  const btnUploadCTA = document.getElementById('btnUploadCTA');
+  if (btnUploadCTA && elements.fileInput) {
+      btnUploadCTA.addEventListener('click', () => elements.fileInput.click());
+  }

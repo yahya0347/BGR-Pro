@@ -1,201 +1,62 @@
-345:    <section class="workspace-section" id="editorWorkspace">
-346-      
-347-      <!-- Toolbar Left Panel -->
-348-      <aside class="sidebar-left">
-349-        <div class="sidebar-left-top">
-350-          <div class="sidebar-title">Tools</div>
-351-          <nav class="tool-tabs">
-352-            <button class="tab-btn active" data-tab="bg-remover">
-353-              <i class="fa-solid fa-scissors"></i>
-354-              <span>BG Remover</span>
-355-            </button>
-356-            <button class="tab-btn" data-tab="wm-remover">
-357-              <i class="fa-solid fa-eraser"></i>
-358-              <span>Watermark Eraser</span>
-359-            </button>
-360-            <button class="tab-btn" data-tab="wm-maker">
-361-              <i class="fa-solid fa-stamp"></i>
-362-              <span>Watermark Maker</span>
-363-            </button>
-364-          </nav>
-365-        </div>
-366-
-367-        <!-- ADSENSE BANNER 2 (Left Sidebar) -->
-368-        <div class="adsense-slot ads-left-sidebar">
-369-          <span class="ad-label">Advertisement</span>
-370-          <div class="ad-mock">
-371-            <i class="fa-solid fa-rectangle-ad"></i>
-372-            <span>Google AdSense Banner</span>
-373-          </div>
-374-        </div>
-375-
-376-        <button class="btn btn-secondary back-to-upload-btn" id="backToUploadBtn">
-377-          <i class="fa-solid fa-arrow-left"></i> <span>Upload New Image</span>
-378-        </button>
-379-      </aside>
-380-
-381-      <!-- Center Canvas Workspace Panel -->
-382-      <section class="canvas-workspace">
-383-        <!-- Canvas Containers for different tasks -->
-384-        <div class="canvas-box">
-385-          
-386-          <!-- Loading Overlay -->
-387-          <div class="loading-overlay hidden" id="processingOverlay">
-388-            <div class="spinner-box">
-389-              <div class="double-spinner"></div>
-390-            </div>
-391-            <h3 id="processingStatus">Removing Background...</h3>
-392-            <p id="processingProgress">Initializing local AI models...</p>
-393-            <div class="progress-bar-container">
-394-              <div class="progress-bar-fill" id="progressBar"></div>
-395-            </div>
-396-          </div>
-397-
-398-          <!-- BG REMOVER VIEW -->
-399-          <div class="workspace-view active" id="view-bg-remover">
-400-            <div class="preview-container">
-401-              <!-- Tabs to switch between Original and Removed Background -->
-402-              <div class="view-toggle-tabs">
-403-                <button class="view-toggle-btn active" data-view-mode="removed">Removed Background</button>
-404-                <button class="view-toggle-btn" data-view-mode="original">Original</button>
-405-              </div>
-406-              
-407-              <!-- Original Image (Hidden by default) -->
-408-              <div class="preview-image-wrapper hidden" id="previewOriginalWrapper">
-409-                <img id="imgBefore" src="" alt="Original Image">
-410-              </div>
-411-              
-412-              <!-- Transparent Canvas (Visible by default) -->
-413-              <div class="preview-image-wrapper" id="bgRemoverResultContainer">
-414-                <canvas id="bgRemoverCanvas" class="checkerboard-bg"></canvas>
-415-              </div>
-416-            </div>
-417-          </div>
-418-
-419-          <!-- WATERMARK REMOVER VIEW -->
-420-          <div class="workspace-view" id="view-wm-remover">
-421-            <div class="editor-canvas-wrapper">
-422-              <!-- Floating Eraser Panel docked on the LEFT -->
-423-              <div class="floating-eraser-panel" id="floatingEraserPanel">
-424-                <div class="panel-drag-handle" id="floatingEraserHeader">
-425-                  <i class="fa-solid fa-grip-vertical"></i>
-426-                  <span>Eraser Controls</span>
-427-                </div>
-428-                
-429-                <!-- Workspace Mode Tabs -->
-430-                <div class="view-toggle-tabs" id="wmModeSwitcher">
-431-                  <button class="view-toggle-btn btn-toggle active" data-wm-mode="brush" title="Brush Mode"><i class="fa-solid fa-paint-brush"></i> <span>Brush</span></button>
-432-                  <button class="view-toggle-btn btn-toggle" data-wm-mode="compare" title="Slider View"><i class="fa-solid fa-arrows-left-right"></i> <span>Compare</span></button>
-433-                </div>
-434-
-435-                <!-- Brush Size Slider -->
-436-                <div class="brush-slider-group">
-437-                  <label for="brushSize"><i class="fa-solid fa-paint-brush"></i> Size: <span id="brushSizeVal">25px</span></label>
-438-                  <input type="range" id="brushSize" min="5" max="100" value="25" class="range-slider">
-439-                </div>
-440-
-441-                <!-- Action Buttons -->
-442-                <div class="brush-btn-group">
-443-                  <button class="btn btn-icon-text" id="undoBrush" title="Undo stroke">
-444-                    <i class="fa-solid fa-undo"></i> <span>Undo</span>
-445-                  </button>
-446-                  <button class="btn btn-icon-text" id="clearBrush" title="Clear all brush strokes">
-447-                    <i class="fa-solid fa-trash-can"></i> <span>Clear</span>
-448-                  </button>
-449-                  <button class="btn btn-primary animate-pulse" id="btnEraseWatermark">
-450-                    <i class="fa-solid fa-magic"></i> <span>Erase Watermark</span>
-451-                  </button>
-452-                </div>
-453-              </div>
-454-              
-455-              <!-- Zoom Toolbar -->
-456-              <div class="zoom-toolbar">
-457-                <button class="zoom-btn" id="zoomOutBtn" type="button" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
-458-                <span class="zoom-level" id="zoomLevelVal">100%</span>
-459-                <button class="zoom-btn" id="zoomInBtn" type="button" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-460-                <button class="zoom-btn" id="zoomFitBtn" type="button" title="Fit to Screen"><i class="fa-solid fa-expand"></i></button>
-461-                <button class="zoom-btn" id="panToggleBtn" type="button" title="Pan Mode"><i class="fa-solid fa-hand"></i></button>
-462-              </div>
-463-
-464-              <div class="canvas-bg-pattern">
-465-                <div class="canvas-layers">
-466-                  <!-- The Base Image Canvas -->
-467-                  <canvas id="wmRemoverBaseCanvas"></canvas>
-468-                  <!-- Original Image Compare Layer (visible in comparison mode) -->
-469-                  <img id="wmRemoverCompareImg" src="" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; object-fit: fill;" />
-470-                  <!-- The Slider Drag Line (visible in comparison mode) -->
-471-                  <div id="wmComparisonSlider" class="comparison-slider-bar" style="display: none; position: absolute; top: 0; bottom: 0; width: 4px; background-color: #ffffff; cursor: ew-resize; z-index: 4; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);">
-472-                    <div class="comparison-slider-handle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; background-color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--accent-primary); cursor: ew-resize;">
-473-                      <i class="fa-solid fa-arrows-left-right" style="color: var(--accent-primary); font-size: 14px;"></i>
-474-                    </div>
-475-                  </div>
-476-                  <!-- Drawing overlay canvas for brushing -->
-477-                  <canvas id="wmRemoverBrushCanvas"></canvas>
-478-                </div>
-479-              </div>
-480-            </div>
-481-          </div>
-482-
-483-          <!-- WATERMARK MAKER VIEW -->
-484-          <div class="workspace-view" id="view-wm-maker">
-485-            <div class="editor-canvas-wrapper">
-486-              <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
-487-            </div>
-488-          </div>
-489-
-490-        </div>
-491-
-492-        <!-- Recent Images History Bar -->
-493-        <div class="history-bar hidden" id="historyBar">
-494-          <span class="history-title">Recent History:</span>
-495-          <div class="history-list" id="historyList">
-496-            <!-- Thumbnails will be injected here dynamically -->
-497-          </div>
-498-        </div>
-499-      </section>
-500-
-501-      <!-- Configuration Sidebar Right Panel -->
-502-      <aside class="sidebar-right">
-503-        
-504-        <!-- Tab Config options -->
-505-        <div class="sidebar-config-section active" id="config-bg-remover">
-506-          <div class="sidebar-title">Background settings</div>
-507-          
-508-          <div class="config-group">
-509-            <label>Background Fill Type</label>
-510-            <div class="toggle-btn-group">
-511-              <button class="btn btn-toggle active" data-bg-type="transparent">Transparent</button>
-512-              <button class="btn btn-toggle" data-bg-type="color">Solid Color</button>
-513-              <button class="btn btn-toggle" data-bg-type="image">Custom Backdrop</button>
-514-            </div>
-515-          </div>
-516-
-517-          <!-- Color options panel -->
-518-          <div class="config-sub-panel hidden" id="bg-color-config">
-519-            <label>Select solid background</label>
-520-            <div class="color-picker-row">
-521-              <div class="color-swatch-picker">
-522-                <input type="color" id="bgColorPicker" value="#4f46e5">
-523-                <span>Choose color</span>
-524-              </div>
-525-            </div>
-526-            
-527-            <label>Curated presets</label>
-528-            <div class="color-presets-grid">
-529-              <div class="color-preset" style="background: #ffffff" data-color="#ffffff" title="White"></div>
-530-              <div class="color-preset" style="background: #f3f4f6" data-color="#f3f4f6" title="Light Gray"></div>
-531-              <div class="color-preset" style="background: #111827" data-color="#111827" title="Dark Gray"></div>
-532-              <div class="color-preset" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" title="Sunset Pink"></div>
-533-              <div class="color-preset" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" data-gradient="linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" title="Cloud Blue"></div>
-534-              <div class="color-preset" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%)" data-gradient="linear-gradient(135deg, #f6d365 0%, #fda085 100%)" title="Warm Sun"></div>
-535-              <div class="color-preset" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" data-gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" title="Ocean Breeze"></div>
-536-              <div class="color-preset" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" data-gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" title="Deep Purple"></div>
-537-            </div>
-538-          </div>
-539-
-540-          <!-- Custom image background options -->
-541-          <div class="config-sub-panel hidden" id="bg-image-config">
-542-            <label>Upload custom backdrop</label>
-543-            <div class="backdrop-uploader">
-544-              <input type="file" id="bgImageInput" accept="image/*" hidden>
-545-              <button class="btn btn-secondary btn-full" id="btnUploadBackdrop">
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Editor Workspace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#fea619",
+                        "primary-fixed-dim": "#d2bbff",
+                        "on-error-container": "#93000a",
+                        "background": "#fef7ff",
+                        "inverse-primary": "#d2bbff",
+                        "on-primary-fixed": "#25005a",
+                        "outline": "#7b7487",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#2a1700",
+                        "tertiary-fixed": "#ffdcc6",
+                        "surface": "#fef7ff",
+                        "on-tertiary-fixed": "#301400",
+                        "primary": "#630ed4",
+                        "on-surface-variant": "#4a4455",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb784",
+                        "primary-fixed": "#eaddff",
+                        "on-surface": "#1d1a24",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffddb8",
+                        "inverse-on-surface": "#f6eefc",
+                        "surface-dim": "#dfd7e6",
+                       
+<truncated 11598 bytes>
+div class="absolute inset-0 border-2 border-primary-container rounded-lg pointer-events-none"></div>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-outline-variant overflow-hidden shadow-sm cursor-pointer hover:border-primary-container/50 transition-colors">
+<img class="w-full h-full object-cover opacity-70 hover:opacity-100" data-alt="A small square thumbnail showing a slightly blurred background element, acting as a background layer in an image editor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTILce-Jbw8WqEgTPoc_HvKDHMpvPoBBFYMemkXeeCC-h_KpNIKjlrkJz2-UIVnBNHv1HeD35_Ce5l2NYvPYI28ZFAv33mZKH6swgcNNyWfwIxnI0qY57Do5kwWBF8UZSAsLUDj2ZyUM8rHfxx76eB_P8vGL5qMm4M12OTzlzc1lZzzd_Pl6IyMH_w4MTeEjwYREtIP5wrBB4Alq13cUEZDEGwaSIAfX6aYwsY0-Vk7r3UId_eRWWMr-6YFjqri6-IYjvhzhOX08I"/>
+</div>
+<button class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-dashed border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<!-- Bottom Right Controls -->
+<div class="absolute bottom-lg right-md z-40 flex items-center gap-3">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 flex items-center gap-3 shadow-sm h-10">
+<span class="font-mono-label text-mono-label text-on-surface-variant">90%</span>
+<div class="w-px h-4 bg-outline-variant"></div>
+<span class="font-mono-label text-mono-label text-on-surface-variant">1856x2304 px</span>
+</div>
+<button class="w-10 h-10 bg-surface-container-lowest border border-outline-variant rounded-lg flex items-center justify-center shadow-sm hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</main>
+</body></html>
