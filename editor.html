@@ -3,7 +3,7 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Lumina Editor Workspace</title>
+<title>EraserPro Editor Workspace</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -114,7 +114,8 @@
   <!-- FontAwesome for Premium Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script async src="https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.3/dist/opencv.js" onload="onOpenCvReady()"></script>
+  <script>window.onOpenCvReady = function(){};</script>
+<script async src="https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.3/dist/opencv.js" onload="if(window.onOpenCvReady) window.onOpenCvReady();"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -125,14 +126,14 @@
 <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface border-b border-outline-variant flat no shadows">
 <div class="flex items-center gap-xl">
 <div class="font-headline-md text-headline-md font-bold text-primary">
-                Lumina Editor
+                EraserPro
             </div>
 <div class="hidden md:flex items-center gap-lg h-full pt-2">
-<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="#">Home</a>
+<a id="backToUploadBtn" style="cursor:pointer;" class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="javascript:void(0)">Home</a>
 <a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200 ease-in-out px-2" href="#">Image</a>
 <a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="#">Video</a>
 <a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="#">Enterprise</a>
-<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="#">Developers</a>
+
 </div>
 </div>
 <div class="flex items-center gap-md">
@@ -145,9 +146,7 @@
 <button class="px-4 py-2 font-label-md text-label-md bg-[#f59e0b] text-white rounded-[16px] hover:opacity-90 transition-opacity">
                 Upgrade
             </button>
-<button class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-[16px] hover:opacity-90 transition-opacity">
-                Export
-            </button>
+<button id="btnDownloadImage" class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-[16px] hover:opacity-90 transition-opacity">Export</button>
 <div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-outline-variant">
 <img alt="User profile" class="w-full h-full object-cover" data-alt="A small circular user profile picture showing a professional headshot of a person against a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUPW-EYoALq29ZWXJI5gcgmkBKfDsqgn3mmHaA0Tg2k8fpfGXrDFz4WNVOkOz4JiIy6cWPOry-vWrCeykrqQO0i9u94Nal0Sr70Bs8q-UjHwMqXIOAQ30P2DvMimvaT8Y_u-MOlEEzd85U8UXA7jtd26GwhYg6upfVs-llRB5he9_yRVkN6pvd7q43JBDh2Q29HvOXDdb-T3h01dZFWEKnSSl4BqabCU1uRpALybHzUFvb_s6Mdnz2wy63282yXIeFhB1lFDk8e7E"/>
 </div>
@@ -200,7 +199,6 @@
       <h3 id="processingStatus">Processing...</h3>
     </div>
     
-    
     <!-- WATERMARK REMOVER VIEW -->
     <div class="workspace-view active" id="view-wm-remover" style="position: relative;">
         <div class="editor-canvas-wrapper" style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
@@ -228,8 +226,6 @@
             <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
         </div>
     </div>
-
-    </div>
 </div>
 
 <!-- Floating Download Icon on Image -->
@@ -240,15 +236,15 @@
 </div>
 <!-- Floating Bottom Toolbar (Center) -->
 <div class="absolute bottom-lg left-1/2 transform -translate-x-1/2 z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-2 py-2 flex items-center gap-1 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover">
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
 <span class="material-symbols-outlined text-[20px] mb-0.5">content_cut</span>
 </button>
 <div class="w-px h-8 bg-outline-variant mx-1"></div>
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center bg-primary-container text-on-primary transition-colors shadow-sm tab-btn active" data-tab="wm-remover">
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center bg-primary-container text-on-primary transition-colors shadow-sm tab-btn active" data-tab="wm-remover" title="Watermark Eraser">
 <span class="material-symbols-outlined text-[20px] mb-0.5" style="font-variation-settings: 'FILL' 1;">ink_eraser</span>
 </button>
 <div class="w-px h-8 bg-outline-variant mx-1"></div>
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover">
+<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
 <span class="material-symbols-outlined text-[20px] mb-0.5">approval</span>
 </button>
 </div>
@@ -277,135 +273,134 @@
 </button>
 </div>
 </main>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=37"></script>
 <div id="dummy-elements" style="display: none;">
-  <div id="pdfSplitModeGroup"></div>
-  <div id="wm-text-config"></div>
-  <div id="backToUploadBtn"></div>
-  <div id="wmText"></div>
-  <div id="wmRemoverCompareImg"></div>
-  <div id="btnAIDetectRemove"></div>
-  <div id="authVerificationBanner"></div>
-  <div id="resolutionPreset"></div>
-  <div id="imgBefore"></div>
-  <div id="btnAddPdfFile"></div>
-  <div id="pdfHubUploadIcon"></div>
-  <div id="pdfToImgResolution"></div>
+  <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>
-  <div id="toggleDetectText"></div>
-  <div id="toggleDetectLogo"></div>
-  <div id="btnClearWMLogo"></div>
-  <div id="loginEmail"></div>
-  <div id="btnDecPAYG"></div>
-  <div id="pdfEditorWorkspace"></div>
-  <div id="pdfDropZone"></div>
-  <div id="wm-image-config"></div>
-  <div id="headerUpgradeBtn"></div>
-  <div id="wmRotationVal"></div>
-  <div id="subStatusBadge"></div>
-  <div id="btnExecutePdfTool"></div>
-  <div id="wmOpacity"></div>
-  <div id="closePdfModalBtn"></div>
-  <div id="exportFormat"></div>
-  <div id="pdfToolsLanding"></div>
-  <div id="toast-notification-container"></div>
-  <div id="btnBackToPdfHub"></div>
-  <div id="loginError"></div>
-  <div id="customWidth"></div>
-  <div id="btnGoogleSignIn"></div>
-  <div id="btnRotateAllCw"></div>
-  <div id="btnSubmitCheckout"></div>
-  <div id="pdfToImgFormat"></div>
-  <div id="pdfHubUploadLimits"></div>
-  <div id="previewOriginalWrapper"></div>
-  <div id="bg-color-config"></div>
-  <div id="uploadDesc"></div>
-  <div id="pdfTotalPages"></div>
-  <div id="pdfToImgColorSpace"></div>
-  <div id="btnBuyPAYG"></div>
-  <div id="customHeight"></div>
-  <div id="historyBar"></div>
-  <div id="wmLogoPreviewContainer"></div>
-  <div id="pdfPagesViewport"></div>
-  <div id="aspectRatioLock"></div>
-  <div id="progressBar"></div>
-  <div id="closeCheckoutBtn"></div>
   <div id="pdfWatermarkSize"></div>
-  <div id="pdfSplitEndPage"></div>
-  <div id="pdfHubUploadIconBox"></div>
-  <div id="registerError"></div>
-  <div id="navModePdf"></div>
-  <div id="btnUploadCTA"></div>
-  <div id="creditsCount"></div>
-  <div id="fileInput"></div>
-  <div id="headerManageBtn"></div>
   <div id="uploadLanding"></div>
-  <div id="floatingEraserPanel"></div>
-  <div id="wmPosition"></div>
-  <div id="wmComparisonSlider"></div>
-  <div id="inputQuantityPAYG"></div>
-  <div id="pdfPageModal"></div>
+  <div id="wmRotationVal"></div>
+  <div id="closeAuthModalBtn"></div>
+  <div id="btnConfirmPdfPage"></div>
   <div id="pdfHubUploadTitle"></div>
-  <div id="processingProgress"></div>
+  <div id="bg-color-config"></div>
+  <div id="btnUploadBackdrop"></div>
+  <div id="closeCheckoutBtn"></div>
+  <div id="inputQuantityPAYG"></div>
+  <div id="wmRemoverCompareImg"></div>
+  <div id="dropZone"></div>
+  <div id="wmText"></div>
+  <div id="pdfTotalPages"></div>
+  <div id="bgColorPicker"></div>
+  <div id="pdfToImgColorSpace"></div>
   <div id="checkoutSuccessScreen"></div>
-  <div id="registerPassword"></div>
-  <div id="pdfWatermarkText"></div>
+  <div id="toggleDetectLogo"></div>
+  <div id="authVerificationBanner"></div>
+  <div id="btnDecPAYG"></div>
+  <div id="btnBuyPack150"></div>
+  <div id="pdfSplitModeGroup"></div>
+  <div id="btnAddPdfFile"></div>
+  <div id="btnPrevPdfPage"></div>
+  <div id="wmComparisonSlider"></div>
+  <div id="btnNextPdfPage"></div>
+  <div id="bgImageInput"></div>
+  <div id="pdfEditorWorkspace"></div>
+  <div id="processingProgress"></div>
+  <div id="wmFont"></div>
+  <div id="navModePdf"></div>
+  <div id="authModal"></div>
+  <div id="registerEmail"></div>
+  <div id="comparisonSlider"></div>
+  <div id="creditsCount"></div>
+  <div id="loginError"></div>
+  <div id="previewOriginalWrapper"></div>
+  <div id="wmOpacityVal"></div>
+  <div id="loginPassword"></div>
+  <div id="wmPosition"></div>
+  <div id="imgBefore"></div>
+  <div id="checkoutModal"></div>
+  <div id="bg-image-config"></div>
+  <div id="btnRotateAllCw"></div>
+  <div id="btnGoogleSignIn"></div>
+  <div id="pdfToolsLanding"></div>
+  <div id="pdfDropZone"><div class="browse-link"></div></div>
+  <div id="subStatusBadge"><span></span><i></i></div>
+  <div id="btnExecutePdfTool"></div>
+  <div id="pdfSplitEndPage"></div>
+  <div id="btnUploadWMLogo"></div>
+  <div id="wmSize"></div>
+  <div id="btnHeaderAuth"></div>
+  <div id="customWidth"></div>
+  <div id="fileInput"></div>
+  <div id="toast-notification-container"></div>
+  <div id="panToggleBtn"></div>
+  <div id="sidebarProBanner"></div>
+  <div id="exportColorSpace"></div>
+  <div id="landingHeroGraphic"></div>
+  <div id="wm-text-config"></div>
+  <div id="progressBar"></div>
+  <div id="btnAIDetectRemove"></div>
+  <div id="wm-image-config"></div>
+  <div id="btnIncPAYG"></div>
+  <div id="wmModeSwitcher"></div>
+  <div id="btnBackToPdfHub"></div>
+  <div id="registerForm"></div>
+  <div id="pdfCompressModeGroup"></div>
+  <div id="zoomFitBtn"></div>
+  <div id="registerError"></div>
+  <div id="btnDismissSuccess"></div>
+  <div id="wmOpacity"></div>
+  <div id="creditsBadge"></div>
+  <div id="pdfPageModal"></div>
+  <div id="heroGraphicBadge"></div>
+  <div id="pdfSplitRangePanel"></div>
+  <div id="floatingEraserHeader"></div>
+  <div id="historyBar"></div>
   <div id="pdfHubFileInput"></div>
   <div id="wmTextColor"></div>
-  <div id="wmOpacityVal"></div>
-  <div id="closeAuthModalBtn"></div>
-  <div id="pdfActiveToolTitle"></div>
-  <div id="sidebarProBanner"></div>
-  <div id="btnIncPAYG"></div>
-  <div id="historyList"></div>
-  <div id="pdfPagesPreviewGrid"></div>
-  <div id="pdfCurrentPageDisplay"></div>
-  <div id="uploadTitle"></div>
-  <div id="bgImageInput"></div>
   <div id="wm-single-position-group"></div>
-  <div id="btnUploadWMLogo"></div>
-  <div id="pdfWatermarkOpacity"></div>
-  <div id="floatingEraserHeader"></div>
-  <div id="checkoutForm"></div>
-  <div id="authModal"></div>
-  <div id="btnConfirmPdfPage"></div>
-  <div id="paygTotalPrice"></div>
-  <div id="wmModeSwitcher"></div>
-  <div id="wmFont"></div>
-  <div id="customResolutionPanel"></div>
-  <div id="wmTextColorHex"></div>
-  <div id="btnDismissSuccess"></div>
-  <div id="registerConfirmPassword"></div>
-  <div id="pdfHubUploadDesc"></div>
-  <div id="pdfCompressModeGroup"></div>
-  <div id="loginForm"></div>
-  <div id="bgColorPicker"></div>
-  <div id="wmLogoInput"></div>
-  <div id="btnPrevPdfPage"></div>
-  <div id="navModeStudio"></div>
-  <div id="btnNextPdfPage"></div>
-  <div id="landingHeroGraphic"></div>
-  <div id="registerForm"></div>
-  <div id="comparisonSlider"></div>
-  <div id="panToggleBtn"></div>
-  <div id="checkoutModal"></div>
-  <div id="btnHeaderAuth"></div>
-  <div id="wmSize"></div>
-  <div id="loginPassword"></div>
-  <div id="btnUploadBackdrop"></div>
-  <div id="btnBuyPack150"></div>
-  <div id="pdfSplitRangePanel"></div>
-  <div id="heroGraphicImg"></div>
-  <div id="zoomFitBtn"></div>
-  <div id="wmSizeVal"></div>
-  <div id="wmRotation"></div>
-  <div id="registerEmail"></div>
-  <div id="dropZone"></div>
+  <div id="uploadTitle"></div>
   <div id="wmLogoPreview"></div>
-  <div id="bg-image-config"></div>
-  <div id="creditsBadge"></div>
-  <div id="exportColorSpace"></div>
-  <div id="heroGraphicBadge"></div>
-  <div id="btnDownloadImage"></div>
+  <div id="wmLogoInput"></div>
+  <div id="loginForm"></div>
+  <div id="checkoutForm"></div>
+  <div id="btnSubmitCheckout"></div>
+  <div id="paygTotalPrice"></div>
+  <div id="wmSizeVal"></div>
+  <div id="headerUpgradeBtn"></div>
+  <div id="toggleDetectText"></div>
+  <div id="navModeStudio"></div>
+  <div id="closePdfModalBtn"></div>
+  <div id="pdfWatermarkOpacity"></div>
+  <div id="historyList"></div>
+  <div id="btnUploadCTA"></div>
+  <div id="wmTextColorHex"></div>
+  <div id="btnClearWMLogo"></div>
+  <div id="customHeight"></div>
+  <div id="resolutionPreset"></div>
+  <div id="pdfHubUploadLimits"></div>
+  <div id="wmLogoPreviewContainer"></div>
+  <div id="wmRotation"></div>
+  <div id="pdfCurrentPageDisplay"></div>
+  <div id="pdfToImgResolution"></div>
+  <div id="headerManageBtn"></div>
+  <div id="pdfWatermarkText"></div>
+  <div id="pdfPagesPreviewGrid"></div>
+  <div id="customResolutionPanel"></div>
+  <div id="heroGraphicImg"></div>
+  <div id="floatingEraserPanel"></div>
+  <div id="pdfPagesViewport"></div>
+  <div id="exportFormat"></div>
+  <div id="aspectRatioLock"></div>
+  <div id="pdfToImgFormat"></div>
+  <div id="loginEmail"></div>
+  <div id="registerPassword"></div>
+  <div id="uploadDesc"></div>
+  <div id="pdfHubUploadIconBox"></div>
+  <div id="btnBuyPAYG"></div>
+  <div id="pdfHubUploadIcon"></div>
+  <div id="pdfHubUploadDesc"></div>
+  <div id="registerConfirmPassword"></div>
+  <div class="header-logo"></div>
 </div>
 </body></html>
