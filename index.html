@@ -181,11 +181,14 @@
           </div>
         </div>
 
-        <div class="upload-card">
-        <div class="upload-glow"></div>
+        <div class="landing-hero-text" style="text-align: center; margin-bottom: 48px; width: 100%; max-width: 768px;">
+          <h1 id="uploadTitle" style="font-size: 48px; line-height: 56px; letter-spacing: -0.02em; font-weight: 700; color: #121c2a; margin-bottom: 16px; font-family: 'Inter', sans-serif;">Remove Image Background</h1>
+          <h2 id="uploadDesc" class="upload-subtitle" style="font-size: 24px !important; line-height: 32px !important; font-weight: 400 !important; color: #424754 !important; margin-bottom: 0 !important;">100% Automatically and Free</h2>
+        </div>
 
+        <div class="upload-card">
         <!-- Tool selection tabs on landing page -->
-        <div class="landing-tabs">
+        <div class="landing-tabs" style="margin-bottom: 24px;">
           <button class="landing-tab-btn active" data-landing-tab="bg-remover">
             <i class="fa-solid fa-scissors"></i>
             <span>Remove Background</span>
@@ -200,25 +203,22 @@
           </button>
         </div>
 
-        <div class="upload-area" id="dropZone">
+        <div class="upload-area" id="dropZone" style="border: 2px dashed transparent; border-radius: 12px; padding: 20px; transition: all 0.3s ease;">
           <input type="file" id="fileInput" accept="image/*,.pdf" hidden>
           
           <!-- Modern Dynamic Hero Graphic -->
-          <div class="landing-hero-graphic bg-mode" id="landingHeroGraphic">
+          <div class="landing-hero-graphic bg-mode hidden" id="landingHeroGraphic" style="display: none;">
             <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80" alt="Hero Portrait" class="graphic-avatar" id="heroGraphicImg">
             <div class="graphic-badge" id="heroGraphicBadge">BG REMOVED</div>
           </div>
-
-          <h2 id="uploadTitle">Remove Image Background</h2>
-          <p id="uploadDesc" class="upload-subtitle">100% Automatically and Free</p>
           
           <!-- Big upload button, same as remove.bg style -->
-          <button class="btn btn-primary btn-upload-cta" id="btnUploadCTA">
+          <button class="btn btn-primary btn-upload-cta" id="btnUploadCTA" style="background: #0058be !important; color: white !important; font-size: 18px !important; font-weight: 600 !important; padding: 16px 32px !important; border-radius: 9999px !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; margin-bottom: 24px !important;">
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Image
           </button>
           
-          <span class="upload-drop-text">or drop a file here</span>
-          <span class="upload-limits">Supports PNG, JPEG, WEBP, PDF. Up to 10MB.</span>
+          <span class="upload-drop-text" style="font-size: 16px; color: #424754; margin-bottom: 24px; display: block;">or drop a file here</span>
+          <span class="upload-limits" style="font-size: 12px; color: #727785; font-weight: 500;">Supports PNG, JPEG, WEBP. Up to 10MB.</span>
         </div>
 
         <div class="sample-images-section">
@@ -342,41 +342,44 @@
     </section>
 
     <!-- EDITOR WORKSPACE SECTION -->
-    <section class="workspace-section" id="editorWorkspace">
+    <section class="workspace-section lumina-mode editor-floating-layout" id="editorWorkspace">
       
-      <!-- Toolbar Left Panel -->
-      <aside class="sidebar-left">
-        <div class="sidebar-left-top">
-          <div class="sidebar-title">Tools</div>
-          <nav class="tool-tabs">
-            <button class="tab-btn active" data-tab="bg-remover">
-              <i class="fa-solid fa-scissors"></i>
-              <span>BG Remover</span>
-            </button>
-            <button class="tab-btn" data-tab="wm-remover">
-              <i class="fa-solid fa-eraser"></i>
-              <span>Watermark Eraser</span>
-            </button>
-            <button class="tab-btn" data-tab="wm-maker">
-              <i class="fa-solid fa-stamp"></i>
-              <span>Watermark Maker</span>
-            </button>
-          </nav>
-        </div>
-
-        <!-- ADSENSE BANNER 2 (Left Sidebar) -->
-        <div class="adsense-slot ads-left-sidebar">
-          <span class="ad-label">Advertisement</span>
-          <div class="ad-mock">
-            <i class="fa-solid fa-rectangle-ad"></i>
-            <span>Google AdSense Banner</span>
-          </div>
-        </div>
-
-        <button class="btn btn-secondary back-to-upload-btn" id="backToUploadBtn">
-          <i class="fa-solid fa-arrow-left"></i> <span>Upload New Image</span>
+      <!-- Floating Top Left (Back / Filename) -->
+      <div class="floating-top-left">
+        <button class="btn-pill back-to-upload-btn" id="backToUploadBtn">
+          <i class="fa-solid fa-arrow-left"></i> <span>Image_edited.png</span>
         </button>
-      </aside>
+      </div>
+
+      <!-- Floating Bottom Toolkit Bubble -->
+      <div class="floating-bottom-toolbar">
+        <button class="tab-btn active" data-tab="bg-remover">
+          <i class="fa-solid fa-scissors"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="tab-btn" data-tab="wm-remover">
+          <i class="fa-solid fa-eraser"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="tab-btn" data-tab="wm-maker">
+          <i class="fa-solid fa-stamp"></i>
+        </button>
+      </div>
+
+      <!-- Floating Bottom Right (Zoom & Export) -->
+      <div class="floating-bottom-right">
+        <div class="floating-zoom-bar">
+          <button id="zoomOutBtn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+          <span class="zoom-level" id="zoomLevelVal">100%</span>
+          <button id="zoomInBtn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+          <div class="divider"></div>
+          <button id="zoomFitBtn" title="Fit to Screen"><i class="fa-solid fa-expand"></i></button>
+          <button id="panToggleBtn" title="Pan Mode"><i class="fa-solid fa-hand"></i></button>
+        </div>
+        <button class="floating-export-btn" title="Export Image">
+          <i class="fa-solid fa-download"></i>
+        </button>
+      </div>
 
       <!-- Center Canvas Workspace Panel -->
       <section class="canvas-workspace">
@@ -419,47 +422,8 @@
           <!-- WATERMARK REMOVER VIEW -->
           <div class="workspace-view" id="view-wm-remover">
             <div class="editor-canvas-wrapper">
-              <!-- Floating Eraser Panel docked on the LEFT -->
-              <div class="floating-eraser-panel" id="floatingEraserPanel">
-                <div class="panel-drag-handle" id="floatingEraserHeader">
-                  <i class="fa-solid fa-grip-vertical"></i>
-                  <span>Eraser Controls</span>
-                </div>
-                
-                <!-- Workspace Mode Tabs -->
-                <div class="view-toggle-tabs" id="wmModeSwitcher">
-                  <button class="view-toggle-btn btn-toggle active" data-wm-mode="brush" title="Brush Mode"><i class="fa-solid fa-paint-brush"></i> <span>Brush</span></button>
-                  <button class="view-toggle-btn btn-toggle" data-wm-mode="compare" title="Slider View"><i class="fa-solid fa-arrows-left-right"></i> <span>Compare</span></button>
-                </div>
-
-                <!-- Brush Size Slider -->
-                <div class="brush-slider-group">
-                  <label for="brushSize"><i class="fa-solid fa-paint-brush"></i> Size: <span id="brushSizeVal">25px</span></label>
-                  <input type="range" id="brushSize" min="5" max="100" value="25" class="range-slider">
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="brush-btn-group">
-                  <button class="btn btn-icon-text" id="undoBrush" title="Undo stroke">
-                    <i class="fa-solid fa-undo"></i> <span>Undo</span>
-                  </button>
-                  <button class="btn btn-icon-text" id="clearBrush" title="Clear all brush strokes">
-                    <i class="fa-solid fa-trash-can"></i> <span>Clear</span>
-                  </button>
-                  <button class="btn btn-primary animate-pulse" id="btnEraseWatermark">
-                    <i class="fa-solid fa-magic"></i> <span>Erase Watermark</span>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Zoom Toolbar -->
-              <div class="zoom-toolbar">
-                <button class="zoom-btn" id="zoomOutBtn" type="button" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
-                <span class="zoom-level" id="zoomLevelVal">100%</span>
-                <button class="zoom-btn" id="zoomInBtn" type="button" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
-                <button class="zoom-btn" id="zoomFitBtn" type="button" title="Fit to Screen"><i class="fa-solid fa-expand"></i></button>
-                <button class="zoom-btn" id="panToggleBtn" type="button" title="Pan Mode"><i class="fa-solid fa-hand"></i></button>
-              </div>
+              <!-- Eraser controls moved to floating config panel -->
+              <!-- Zoom Toolbar replaced by global floating bar -->
 
               <div class="canvas-bg-pattern">
                 <div class="canvas-layers">
@@ -498,8 +462,8 @@
         </div>
       </section>
 
-      <!-- Configuration Sidebar Right Panel -->
-      <aside class="sidebar-right">
+      <!-- Configuration Floating Left Panel -->
+      <div class="floating-left-panel-container" id="floatingConfigPanel">
         
         <!-- Tab Config options -->
         <div class="sidebar-config-section active" id="config-bg-remover">
@@ -566,9 +530,37 @@
         </div>
 
         <div class="sidebar-config-section" id="config-wm-remover">
-          <div class="sidebar-title">Watermark Eraser</div>
+          <div class="sidebar-title" style="font-size: 14px; font-weight: 600; color: #1d1a24; margin-bottom: 16px;">Remove Watermark</div>
           
-          <!-- Clean layout, settings are shared below -->
+          <div class="config-group" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Workspace Mode Tabs -->
+            <div class="view-toggle-tabs" id="wmModeSwitcher" style="display: flex; background: #f8f9ff; padding: 4px; border-radius: 8px; border: 1px solid #e8dfee;">
+              <button class="view-toggle-btn btn-toggle active" data-wm-mode="brush" title="Brush Mode" style="flex: 1; padding: 6px; border-radius: 6px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #1d1a24; font-weight: 500; font-size: 12px; border: none; cursor: pointer;">Auto</button>
+              <button class="view-toggle-btn btn-toggle" data-wm-mode="compare" title="Slider View" style="flex: 1; padding: 6px; border-radius: 6px; background: transparent; color: #4a4455; font-weight: 500; font-size: 12px; border: none; cursor: pointer;">Manual</button>
+            </div>
+
+            <p style="font-size: 14px; color: #4a4455; line-height: 20px;">Our AI auto detects all the watermarks in the image and removes them seamlessly.</p>
+
+            <!-- Brush Size Slider -->
+            <div class="brush-slider-group">
+              <label for="brushSize" style="font-size: 12px; font-weight: 500; color: #4a4455; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;"><i class="fa-solid fa-paint-brush"></i> Brush Size: <span id="brushSizeVal">25px</span></label>
+              <input type="range" id="brushSize" min="5" max="100" value="25" class="range-slider" style="width: 100%;">
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="brush-btn-group" style="display: flex; gap: 8px;">
+              <button class="btn btn-icon-text" id="undoBrush" title="Undo stroke" style="flex: 1; padding: 8px; font-size: 12px; border-radius: 8px; background: #ffffff; border: 1px solid #ccc3d8; cursor: pointer;">
+                <i class="fa-solid fa-undo"></i> Undo
+              </button>
+              <button class="btn btn-icon-text" id="clearBrush" title="Clear all brush strokes" style="flex: 1; padding: 8px; font-size: 12px; border-radius: 8px; background: #ffffff; border: 1px solid #ccc3d8; cursor: pointer;">
+                <i class="fa-solid fa-trash-can"></i> Clear
+              </button>
+            </div>
+            
+            <button class="btn btn-primary animate-pulse" id="btnEraseWatermark" style="width: 100%; padding: 12px; background: #7c3aed; color: white; border-radius: 16px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+              Apply for 1 <i class="fa-solid fa-coins" style="color: #fea619;"></i>
+            </button>
+          </div>
         </div>
 
         <div class="sidebar-config-section" id="config-wm-maker">
@@ -748,7 +740,7 @@
           <!-- Replace with real AdSense script -->
         </div>
 
-      </aside>
+      </div>
 
     </section>
 

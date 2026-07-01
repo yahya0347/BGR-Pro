@@ -113,7 +113,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { image, mask } = req.body;
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+      }
+    }
+    const { image, mask } = body;
     if (!image || !mask) {
       return res.status(400).json({ error: 'image and mask required' });
     }
@@ -130,6 +138,11 @@ export default async function handler(req, res) {
     });
     let pred = await r.json();
 
+    if (!r.ok) {
+      console.error('Replicate API returned non-OK:', pred);
+      return res.status(502).json({ error: 'Replicate API error: ' + (pred.detail || JSON.stringify(pred)) });
+    }
+
     if (pred.error) {
       console.error('Replicate model error:', pred.error);
       return res.status(502).json({ error: 'Model error: ' + pred.error });
@@ -139,6 +152,10 @@ export default async function handler(req, res) {
     let guard = 0;
     while (pred.status && pred.status !== 'succeeded' && pred.status !== 'failed' && guard < 30) {
       await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!pred.urls || !pred.urls.get) {
+        console.error('Replicate prediction missing urls.get:', pred);
+        return res.status(502).json({ error: 'Inpainting failed, unexpected response from AI provider' });
+      }
       const pr = await fetch(pred.urls.get, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
