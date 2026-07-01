@@ -348,29 +348,32 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 80px 20px 120px 20px;
-  background-color: #f8f9ff;
-  width: 100%;
+  padding: 40px 20px;
 }
 
 .upload-card {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 64px 40px;
+  background-color: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 40px;
   max-width: 680px;
   width: 100%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  box-shadow: var(--box-shadow-glass);
 }
 
 .upload-glow {
-  display: none;
+  position: absolute;
+  top: -10%;
+  left: 20%;
+  right: 20%;
+  bottom: 80%;
+  background: radial-gradient(circle, var(--primary-glow) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(40px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .upload-area {
@@ -388,9 +391,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .upload-area.dragover {
-  border-color: #0058be;
-  background-color: #eff4ff;
-  box-shadow: 0 0 20px rgba(0, 88, 190, 0.15);
+  border-color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
 }
 
 /* Landing Dynamic Hero Graphic */
@@ -3114,200 +3117,3 @@ dialog::backdrop {
 
 
 
-
-/* Lumina Floating Layout Styles */
-.editor-floating-layout {
-  position: relative;
-  overflow: hidden;
-  background-color: #f8f9ff;
-  background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
-  background-size: 20px 20px;
-}
-
-.floating-top-left {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 40;
-}
-
-.floating-top-left .btn-pill {
-  background: #ffffff;
-  border: 1px solid rgba(204, 195, 216, 0.5);
-  border-radius: 9999px;
-  padding: 8px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #4a4455;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.floating-top-left .btn-pill:hover {
-  background: #f9f1ff;
-  color: #630ed4;
-}
-
-.floating-left-panel-container {
-  position: absolute;
-  top: 80px;
-  left: 24px;
-  z-index: 40;
-  width: 320px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-  background: #ffffff;
-  border: 1px solid rgba(204, 195, 216, 0.5);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-}
-
-.floating-left-panel-container .sidebar-config-section {
-  display: none;
-  padding: 16px;
-}
-.floating-left-panel-container .sidebar-config-section.active {
-  display: block;
-}
-
-.floating-bottom-toolbar {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 40;
-  background: #ffffff;
-  border: 1px solid rgba(204, 195, 216, 0.5);
-  border-radius: 9999px;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.floating-bottom-toolbar .tab-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #4a4455;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.floating-bottom-toolbar .tab-btn i {
-  font-size: 20px;
-}
-.floating-bottom-toolbar .tab-btn:hover {
-  background: #e0e7ff;
-  color: #630ed4;
-}
-.floating-bottom-toolbar .tab-btn.active {
-  background: #7c3aed;
-  color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.floating-bottom-toolbar .divider {
-  width: 1px;
-  height: 32px;
-  background: #e8dfee;
-  margin: 0 4px;
-}
-
-.floating-bottom-right {
-  position: absolute;
-  bottom: 32px;
-  right: 24px;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.floating-zoom-bar {
-  background: #ffffff;
-  border: 1px solid rgba(204, 195, 216, 0.5);
-  border-radius: 9999px;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  height: 40px;
-}
-
-.floating-zoom-bar button {
-  background: transparent;
-  border: none;
-  color: #4a4455;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-.floating-zoom-bar button:hover {
-  color: #630ed4;
-}
-.floating-zoom-bar .zoom-level {
-  font-family: 'Inter', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  color: #4a4455;
-}
-.floating-zoom-bar .divider {
-  width: 1px;
-  height: 16px;
-  background: #e8dfee;
-}
-
-.floating-export-btn {
-  width: 40px;
-  height: 40px;
-  background: #ffffff;
-  border: 1px solid rgba(204, 195, 216, 0.5);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  color: #1d1a24;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.floating-export-btn:hover {
-  background: #f9f1ff;
-}
-
-/* Hide old sidebars and redefine canvas area */
-#editorWorkspace.lumina-mode {
-  display: block; /* We'll override the grid */
-}
-#editorWorkspace.lumina-mode.active {
-  display: block;
-}
-.lumina-mode .canvas-workspace {
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  padding: 0;
-  z-index: 10;
-}
-.lumina-mode .canvas-box {
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  width: 100%;
-  height: 100%;
-}

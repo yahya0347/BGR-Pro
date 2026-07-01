@@ -354,6 +354,21 @@ const elements = {
    Initialization and Global Events
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+  // Check if we came from index.html with an uploaded image
+  const storedImage = localStorage.getItem('eraserpro_uploaded_image');
+  const storedFilename = localStorage.getItem('eraserpro_uploaded_filename');
+  if (storedImage) {
+    const img = new Image();
+    img.onload = () => {
+      state.originalFilename = (storedFilename || 'image').replace(/\.[^/.]+$/, "");
+      state.originalFileType = 'image/png'; // generic fallback
+      processUploadedImage(img);
+      localStorage.removeItem('eraserpro_uploaded_image');
+      localStorage.removeItem('eraserpro_uploaded_filename');
+    };
+    img.src = storedImage;
+  }
+
   // Configure Global PDF.js Worker
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
