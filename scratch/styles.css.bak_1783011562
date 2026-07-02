@@ -63,10 +63,6 @@
   --shadow-glow-gold: 0 0 28px rgba(245, 158, 11, 0.3);
   --shadow-glow-success: 0 0 28px rgba(16, 185, 129, 0.25);
 
-  /* Stitch reference elevations (premium, neutral-tinted) */
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-high: 0 12px 40px rgba(0, 0, 0, 0.08);
-
   --box-shadow-glass: var(--shadow-sm);
   --box-shadow-glow: var(--shadow-glow-primary);
 
@@ -81,7 +77,6 @@
 
   /* Signature gradients */
   --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 45%, #EC4899 100%);
-  --gradient-brand: linear-gradient(135deg, #630ed4 0%, #b4136d 100%);
   --gradient-gold: linear-gradient(135deg, var(--gold-start) 0%, var(--gold-end) 100%);
   --gradient-mesh: radial-gradient(ellipse 900px 500px at 8% -8%, rgba(124, 58, 237, 0.07), transparent 60%),
     radial-gradient(ellipse 800px 500px at 100% 0%, rgba(8, 145, 178, 0.06), transparent 55%),
@@ -1078,39 +1073,13 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--border-radius-lg);
   border: var(--glass-border);
-  box-shadow: var(--shadow-high);
-  backdrop-filter: var(--glass-blur-lg);
-  -webkit-backdrop-filter: var(--glass-blur-lg);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   padding: 16px;
   gap: 16px;
   z-index: 50;
   color: var(--text);
-}
-
-/* ---- Stitch hover expand/collapse for the right-hand Export panel ----
-   The panel is shown/hidden by ui-panels.js toggling `.hidden`. When it
-   becomes visible we run a scale/opacity expand-in; ui-panels.js also adds
-   `.is-collapsing` for a brief fade-out before it re-hides. All export
-   *logic* (btnDownloadImage, quick sizes) stays in app.js/ui-panels.js. */
-#exportPanel {
-  transform-origin: top right;
-}
-#exportPanel:not(.hidden) {
-  animation: exportPanelExpandIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-#exportPanel.is-collapsing {
-  animation: exportPanelCollapseOut 0.22s ease forwards;
-  pointer-events: none;
-}
-@keyframes exportPanelExpandIn {
-  from { opacity: 0; transform: scale(0.95) translateY(-6px); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes exportPanelCollapseOut {
-  from { opacity: 1; transform: none; }
-  to   { opacity: 0; transform: scale(0.96) translateY(-4px); }
 }
 
 .panel-drag-handle {
@@ -1564,40 +1533,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .quick-size-btn:hover {
   border-color: var(--primary);
-  background-color: rgba(124, 58, 237, 0.06);
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: var(--shadow-soft);
-}
-
-.quick-size-btn:hover span:first-child {
-  color: var(--primary);
-}
-
-/* Selected size (Stitch highlighted-card look). Applied by ui-panels.js
-   as a cosmetic marker only -- the real export dimensions still flow
-   through resolutionPreset/customWidth/customHeight in app.js. */
-.quick-size-btn.is-selected {
-  border: 2px solid rgba(124, 58, 237, 0.5);
-  background-color: rgba(124, 58, 237, 0.12);
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.15);
-}
-
-.quick-size-btn.is-selected span:first-child {
-  color: var(--primary);
-}
-
-/* Premium Export CTAs use the Stitch brand gradient (id selectors so we
-   override the Tailwind utility classes without editing markup/logic). */
-#btnDownloadImage.btn-primary {
-  background: var(--gradient-brand);
-  box-shadow: var(--shadow-high);
-}
-#btnDownloadImage.btn-primary:hover {
-  filter: brightness(1.08);
-}
-#btnOpenExportPanel {
-  background: var(--gradient-brand);
-  color: #fff;
+  background-color: rgba(124, 58, 237, 0.05);
 }
 
 /* Divider */

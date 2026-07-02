@@ -13,70 +13,20 @@ document.addEventListener('DOMContentLoaded', () => {
   initWMRemoverModeToggle();
 });
 
-// 1) Export panel open/close + hover expand/collapse ------------------------
-// Behaviour (Stitch reference): hovering the header Export button expands the
-// panel after a short delay; moving away from the panel collapses it after a
-// grace delay; clicking still opens it, and the X still closes it instantly.
-// This is pure show/hide of #exportPanel -- the CSS drives the expand/collapse
-// animation. No export logic is touched here.
-const EXPORT_OPEN_DELAY = 120;   // ms hover intent before expanding
-const EXPORT_CLOSE_DELAY = 480;  // ms grace period before collapsing
-
+// 1) Export panel open/close ------------------------------------------------
 function initExportPanelToggle() {
   const openBtn = document.getElementById('btnOpenExportPanel');
   const closeBtn = document.getElementById('btnCloseExportPanel');
   const panel = document.getElementById('exportPanel');
   if (!openBtn || !closeBtn || !panel) return;
 
-  let openTimer = null;
-  let closeTimer = null;
-
-  const clearTimers = () => {
-    if (openTimer) { clearTimeout(openTimer); openTimer = null; }
-    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-  };
-
-  const expand = () => {
-    clearTimers();
-    panel.classList.remove('is-collapsing');
+  openBtn.addEventListener('click', () => {
     panel.classList.remove('hidden');
-  };
-
-  // Animated collapse: play the fade-out, then actually hide.
-  const collapse = () => {
-    clearTimers();
-    if (panel.classList.contains('hidden')) return;
-    panel.classList.add('is-collapsing');
-    setTimeout(() => {
-      panel.classList.add('hidden');
-      panel.classList.remove('is-collapsing');
-    }, 200);
-  };
-
-  // Click still opens instantly (pins it open).
-  openBtn.addEventListener('click', expand);
-
-  // X still closes instantly.
-  closeBtn.addEventListener('click', collapse);
-
-  // Hover intent on the trigger expands.
-  openBtn.addEventListener('mouseenter', () => {
-    clearTimers();
-    openTimer = setTimeout(expand, EXPORT_OPEN_DELAY);
-  });
-  openBtn.addEventListener('mouseleave', () => {
-    if (openTimer) { clearTimeout(openTimer); openTimer = null; }
-    scheduleCollapse();
   });
 
-  // Keep it open while the pointer is over the panel; collapse after leaving.
-  panel.addEventListener('mouseenter', clearTimers);
-  panel.addEventListener('mouseleave', scheduleCollapse);
-
-  function scheduleCollapse() {
-    clearTimers();
-    closeTimer = setTimeout(collapse, EXPORT_CLOSE_DELAY);
-  }
+  closeBtn.addEventListener('click', () => {
+    panel.classList.add('hidden');
+  });
 }
 
 // 2) Quick export size-preset buttons ---------------------------------------
@@ -106,10 +56,6 @@ function initQuickSizeButtons() {
       customWidth.dispatchEvent(new Event('input', { bubbles: true }));
       customHeight.value = h;
       customHeight.dispatchEvent(new Event('input', { bubbles: true }));
-
-      // Cosmetic only: mark the chosen preset (Stitch highlighted card).
-      buttons.forEach(b => b.classList.remove('is-selected'));
-      btn.classList.add('is-selected');
     });
   });
 }
