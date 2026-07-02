@@ -164,6 +164,17 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
+/* Top navbar desktop links (Tailwind's `hidden md:flex` gets clobbered by
+   the !important .hidden rule above, so this group uses its own class). */
+.nav-links-desktop {
+  display: none;
+}
+@media (min-width: 768px) {
+  .nav-links-desktop {
+    display: flex;
+  }
+}
+
 .flex-1 {
   flex: 1;
 }
@@ -3752,16 +3763,16 @@ dialog::backdrop {
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 500;
-  transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  transition: all var(--duration-base) var(--ease-premium);
 }
 .pdf-tile:hover {
   border-color: var(--primary);
   color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
-.pdf-tile-ic { font-size: 20px; color: var(--text-muted); transition: color 0.18s ease; }
-.pdf-tile:hover .pdf-tile-ic { color: var(--primary); }
+.pdf-tile-ic { font-size: 20px; color: var(--text-muted); transition: color 0.18s ease, transform var(--duration-base) var(--ease-premium); }
+.pdf-tile:hover .pdf-tile-ic { color: var(--primary); transform: scale(1.08); }
 .pdf-tile-label { line-height: 1.2; }
 
 /* Footer */
