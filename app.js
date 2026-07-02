@@ -120,6 +120,12 @@ const state = {
   // Editor mode tab
   activeTab: 'bg-remover',    // 'bg-remover', 'wm-remover', 'wm-maker'
   bgRemoved: false,
+
+  // Canvas zoom/pan (shared toolbar controls transform whichever tab is active)
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+  panMode: false,
   history: [],
   currentHistoryId: null,
   
@@ -394,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.originalImage) {
       if (state.activeTab === 'bg-remover') {
         renderBGRemoverCanvas();
+        fitBGRemoverCanvasToView();
       } else if (state.activeTab === 'wm-remover') {
         initWatermarkEraserBase();
       } else if (state.activeTab === 'wm-maker') {
@@ -864,7 +871,7 @@ function initUploadHandlers() {
   });
 
   // Logo click listener (acts as "home" button to reset workspace and return to landing page)
-  const logo = document.querySelector('.header-logo');
+  const logo = document.getElementById('navLogoHome');
   if (logo) {
     logo.style.cursor = 'pointer';
     logo.addEventListener('click', () => {
@@ -989,8 +996,10 @@ async function runAIBackgroundRemoval(imgSource) {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(imgSource, 0, 0);
 
-    // Extract base64 representation of image
-    const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+    // Extract base64 representation of image (lossless PNG — JPEG re-encoding
+    // introduces chroma-block artifacts that remove.bg then bakes into the
+    // alpha mask edges, causing grainy/splotchy fringing around hair etc.)
+    const dataURL = canvas.toDataURL('image/png');
     const base64Data = dataURL.split(',')[1];
 
     // Call the Vercel Serverless Function
@@ -1026,7 +1035,8 @@ async function runAIBackgroundRemoval(imgSource) {
       
       // Initialize Background Remover canvas
       renderBGRemoverCanvas();
-      
+      fitBGRemoverCanvasToView();
+
       // Auto-trigger layout setup for other workspaces
       initWatermarkEraserBase();
       renderWMMakerCanvas();
@@ -1063,9 +1073,10 @@ async function runAIBackgroundRemoval(imgSource) {
       }
       
       renderBGRemoverCanvas();
+      fitBGRemoverCanvasToView();
       initWatermarkEraserBase();
       renderWMMakerCanvas();
-      
+
       updateHistoryUI();
     }
   }
@@ -1122,6 +1133,7 @@ function applyMagicCutoutFallback(img) {
     }
     
     renderBGRemoverCanvas();
+    fitBGRemoverCanvasToView();
     initWatermarkEraserBase();
     renderWMMakerCanvas();
     updateHistoryUI();
@@ -1238,6 +1250,7 @@ function switchTab(tab) {
       runAIBackgroundRemoval(state.eraserBaseImage || state.originalImage);
     } else {
       renderBGRemoverCanvas();
+      fitBGRemoverCanvasToView();
     }
   } else if (tab === 'wm-remover') {
     setTimeout(() => {
@@ -1401,7 +1414,19 @@ function renderBGRemoverCanvas() {
   // Set dimensions matching original image aspect ratio
   canvas.width = imgWidth;
   canvas.height = imgHeight;
-  
+
+  // Give the canvas + its wrapper a definite native-pixel CSS size (mirrors the
+  // Watermark Remover tab's approach in initWatermarkEraserBase). Without this,
+  // the percentage width/height chain up through .preview-container/.canvas-box
+  // is ambiguous, leaving the canvas unconstrained and clipped instead of
+  // scaled/centered by the zoom transform in applyZoomPan().
+  canvas.style.width = `${imgWidth}px`;
+  canvas.style.height = `${imgHeight}px`;
+  if (elements.bgRemoverResultContainer) {
+    elements.bgRemoverResultContainer.style.width = `${imgWidth}px`;
+    elements.bgRemoverResultContainer.style.height = `${imgHeight}px`;
+  }
+
   // Step 1: Draw Background
   if (state.bgType === 'transparent') {
     ctx.clearRect(0, 0, imgWidth, imgHeight);
@@ -1645,6 +1670,29 @@ function initWatermarkEraserBase() {
     compareImg.src = state.originalImage.src;
   }
   setWMEraserMode(state.wmMode || 'brush');
+}
+
+// Scale + center the BG Remover canvas to fit inside the visible viewport.
+// Mirrors the fit logic used for the Watermark Remover tab (initWatermarkEraserBase)
+// so the cutout is never left unscaled/clipped at the container edges.
+function fitBGRemoverCanvasToView() {
+  if (!state.transparentImage) return;
+
+  const canvasBox = elements.bgRemoverCanvas.closest('.canvas-box') || document.querySelector('.canvas-box');
+  let maxW = window.innerWidth * 0.9;
+  let maxH = window.innerHeight * 0.55 * 0.9;
+  if (canvasBox) {
+    const rect = canvasBox.getBoundingClientRect();
+    if (rect.width > 0) maxW = rect.width * 0.9;
+    if (rect.height > 0) maxH = rect.height * 0.9;
+  }
+
+  const scaleW = maxW / state.transparentImage.width;
+  const scaleH = maxH / state.transparentImage.height;
+  state.zoom = Math.min(scaleW, scaleH);
+  state.panX = 0;
+  state.panY = 0;
+  applyZoomPan();
 }
 
 function applyZoomPan() {

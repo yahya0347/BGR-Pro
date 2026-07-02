@@ -144,7 +144,7 @@
 <!-- TopNavBar -->
 <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface-container-lowest/75 backdrop-blur-xl border-b border-outline-variant/60 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_4px_20px_rgba(24,19,31,0.04)]">
 <div class="flex items-center gap-xl">
-<div class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+<div id="navLogoHome" class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2" style="cursor:pointer;" role="button" aria-label="Go to home">
 <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
                 EraserPro
             </div>
@@ -381,7 +381,7 @@
 
 <!-- Center Canvas -->
 <div class="absolute inset-0 flex items-center justify-center p-xl">
-<div class="relative shadow-[0_8px_24px_rgba(0,0,0,0.08)] rounded-lg overflow-visible max-w-[80%] max-h-[80%]">
+<div class="relative shadow-[0_8px_24px_rgba(0,0,0,0.08)] rounded-lg overflow-visible w-[80%] h-[80%] max-w-[80%] max-h-[80%]">
 <div class="canvas-box" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
     <!-- Loading Overlay -->
     <div class="loading-overlay hidden" id="processingOverlay">
@@ -480,12 +480,13 @@
 </div>
 
 <!-- EXPORT PANEL (floating, right side, toggled by btnOpenExportPanel) -->
-<div id="exportPanel" class="floating-eraser-panel hidden" style="right:16px; left:auto; top:76px; width:280px; z-index:60; max-height:calc(100vh - 100px); overflow-y:auto;">
-<div class="panel-drag-handle" style="cursor:default;">
+<div id="exportPanel" class="floating-eraser-panel hidden" style="right:16px; left:auto; top:76px; width:280px; z-index:60; max-height:calc(100vh - 164px); overflow:hidden; padding:0;">
+<div class="panel-drag-handle" style="cursor:default; padding:16px 16px 12px; margin:0;">
 <span class="material-symbols-outlined text-[18px]">ios_share</span>
 <span style="flex:1;">Export</span>
 <button id="btnCloseExportPanel" class="btn-icon-only" style="width:28px;height:28px;"><span class="material-symbols-outlined text-[16px]">close</span></button>
 </div>
+<div class="export-panel-scroll">
 <div class="config-group">
 <label>Format</label>
 <select id="exportFormat" class="select-input">
@@ -502,6 +503,7 @@
 <option value="cmyk">CMYK (Print)</option>
 </select>
 </div>
+<div class="sidebar-divider" role="separator"></div>
 <div class="config-group">
 <label>Quick Sizes</label>
 <div class="quick-size-grid">
@@ -532,6 +534,8 @@
 <div class="input-unit"><input type="number" id="customHeight" class="res-num-input" value="600"><span>HEIGHT</span></div>
 </div>
 </div>
+</div>
+<div class="export-panel-footer">
 <div id="sidebarProBanner" class="pro-ad-banner hidden">
 <span class="pro-badge">PRO</span>
 <p>Unlock full-resolution exports &amp; every size preset with <strong>EraserPro Pro</strong>.</p>
@@ -539,6 +543,7 @@
 <button id="btnDownloadImage" class="btn btn-primary btn-full btn-large">
 <span class="material-symbols-outlined text-[18px]">download</span> Export Now
         </button>
+</div>
 </div>
 
 </main>
