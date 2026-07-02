@@ -127,7 +127,7 @@
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="extract-pages">
 <!-- Interactive Background Canvas -->
 <canvas id="interactive-grid"></canvas>
 <!-- TopNavBar -->
@@ -175,10 +175,10 @@
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">Pull selected pages out into a brand-new PDF.</p>
 </div>
 <!-- Dropzone Component -->
-<div class="w-full relative group">
+<div class="w-full relative group" id="pdfDropWrap">
 <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[20px] blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
 <div class="glass-card w-full rounded-xl p-2 relative transition-all duration-300 hover:-translate-y-1">
-<label class="gradient-dashed-border w-full flex flex-col items-center justify-center py-20 px-6 text-center cursor-pointer hover:bg-surface-container-low/30 transition-colors duration-300 h-[320px]">
+<label id="pdfDropzone" class="gradient-dashed-border w-full flex flex-col items-center justify-center py-20 px-6 text-center cursor-pointer hover:bg-surface-container-low/30 transition-colors duration-300 h-[320px]">
 <div class="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center mb-6 shadow-sm border border-primary-container/30">
 <span class="material-symbols-outlined text-[32px] text-primary">cloud_upload</span>
 </div>
@@ -191,10 +191,15 @@
 <span class="material-symbols-outlined text-[14px]">info</span>
                         PDF files only, max 10MB per file
                     </p>
-<input type="file" class="hidden" accept="application/pdf" multiple/>
+<input id="pdfFileInput" type="file" class="hidden" accept="application/pdf"/>
 </label>
 </div>
 </div>
+<!-- Processing / options / result render here (pdf-tools.js) -->
+<div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="pdf-tools.js"></script>
 <script src="pdf-grid.js"></script>
 </body></html>

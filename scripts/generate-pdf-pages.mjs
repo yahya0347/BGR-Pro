@@ -16,7 +16,22 @@ const OUT_DIR = join(__dirname, '..', 'pdf');
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-function renderPage({ name, description, formatNote, icon, accept }) {
+// Phase 1 client-side tools get the pdf-lib processing wiring; others stay shells.
+const PHASE1 = new Set(['merge', 'split', 'rotate', 'delete-pages', 'extract-pages', 'reorder', 'page-numbers', 'crop', 'compress']);
+
+function renderPage({ slug, name, description, formatNote, icon, accept }) {
+  const functional = PHASE1.has(slug);
+  const multipleAttr = slug === 'merge' ? ' multiple' : '';
+  const scripts = functional
+    ? [
+        '<script src="vendor/pdf-lib.min.js"></script>',
+        '<script src="vendor/jszip.min.js"></script>',
+        slug === 'reorder'
+          ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>\n<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>'
+          : '',
+        '<script src="pdf-tools.js"></script>',
+      ].filter(Boolean).join('\n')
+    : '';
   return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
@@ -146,7 +161,7 @@ function renderPage({ name, description, formatNote, icon, accept }) {
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="${esc(slug)}">
 <!-- Interactive Background Canvas -->
 <canvas id="interactive-grid"></canvas>
 <!-- TopNavBar -->
@@ -194,10 +209,10 @@ function renderPage({ name, description, formatNote, icon, accept }) {
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">${esc(description)}</p>
 </div>
 <!-- Dropzone Component -->
-<div class="w-full relative group">
+<div class="w-full relative group" id="pdfDropWrap">
 <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[20px] blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
 <div class="glass-card w-full rounded-xl p-2 relative transition-all duration-300 hover:-translate-y-1">
-<label class="gradient-dashed-border w-full flex flex-col items-center justify-center py-20 px-6 text-center cursor-pointer hover:bg-surface-container-low/30 transition-colors duration-300 h-[320px]">
+<label id="pdfDropzone" class="gradient-dashed-border w-full flex flex-col items-center justify-center py-20 px-6 text-center cursor-pointer hover:bg-surface-container-low/30 transition-colors duration-300 h-[320px]">
 <div class="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center mb-6 shadow-sm border border-primary-container/30">
 <span class="material-symbols-outlined text-[32px] text-primary">cloud_upload</span>
 </div>
@@ -210,11 +225,14 @@ function renderPage({ name, description, formatNote, icon, accept }) {
 <span class="material-symbols-outlined text-[14px]">info</span>
                         ${esc(formatNote)}
                     </p>
-<input type="file" class="hidden" accept="${esc(accept)}" multiple/>
+<input id="pdfFileInput" type="file" class="hidden" accept="${esc(accept)}"${multipleAttr}/>
 </label>
 </div>
 </div>
+<!-- Processing / options / result render here (pdf-tools.js) -->
+<div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+${scripts}
 <script src="pdf-grid.js"></script>
 </body></html>
 `;

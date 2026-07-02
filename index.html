@@ -240,7 +240,7 @@
             </div>
 <div class="nav-links-desktop items-center gap-lg h-full pt-2">
 <a id="backToUploadBtn" style="cursor:pointer;" class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="javascript:void(0)">Home</a>
-<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded flex items-center gap-1" href="https://pdfhub.vercel.app" target="_blank" rel="noopener">
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded flex items-center gap-1" href="#pdfHub">
 <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> PDF Hub
             </a>
 </div>
@@ -301,58 +301,64 @@
 
         <!-- PDF Hub bento. Tiles link out to the existing external PDF Hub site.
              data-pdf-tool is a hook for future per-tool deep links. -->
-        <section class="hub-pdf">
+        <section class="hub-pdf" id="pdfHub">
             <div>
                 <h2 class="hub-pdf-head-title"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">picture_as_pdf</span> PDF Hub</h2>
-                <p class="hub-pdf-head-sub">Your complete toolkit for converting, editing, and securing documents — 24+ tools.</p>
+                <p class="hub-pdf-head-sub">Your complete toolkit for converting, editing, and securing documents — 30 tools.</p>
             </div>
             <div class="hub-pdf-grid">
                 <!-- Convert to PDF -->
                 <div class="pdf-cat">
                     <h4 class="pdf-cat-title">Convert to PDF</h4>
                     <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="jpg-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">JPG to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="png-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">photo_library</span><span class="pdf-tile-label">PNG to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="word-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">Word to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="ppt-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PPT to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="excel-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">Excel to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="html-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">code</span><span class="pdf-tile-label">HTML to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="jpg-to-pdf" href="/pdf/jpg-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">JPG to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="png-to-pdf" href="/pdf/png-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">photo_library</span><span class="pdf-tile-label">PNG to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="word-to-pdf" href="/pdf/word-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">Word to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="ppt-to-pdf" href="/pdf/ppt-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PPT to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="excel-to-pdf" href="/pdf/excel-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">Excel to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="html-to-pdf" href="/pdf/html-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">code</span><span class="pdf-tile-label">HTML to PDF</span></a>
+                        <a class="pdf-tile" data-pdf-tool="text-to-pdf" href="/pdf/text-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">text_fields</span><span class="pdf-tile-label">Text to PDF</span></a>
                     </div>
                 </div>
                 <!-- Convert from PDF -->
                 <div class="pdf-cat">
                     <h4 class="pdf-cat-title">Convert from PDF</h4>
                     <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-jpg" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">picture_as_pdf</span><span class="pdf-tile-label">PDF to JPG</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-word" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">PDF to Word</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-ppt" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PDF to PPT</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-excel" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">PDF to Excel</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-text" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">text_snippet</span><span class="pdf-tile-label">PDF to Text</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-png" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">PDF to PNG</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-jpg" href="/pdf/pdf-to-jpg.html"><span class="material-symbols-outlined pdf-tile-ic">picture_as_pdf</span><span class="pdf-tile-label">PDF to JPG</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-word" href="/pdf/pdf-to-word.html"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">PDF to Word</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-ppt" href="/pdf/pdf-to-ppt.html"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PDF to PPT</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-excel" href="/pdf/pdf-to-excel.html"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">PDF to Excel</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-text" href="/pdf/pdf-to-text.html"><span class="material-symbols-outlined pdf-tile-ic">text_snippet</span><span class="pdf-tile-label">PDF to Text</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-png" href="/pdf/pdf-to-png.html"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">PDF to PNG</span></a>
+                        <a class="pdf-tile" data-pdf-tool="pdf-to-html" href="/pdf/pdf-to-html.html"><span class="material-symbols-outlined pdf-tile-ic">code</span><span class="pdf-tile-label">PDF to HTML</span></a>
                     </div>
                 </div>
                 <!-- Organize & Edit -->
                 <div class="pdf-cat">
                     <h4 class="pdf-cat-title">Organize &amp; Edit</h4>
                     <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="merge" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">merge</span><span class="pdf-tile-label">Merge</span></a>
-                        <a class="pdf-tile" data-pdf-tool="split" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">call_split</span><span class="pdf-tile-label">Split</span></a>
-                        <a class="pdf-tile" data-pdf-tool="compress" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">compress</span><span class="pdf-tile-label">Compress</span></a>
-                        <a class="pdf-tile" data-pdf-tool="rotate" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">rotate_right</span><span class="pdf-tile-label">Rotate</span></a>
-                        <a class="pdf-tile" data-pdf-tool="delete-pages" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">delete_sweep</span><span class="pdf-tile-label">Delete Pages</span></a>
-                        <a class="pdf-tile" data-pdf-tool="reorder" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">reorder</span><span class="pdf-tile-label">Reorder</span></a>
+                        <a class="pdf-tile" data-pdf-tool="merge" href="/pdf/merge.html"><span class="material-symbols-outlined pdf-tile-ic">merge</span><span class="pdf-tile-label">Merge</span></a>
+                        <a class="pdf-tile" data-pdf-tool="split" href="/pdf/split.html"><span class="material-symbols-outlined pdf-tile-ic">call_split</span><span class="pdf-tile-label">Split</span></a>
+                        <a class="pdf-tile" data-pdf-tool="compress" href="/pdf/compress.html"><span class="material-symbols-outlined pdf-tile-ic">compress</span><span class="pdf-tile-label">Compress</span></a>
+                        <a class="pdf-tile" data-pdf-tool="rotate" href="/pdf/rotate.html"><span class="material-symbols-outlined pdf-tile-ic">rotate_right</span><span class="pdf-tile-label">Rotate</span></a>
+                        <a class="pdf-tile" data-pdf-tool="delete-pages" href="/pdf/delete-pages.html"><span class="material-symbols-outlined pdf-tile-ic">delete_sweep</span><span class="pdf-tile-label">Delete Pages</span></a>
+                        <a class="pdf-tile" data-pdf-tool="reorder" href="/pdf/reorder.html"><span class="material-symbols-outlined pdf-tile-ic">reorder</span><span class="pdf-tile-label">Reorder</span></a>
+                        <a class="pdf-tile" data-pdf-tool="extract-pages" href="/pdf/extract-pages.html"><span class="material-symbols-outlined pdf-tile-ic">content_copy</span><span class="pdf-tile-label">Extract Pages</span></a>
+                        <a class="pdf-tile" data-pdf-tool="page-numbers" href="/pdf/page-numbers.html"><span class="material-symbols-outlined pdf-tile-ic">pin</span><span class="pdf-tile-label">Page Numbers</span></a>
+                        <a class="pdf-tile" data-pdf-tool="crop" href="/pdf/crop.html"><span class="material-symbols-outlined pdf-tile-ic">crop</span><span class="pdf-tile-label">Crop</span></a>
                     </div>
                 </div>
                 <!-- Security & Signing -->
                 <div class="pdf-cat">
                     <h4 class="pdf-cat-title">Security &amp; Signing</h4>
                     <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="protect" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">lock</span><span class="pdf-tile-label">Protect</span></a>
-                        <a class="pdf-tile" data-pdf-tool="unlock" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">lock_open</span><span class="pdf-tile-label">Unlock</span></a>
-                        <a class="pdf-tile" data-pdf-tool="esign" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">draw</span><span class="pdf-tile-label">eSign</span></a>
-                        <a class="pdf-tile" data-pdf-tool="watermark" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">branding_watermark</span><span class="pdf-tile-label">Watermark</span></a>
-                        <a class="pdf-tile" data-pdf-tool="redact" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">ink_highlighter</span><span class="pdf-tile-label">Redact</span></a>
-                        <a class="pdf-tile" data-pdf-tool="flatten" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">layers</span><span class="pdf-tile-label">Flatten</span></a>
+                        <a class="pdf-tile" data-pdf-tool="protect" href="/pdf/protect.html"><span class="material-symbols-outlined pdf-tile-ic">lock</span><span class="pdf-tile-label">Protect</span></a>
+                        <a class="pdf-tile" data-pdf-tool="unlock" href="/pdf/unlock.html"><span class="material-symbols-outlined pdf-tile-ic">lock_open</span><span class="pdf-tile-label">Unlock</span></a>
+                        <a class="pdf-tile" data-pdf-tool="esign" href="/pdf/esign.html"><span class="material-symbols-outlined pdf-tile-ic">draw</span><span class="pdf-tile-label">eSign</span></a>
+                        <a class="pdf-tile" data-pdf-tool="watermark" href="/pdf/watermark.html"><span class="material-symbols-outlined pdf-tile-ic">branding_watermark</span><span class="pdf-tile-label">Watermark</span></a>
+                        <a class="pdf-tile" data-pdf-tool="redact" href="/pdf/redact.html"><span class="material-symbols-outlined pdf-tile-ic">ink_highlighter</span><span class="pdf-tile-label">Redact</span></a>
+                        <a class="pdf-tile" data-pdf-tool="flatten" href="/pdf/flatten.html"><span class="material-symbols-outlined pdf-tile-ic">layers</span><span class="pdf-tile-label">Flatten</span></a>
+                        <a class="pdf-tile" data-pdf-tool="repair" href="/pdf/repair.html"><span class="material-symbols-outlined pdf-tile-ic">build</span><span class="pdf-tile-label">Repair</span></a>
                     </div>
                 </div>
             </div>
@@ -462,7 +468,7 @@
         <footer class="hub-footer">
             <span class="hub-footer-brand"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1; font-size:18px;">auto_awesome</span> EraserPro</span>
             <div class="hub-footer-links">
-                <a href="https://pdfhub.vercel.app" target="_blank" rel="noopener">PDF Hub</a>
+                <a href="#pdfHub">PDF Hub</a>
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
             </div>
