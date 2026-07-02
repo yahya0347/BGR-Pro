@@ -3798,4 +3798,101 @@ dialog::backdrop {
   .hub-footer { justify-content: center; text-align: center; }
 }
 
+/* ---- FAQ accordion (glass cards, matches hub styling) ---------------- */
+.hub-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.hub-faq-head { text-align: center; }
+.hub-faq-head .hub-section-title { font-size: 1.75rem; }
+.hub-faq-sub { color: var(--text-secondary); margin-top: 8px; font-size: 1.05rem; }
+
+.hub-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-light);
+  border-radius: 16px; /* rounded-2xl */
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transition: transform 0.3s var(--ease-premium, ease), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.faq-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-high);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+.faq-item.open {
+  border-color: rgba(124, 58, 237, 0.35);
+}
+
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.faq-question-text {
+  font-family: var(--font-family-display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin: 0;
+  transition: color 0.2s ease;
+}
+.faq-item.open .faq-question-text,
+.faq-q:hover .faq-question-text { color: var(--primary); }
+
+.faq-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.3s var(--ease-premium, ease), color 0.2s ease;
+}
+.faq-item.open .faq-chevron {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+/* Smooth height + opacity expand/collapse via animatable grid rows. */
+.faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.32s var(--ease-premium, ease), opacity 0.32s ease;
+}
+.faq-item.open .faq-a {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.faq-a-clip { overflow: hidden; min-height: 0; }
+.faq-answer-text {
+  margin: 0;
+  padding: 0 24px 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-a { transition: opacity 0.2s ease; }
+  .faq-item, .faq-chevron { transition: none; }
+}
+
 

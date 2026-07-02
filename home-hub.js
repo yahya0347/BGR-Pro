@@ -43,6 +43,27 @@
   });
   if (backBtn) backBtn.addEventListener('click', showLauncher);
 
+  /* ---- FAQ accordion (single item open at a time) ----------------------
+     Proper addEventListener handlers (no inline onclick). Toggling .open lets
+     CSS animate the height/opacity + chevron rotation. */
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach((item) => {
+    const q = item.querySelector('.faq-q');
+    if (!q) return;
+    q.addEventListener('click', () => {
+      const willOpen = !item.classList.contains('open');
+      faqItems.forEach((other) => {
+        other.classList.remove('open');
+        const oq = other.querySelector('.faq-q');
+        if (oq) oq.setAttribute('aria-expanded', 'false');
+      });
+      if (willOpen) {
+        item.classList.add('open');
+        q.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
   const ctx = canvas.getContext('2d');
 
   // Reset to the launcher whenever we RETURN to the landing from the editor

@@ -137,7 +137,97 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
+
+  <!-- FAQ structured data (all 10 Q&As) for SEO rich results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is EraserPro and what can it do?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "EraserPro is an all-in-one AI-powered creative suite designed for effortless image editing and document management. It combines advanced AI tools like background removal and watermark erasing with a robust PDF Hub for all your document conversion needs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is EraserPro free to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, every user starts with free credits to test our flagship tools. You can explore the power of our AI and PDF features without any upfront commitment."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the AI background remover work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our advanced neural networks analyze your images in real-time to identify subjects and remove backgrounds with pixel-perfect precision, even handling complex edges like hair or transparent objects."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I remove watermarks from images for free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, you can use your free credits for watermark removal. Our AI intelligently fills in the gaps to restore the original look of your photos."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What file formats does EraserPro support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We support all major image formats including PNG, JPG, and HEIC, as well as comprehensive PDF, Word, and Excel support for document workflows."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my uploaded image data safe and private?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Security is our priority. All files are encrypted during transit and automatically deleted from our servers after processing. We never use your data to train our models without explicit consent."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I convert PDF to Word, Excel, or PowerPoint?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. Our PDF Hub offers high-fidelity conversion to and from Microsoft Office formats, ensuring your layouts and formatting remain intact."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many PDF tools does EraserPro offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We offer over 30 specialized document tools including conversion, merging, splitting, and electronic signing, making it a complete workspace for document professionals."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's included in the Pro plan?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Pro plan grants 150 monthly credits, high-speed priority processing, and unlimited access to all AI and PDF tools for just $7.99 per month."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use EraserPro on mobile devices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, EraserPro is fully responsive and works beautifully on smartphones and tablets via your mobile browser, allowing you to edit on the go."
+        }
+      }
+    ]
+  }
+  </script>
 
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col bg-background font-body-md text-on-surface">
@@ -263,6 +353,106 @@
                         <a class="pdf-tile" data-pdf-tool="watermark" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">branding_watermark</span><span class="pdf-tile-label">Watermark</span></a>
                         <a class="pdf-tile" data-pdf-tool="redact" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">ink_highlighter</span><span class="pdf-tile-label">Redact</span></a>
                         <a class="pdf-tile" data-pdf-tool="flatten" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">layers</span><span class="pdf-tile-label">Flatten</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ (accordion; single item open at a time — wired in home-hub.js) -->
+        <section class="hub-faq" aria-labelledby="faqHeading">
+            <div class="hub-faq-head">
+                <h2 id="faqHeading" class="hub-section-title">Frequently Asked Questions</h2>
+                <p class="hub-faq-sub">Everything you need to know about EraserPro</p>
+            </div>
+            <div class="hub-faq-list">
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
+                        <h3 class="faq-question-text">What is EraserPro and what can it do?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+                        <div class="faq-a-clip"><p class="faq-answer-text">EraserPro is an all-in-one AI-powered creative suite designed for effortless image editing and document management. It combines advanced AI tools like background removal and watermark erasing with a robust PDF Hub for all your document conversion needs.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
+                        <h3 class="faq-question-text">Is EraserPro free to use?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Yes, every user starts with free credits to test our flagship tools. You can explore the power of our AI and PDF features without any upfront commitment.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
+                        <h3 class="faq-question-text">How does the AI background remover work?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Our advanced neural networks analyze your images in real-time to identify subjects and remove backgrounds with pixel-perfect precision, even handling complex edges like hair or transparent objects.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
+                        <h3 class="faq-question-text">Can I remove watermarks from images for free?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Yes, you can use your free credits for watermark removal. Our AI intelligently fills in the gaps to restore the original look of your photos.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
+                        <h3 class="faq-question-text">What file formats does EraserPro support?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
+                        <div class="faq-a-clip"><p class="faq-answer-text">We support all major image formats including PNG, JPG, and HEIC, as well as comprehensive PDF, Word, and Excel support for document workflows.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
+                        <h3 class="faq-question-text">Is my uploaded image data safe and private?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Security is our priority. All files are encrypted during transit and automatically deleted from our servers after processing. We never use your data to train our models without explicit consent.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-7" aria-expanded="false" aria-controls="faq-a-7">
+                        <h3 class="faq-question-text">Can I convert PDF to Word, Excel, or PowerPoint?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Absolutely. Our PDF Hub offers high-fidelity conversion to and from Microsoft Office formats, ensuring your layouts and formatting remain intact.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-8" aria-expanded="false" aria-controls="faq-a-8">
+                        <h3 class="faq-question-text">How many PDF tools does EraserPro offer?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-8" role="region" aria-labelledby="faq-q-8">
+                        <div class="faq-a-clip"><p class="faq-answer-text">We offer over 30 specialized document tools including conversion, merging, splitting, and electronic signing, making it a complete workspace for document professionals.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-9" aria-expanded="false" aria-controls="faq-a-9">
+                        <h3 class="faq-question-text">What's included in the Pro plan?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-9" role="region" aria-labelledby="faq-q-9">
+                        <div class="faq-a-clip"><p class="faq-answer-text">The Pro plan grants 150 monthly credits, high-speed priority processing, and unlimited access to all AI and PDF tools for just $7.99 per month.</p></div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button type="button" class="faq-q" id="faq-q-10" aria-expanded="false" aria-controls="faq-a-10">
+                        <h3 class="faq-question-text">Can I use EraserPro on mobile devices?</h3>
+                        <span class="material-symbols-outlined faq-chevron">expand_more</span>
+                    </button>
+                    <div class="faq-a" id="faq-a-10" role="region" aria-labelledby="faq-q-10">
+                        <div class="faq-a-clip"><p class="faq-answer-text">Yes, EraserPro is fully responsive and works beautifully on smartphones and tablets via your mobile browser, allowing you to edit on the go.</p></div>
                     </div>
                 </div>
             </div>
@@ -741,7 +931,7 @@
 
 <script type="module" src="app.js?v=38"></script>
 <script type="module" src="ui-panels.js?v=1"></script>
-<script src="home-hub.js?v=3"></script>
+<script src="home-hub.js?v=4"></script>
 <div id="dummy-elements" style="display: none;">
   <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>
