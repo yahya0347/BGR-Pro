@@ -137,7 +137,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=2">
 
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col bg-background font-body-md text-on-surface">
@@ -174,134 +174,43 @@
 </nav>
 <!-- Main Workspace Area -->
 
-<!-- Upload Landing Area / Home Hub -->
-<main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col mt-toolbar-width overflow-y-auto hub-landing">
-    <!-- Mouse-reactive dot grid (home-hub.js). Child of #uploadLanding so it
-         auto-hides when the editor is shown (parent becomes display:none). -->
-    <canvas id="homeHubCanvas" class="hub-canvas" aria-hidden="true"></canvas>
+<!-- Upload Landing Area -->
+<main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col items-center justify-center bg-mesh mt-toolbar-width overflow-y-auto py-12">
+    <div class="max-w-3xl w-full mx-auto px-4 text-center">
+        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-1">What do you want to do?</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-6">Choose a tool to get started</p>
 
-    <div class="hub-wrap" id="hubLauncher">
-        <!-- Hero -->
-        <header class="hub-hero">
-            <h1 class="hub-hero-title">Every tool you need.<br><span class="hub-gradient-text">One workspace.</span></h1>
-            <p class="hub-hero-sub">AI-powered image editing and document conversion — all in one place. Fast, precise, and completely secure.</p>
-        </header>
-
-        <!-- AI Image Tools (real, wired to existing tool-selection logic) -->
-        <section class="hub-section">
-            <h2 class="hub-section-title">AI Image Tools</h2>
-            <div id="toolPicker" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-                <button type="button" class="landing-tab-btn tool-card active" data-landing-tab="bg-remover">
-                    <span class="tool-card-icon material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">content_cut</span>
-                    <span class="tool-card-name">Background Eraser</span>
-                    <span class="tool-card-desc">Remove or replace the background automatically</span>
-                </button>
-                <button type="button" class="landing-tab-btn tool-card" data-landing-tab="wm-remover">
-                    <span class="tool-card-icon material-symbols-outlined">ink_eraser</span>
-                    <span class="tool-card-name">Watermark Remover</span>
-                    <span class="tool-card-desc">Erase watermarks and logos from your photo</span>
-                </button>
-                <button type="button" class="landing-tab-btn tool-card" data-landing-tab="wm-maker">
-                    <span class="tool-card-icon material-symbols-outlined">branding_watermark</span>
-                    <span class="tool-card-name">Watermark Maker</span>
-                    <span class="tool-card-desc">Add a text or logo watermark to protect your images</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- PDF Hub bento. Tiles link out to the existing external PDF Hub site.
-             data-pdf-tool is a hook for future per-tool deep links. -->
-        <section class="hub-pdf">
-            <div>
-                <h2 class="hub-pdf-head-title"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">picture_as_pdf</span> PDF Hub</h2>
-                <p class="hub-pdf-head-sub">Your complete toolkit for converting, editing, and securing documents — 24+ tools.</p>
-            </div>
-            <div class="hub-pdf-grid">
-                <!-- Convert to PDF -->
-                <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Convert to PDF</h4>
-                    <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="jpg-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">JPG to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="png-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">photo_library</span><span class="pdf-tile-label">PNG to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="word-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">Word to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="ppt-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PPT to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="excel-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">Excel to PDF</span></a>
-                        <a class="pdf-tile" data-pdf-tool="html-to-pdf" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">code</span><span class="pdf-tile-label">HTML to PDF</span></a>
-                    </div>
-                </div>
-                <!-- Convert from PDF -->
-                <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Convert from PDF</h4>
-                    <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-jpg" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">picture_as_pdf</span><span class="pdf-tile-label">PDF to JPG</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-word" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">PDF to Word</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-ppt" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">slideshow</span><span class="pdf-tile-label">PDF to PPT</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-excel" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">table_chart</span><span class="pdf-tile-label">PDF to Excel</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-text" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">text_snippet</span><span class="pdf-tile-label">PDF to Text</span></a>
-                        <a class="pdf-tile" data-pdf-tool="pdf-to-png" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">PDF to PNG</span></a>
-                    </div>
-                </div>
-                <!-- Organize & Edit -->
-                <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Organize &amp; Edit</h4>
-                    <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="merge" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">merge</span><span class="pdf-tile-label">Merge</span></a>
-                        <a class="pdf-tile" data-pdf-tool="split" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">call_split</span><span class="pdf-tile-label">Split</span></a>
-                        <a class="pdf-tile" data-pdf-tool="compress" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">compress</span><span class="pdf-tile-label">Compress</span></a>
-                        <a class="pdf-tile" data-pdf-tool="rotate" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">rotate_right</span><span class="pdf-tile-label">Rotate</span></a>
-                        <a class="pdf-tile" data-pdf-tool="delete-pages" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">delete_sweep</span><span class="pdf-tile-label">Delete Pages</span></a>
-                        <a class="pdf-tile" data-pdf-tool="reorder" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">reorder</span><span class="pdf-tile-label">Reorder</span></a>
-                    </div>
-                </div>
-                <!-- Security & Signing -->
-                <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Security &amp; Signing</h4>
-                    <div class="pdf-cat-tiles">
-                        <a class="pdf-tile" data-pdf-tool="protect" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">lock</span><span class="pdf-tile-label">Protect</span></a>
-                        <a class="pdf-tile" data-pdf-tool="unlock" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">lock_open</span><span class="pdf-tile-label">Unlock</span></a>
-                        <a class="pdf-tile" data-pdf-tool="esign" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">draw</span><span class="pdf-tile-label">eSign</span></a>
-                        <a class="pdf-tile" data-pdf-tool="watermark" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">branding_watermark</span><span class="pdf-tile-label">Watermark</span></a>
-                        <a class="pdf-tile" data-pdf-tool="redact" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">ink_highlighter</span><span class="pdf-tile-label">Redact</span></a>
-                        <a class="pdf-tile" data-pdf-tool="flatten" href="https://pdfhub.vercel.app" target="_blank" rel="noopener"><span class="material-symbols-outlined pdf-tile-ic">layers</span><span class="pdf-tile-label">Flatten</span></a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="hub-footer">
-            <span class="hub-footer-brand"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1; font-size:18px;">auto_awesome</span> EraserPro</span>
-            <div class="hub-footer-links">
-                <a href="https://pdfhub.vercel.app" target="_blank" rel="noopener">PDF Hub</a>
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-            </div>
-            <span class="hub-footer-copy">© 2026 EraserPro AI. All rights reserved.</span>
-        </footer>
-    </div>
-
-    <!-- Secondary screen: per-tool upload area. Shown after a tool card is
-         chosen (home-hub.js toggles it); the launcher above is hidden.
-         All IDs below are the originals app.js already wires. -->
-    <div class="hub-upload-wrap" id="hubUploadView" hidden>
-        <button type="button" id="hubBackToTools" class="hub-back-btn">
-            <span class="material-symbols-outlined text-[18px]">arrow_back</span> All tools
-        </button>
-        <div class="hub-upload-card">
-            <h1 id="uploadTitle" class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h1>
-            <p id="uploadDesc" class="font-body-lg text-body-lg text-on-surface-variant mb-6">Drag and drop an image here, or click to browse your files.</p>
-
-            <div id="dropZone" class="w-full h-56 rounded-2xl border-2 border-dashed border-primary bg-primary/5 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors duration-200">
-                <span class="material-symbols-outlined text-5xl text-primary mb-4">cloud_upload</span>
-                <div class="font-label-lg text-label-lg text-primary">Click or drag image to upload</div>
-                <div class="font-body-md text-body-md text-on-surface-variant mt-2">Supports JPG, PNG, WEBP (Max 10MB)</div>
-            </div>
-
-            <button id="btnUploadCTA" class="mt-6 px-8 py-3 bg-primary text-on-primary rounded-full font-label-lg text-label-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-200">
-                Browse Files
+        <div id="toolPicker" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
+            <button type="button" class="landing-tab-btn tool-card active" data-landing-tab="bg-remover">
+                <span class="tool-card-icon material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+                <span class="tool-card-name">Background Eraser</span>
+                <span class="tool-card-desc">Remove or replace the background automatically</span>
             </button>
-            <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden">
+            <button type="button" class="landing-tab-btn tool-card" data-landing-tab="wm-remover">
+                <span class="tool-card-icon material-symbols-outlined">ink_eraser</span>
+                <span class="tool-card-name">Watermark Remover</span>
+                <span class="tool-card-desc">Erase watermarks and logos from your photo</span>
+            </button>
+            <button type="button" class="landing-tab-btn tool-card" data-landing-tab="wm-maker">
+                <span class="tool-card-icon material-symbols-outlined">branding_watermark</span>
+                <span class="tool-card-name">Watermark Maker</span>
+                <span class="tool-card-desc">Add a text or logo watermark to protect your images</span>
+            </button>
         </div>
+
+        <h1 id="uploadTitle" class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h1>
+        <p id="uploadDesc" class="font-body-lg text-body-lg text-on-surface-variant mb-8">Drag and drop an image here, or click to browse your files.</p>
+
+        <div id="dropZone" class="w-full h-64 rounded-2xl border-2 border-dashed border-primary bg-primary/5 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors duration-200">
+            <span class="material-symbols-outlined text-5xl text-primary mb-4">cloud_upload</span>
+            <div class="font-label-lg text-label-lg text-primary">Click or drag image to upload</div>
+            <div class="font-body-md text-body-md text-on-surface-variant mt-2">Supports JPG, PNG, WEBP (Max 10MB)</div>
+        </div>
+
+        <button id="btnUploadCTA" class="mt-8 px-8 py-3 bg-primary text-on-primary rounded-full font-label-lg text-label-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-200">
+            Browse Files
+        </button>
+        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden">
     </div>
 </main>
 
@@ -741,7 +650,6 @@
 
 <script type="module" src="app.js?v=38"></script>
 <script type="module" src="ui-panels.js?v=1"></script>
-<script src="home-hub.js?v=2"></script>
 <div id="dummy-elements" style="display: none;">
   <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>
