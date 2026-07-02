@@ -43,9 +43,9 @@
   if (backBtn) backBtn.addEventListener('click', showLauncher);
 
   const ctx = canvas.getContext('2d');
-  const SPACING = 26;
+  const SPACING = 24;
   const BASE_R = 1;
-  const MAX_R = 2.6;
+  const MAX_R = 2.5;
   const HOVER = 120;
   // Rest colour #ccc3d8 (outline-variant) -> hover colour #7c3aed (primary).
   const REST = { r: 204, g: 195, b: 216 };
