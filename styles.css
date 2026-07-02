@@ -1113,6 +1113,43 @@ h1, h2, h3, h4, h5, h6 {
   to   { opacity: 0; transform: scale(0.96) translateY(-4px); }
 }
 
+/* ---- Left-panel hover expand/collapse (mirrors the Export panel hover
+   pattern above): the active tool panel (Background Eraser / Watermark
+   Remover / Watermark Maker) collapses to just its icon+title header when
+   the pointer isn't nearby, and expands into the full panel on hover, using
+   the same expand animation/timing as #exportPanel. Panel switching
+   (.active, driven by app.js) and every control inside is untouched --
+   ui-panels.js only adds/removes `.is-panel-collapsed`. */
+#config-bg-remover.active,
+#config-wm-remover.active,
+#config-wm-maker.active {
+  transform-origin: top left;
+}
+#config-bg-remover.active:not(.is-panel-collapsed),
+#config-wm-remover.active:not(.is-panel-collapsed),
+#config-wm-maker.active:not(.is-panel-collapsed) {
+  animation: exportPanelExpandIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+#config-bg-remover.active.is-panel-collapsed,
+#config-wm-remover.active.is-panel-collapsed,
+#config-wm-maker.active.is-panel-collapsed {
+  width: auto;
+  gap: 0;
+  cursor: pointer;
+}
+#config-bg-remover.active.is-panel-collapsed > *:not(.panel-drag-handle),
+#config-wm-remover.active.is-panel-collapsed > *:not(.panel-drag-handle),
+#config-wm-maker.active.is-panel-collapsed > *:not(.panel-drag-handle) {
+  display: none;
+}
+#config-bg-remover.active.is-panel-collapsed .panel-drag-handle,
+#config-wm-remover.active.is-panel-collapsed .panel-drag-handle,
+#config-wm-maker.active.is-panel-collapsed .panel-drag-handle {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
 .panel-drag-handle {
   display: flex;
   align-items: center;

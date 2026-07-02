@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuickSizeButtons();
   initSmartPngDefault();
   initWMRemoverModeToggle();
+  initLeftPanelHoverCollapse();
 });
 
 // 1) Export panel open/close + hover expand/collapse ------------------------
@@ -152,6 +153,39 @@ function initWMRemoverModeToggle() {
         autoPanel.classList.add('hidden');
         manualPanel.classList.remove('hidden');
       }
+    });
+  });
+}
+
+// 5) Left tool panel hover expand/collapse (mirrors #1 above) ---------------
+// Background Eraser / Watermark Remover / Watermark Maker collapse to just
+// their icon+title header when the pointer isn't nearby, and expand to the
+// full panel on hover -- same open/close delays as initExportPanelToggle,
+// and the CSS-driven expand animation is shared with #exportPanel. Tool
+// switching (.active, driven by app.js) is untouched; this only toggles
+// `.is-panel-collapsed` on the active panel.
+const LEFT_PANEL_OPEN_DELAY = 120;   // ms hover intent before expanding
+const LEFT_PANEL_CLOSE_DELAY = 480;  // ms grace period before collapsing
+
+function initLeftPanelHoverCollapse() {
+  const panelIds = ['config-bg-remover', 'config-wm-remover', 'config-wm-maker'];
+
+  panelIds.forEach(id => {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+
+    panel.classList.add('is-panel-collapsed');
+
+    let openTimer = null;
+    let closeTimer = null;
+
+    panel.addEventListener('mouseenter', () => {
+      if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+      openTimer = setTimeout(() => panel.classList.remove('is-panel-collapsed'), LEFT_PANEL_OPEN_DELAY);
+    });
+    panel.addEventListener('mouseleave', () => {
+      if (openTimer) { clearTimeout(openTimer); openTimer = null; }
+      closeTimer = setTimeout(() => panel.classList.add('is-panel-collapsed'), LEFT_PANEL_CLOSE_DELAY);
     });
   });
 }
