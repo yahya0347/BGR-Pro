@@ -4,9 +4,10 @@
 // Firebase, no /api/* call. The 3 AI tool cards keep their existing
 // data-landing-tab wiring in app.js; PDF Hub tiles are plain external links.
 //
-// Performance: the canvas settles to a static grid when the mouse stops (zero
-// idle CPU) and pauses entirely when the editor view is open (its parent
-// #uploadLanding becomes display:none, so the canvas isn't painted either).
+// The dot grid runs a continuous requestAnimationFrame loop (exact Stitch
+// logic: 24px spacing, 1->2.5px radius, colour lerp #ccc3d8 -> #7c3aed within
+// 120px of the pointer). The canvas is a child of #uploadLanding, so it is not
+// painted while the editor view is open (parent is display:none).
 
 (function () {
   const canvas = document.getElementById('homeHubCanvas');
@@ -43,106 +44,79 @@
   if (backBtn) backBtn.addEventListener('click', showLauncher);
 
   const ctx = canvas.getContext('2d');
-  const SPACING = 24;
-  const BASE_R = 1;
-  const MAX_R = 2.5;
-  const HOVER = 120;
-  // Rest colour #ccc3d8 (outline-variant) -> hover colour #7c3aed (primary).
-  const REST = { r: 204, g: 195, b: 216 };
-  const HOT = { r: 124, g: 58, b: 237 };
 
-  let width = 0;
-  let height = 0;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let mouse = { x: -9999, y: -9999 };
-  let rafId = null;
-  let settleFrames = 0; // frames left to animate after the last mouse move
-
-  const isActive = () =>
-    landing.classList.contains('active') && document.visibilityState === 'visible';
-
-  function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function drawFrame() {
-    ctx.clearRect(0, 0, width, height);
-    const cols = Math.ceil(width / SPACING);
-    const rows = Math.ceil(height / SPACING);
-    for (let i = 0; i <= cols; i++) {
-      for (let j = 0; j <= rows; j++) {
-        const x = i * SPACING;
-        const y = j * SPACING;
-        const dx = x - mouse.x;
-        const dy = y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        let radius = BASE_R;
-        let r = REST.r, g = REST.g, b = REST.b;
-        if (dist < HOVER) {
-          const f = 1 - dist / HOVER;
-          radius = BASE_R + (MAX_R - BASE_R) * f;
-          r = Math.round(REST.r + (HOT.r - REST.r) * f);
-          g = Math.round(REST.g + (HOT.g - REST.g) * f);
-          b = Math.round(REST.b + (HOT.b - REST.b) * f);
-        }
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-        ctx.fill();
-      }
-    }
-  }
-
-  function loop() {
-    if (!isActive()) { rafId = null; return; }
-    drawFrame();
-    if (settleFrames > 0) {
-      settleFrames--;
-      rafId = requestAnimationFrame(loop);
-    } else {
-      rafId = null; // idle: leave the static grid rendered, stop burning CPU
-    }
-  }
-
-  // Restart the animation for a short window (so dots relax back after the
-  // pointer passes), but only while the hub is actually visible.
-  function kick() {
-    if (!isActive()) return;
-    settleFrames = 80;
-    if (!rafId) rafId = requestAnimationFrame(loop);
-  }
-
-  window.addEventListener('resize', () => { resize(); kick(); });
-  window.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    kick();
-  }, { passive: true });
-  window.addEventListener('mouseleave', () => {
-    mouse.x = -9999; mouse.y = -9999;
-    kick();
-  });
-  document.addEventListener('visibilitychange', kick);
-
-  // Re-render when the workspace switches back to the landing, and reset to
-  // the launcher whenever we RETURN to the landing from the editor (Home /
-  // back button in app.js re-adds .active) so users never land mid-upload.
+  // Reset to the launcher whenever we RETURN to the landing from the editor
+  // (Home / back button in app.js re-adds .active) so users never land
+  // mid-upload after finishing an edit.
   let wasActive = landing.classList.contains('active');
   new MutationObserver(() => {
     const nowActive = landing.classList.contains('active');
     if (nowActive && !wasActive) showLauncher();
     wasActive = nowActive;
-    kick();
   }).observe(landing, { attributes: true, attributeFilter: ['class'] });
 
+  // ---- Mouse-reactive dot grid (exact Stitch logic) ----------------------
+  let width, height;
+  let mouse = { x: -1000, y: -1000 };
+
+  const spacing = 24;
+  const baseRadius = 1;
+  const maxRadius = 2.5;
+  const hoverDistance = 120;
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
   resize();
-  drawFrame(); // initial static grid
-  kick();
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  window.addEventListener('mouseleave', () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    const cols = Math.ceil(width / spacing);
+    const rows = Math.ceil(height / spacing);
+
+    for (let i = 0; i <= cols; i++) {
+      for (let j = 0; j <= rows; j++) {
+        const x = i * spacing;
+        const y = j * spacing;
+
+        const dx = x - mouse.x;
+        const dy = y - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        let radius = baseRadius;
+        let r = 204, g = 195, b = 216;
+
+        if (distance < hoverDistance) {
+          const factor = 1 - (distance / hoverDistance);
+          radius = baseRadius + (maxRadius - baseRadius) * factor;
+          r = Math.round(204 - (204 - 124) * factor);
+          g = Math.round(195 - (195 - 58) * factor);
+          b = Math.round(216 + (237 - 216) * factor);
+        }
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.fill();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
 })();
