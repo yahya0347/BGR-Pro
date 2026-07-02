@@ -582,11 +582,15 @@ function initSubscription() {
     // Pay-As-You-Go Picker and purchase
     const inputQty = document.getElementById('inputQuantityPAYG');
     const totalPriceEl = document.getElementById('paygTotalPrice');
-    
+    const paygSubtextEl = document.getElementById('paygSubtext');
+
     const updatePAYGPrice = () => {
       const qty = parseInt(inputQty.value) || 0;
       const price = (qty * 0.50).toFixed(2);
       totalPriceEl.innerText = `$${price}`;
+      if (paygSubtextEl) {
+        paygSubtextEl.innerText = `${qty} credit${qty === 1 ? '' : 's'} for $${price} ($0.50/credit)`;
+      }
     };
     
     document.getElementById('btnDecPAYG').addEventListener('click', () => {
@@ -1199,7 +1203,8 @@ function switchTab(tab) {
   } else if (tab === 'wm-maker') {
     renderWMMakerCanvas();
   }
-  
+
+  applyZoomPan();
   updateHistoryUI();
 }
 
@@ -1599,14 +1604,22 @@ function initWatermarkEraserBase() {
 }
 
 function applyZoomPan() {
-  const baseCanvas = elements.wmRemoverBaseCanvas;
-  if (!baseCanvas) return;
-  const layersDiv = baseCanvas.parentElement; // .canvas-layers
-  if (!layersDiv) return;
-  
-  // Apply the CSS transform
-  layersDiv.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-  
+  // The zoomable target differs per workspace tab since each view has its
+  // own DOM structure (bg-remover / wm-remover / wm-maker).
+  let target = null;
+  if (state.activeTab === 'bg-remover') {
+    target = elements.bgRemoverResultContainer;
+  } else if (state.activeTab === 'wm-remover') {
+    target = elements.wmRemoverBaseCanvas ? elements.wmRemoverBaseCanvas.parentElement : null; // .canvas-layers
+  } else if (state.activeTab === 'wm-maker') {
+    target = elements.wmMakerCanvas;
+  }
+
+  if (target) {
+    target.style.transformOrigin = 'center center';
+    target.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+  }
+
   // Update the zoom level label
   const zoomLevelVal = document.getElementById('zoomLevelVal');
   if (zoomLevelVal) {
