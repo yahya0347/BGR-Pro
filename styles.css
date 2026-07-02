@@ -7,41 +7,44 @@
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-display: 'Outfit', sans-serif;
   
-  /* Color Palette - Premium Light / Off-White Theme */
-  --bg-darkest: #f8fafc;
+  /* Color Palette - Premium Light Violet Theme */
+  --bg-darkest: #FAFAFC;
   --bg-darker: #ffffff;
-  --bg-dark: #f1f5f9;
+  --bg-dark: #F3F0F8;
   --bg-panel: rgba(255, 255, 255, 0.75);
-  
-  --primary: #4f46e5;
-  --primary-hover: #3730a3;
-  --primary-glow: rgba(79, 70, 229, 0.15);
-  
-  --accent: #9333ea;
-  --accent-hover: #7e22ce;
-  
+  --bg-main: var(--bg-darkest);
+
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
+  --primary-glow: rgba(124, 58, 237, 0.15);
+  --accent-primary: var(--primary);
+
+  --accent: #7C3AED;
+  --accent-hover: #6D28D9;
+
   --gold-start: #fbbf24;
   --gold-end: #f59e0b;
   --gold-glow: rgba(245, 158, 11, 0.15);
-  
+
   --success: #10b981;
   --danger: #ef4444;
-  
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  
-  --border-light: rgba(15, 23, 42, 0.08);
-  --border-primary: rgba(79, 70, 229, 0.15);
+
+  --text-primary: #18131F;
+  --text-secondary: #4A4455;
+  --text-muted: #7b7487;
+  --text: var(--text-primary);
+
+  --border-light: rgba(24, 19, 31, 0.08);
+  --border-primary: rgba(124, 58, 237, 0.15);
   --border-gold: rgba(245, 158, 11, 0.2);
-  
+
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 20px;
   --border-radius-full: 9999px;
-  
-  --box-shadow-glass: 0 8px 32px 0 rgba(15, 23, 42, 0.05);
-  --box-shadow-glow: 0 0 25px rgba(79, 70, 229, 0.08);
+
+  --box-shadow-glass: 0 8px 32px 0 rgba(24, 19, 31, 0.05);
+  --box-shadow-glow: 0 0 25px rgba(124, 58, 237, 0.08);
 }
 
 /* Reset & Basic Styles */
@@ -332,13 +335,17 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
 }
 
+/* !important: these elements also carry literal Tailwind "flex" utility
+   classes for their own internal layout, and the Tailwind CDN's injected
+   stylesheet can load after this one — without !important that utility
+   class wins the specificity tie and both screens stay visible at once. */
 .workspace-section {
-  display: none;
+  display: none !important;
   width: 100%;
 }
 
 .workspace-section.active {
-  display: flex;
+  display: flex !important;
 }
 
 /* ==========================================================================
@@ -578,29 +585,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   Editor Dashboard Workspace (Split Layout)
+   Editor Workspace (Floating Panel Layout)
    ========================================================================== */
-#editorWorkspace {
-  display: none;
-  grid-template-columns: 240px 1fr 340px;
-  min-height: calc(100vh - 73px);
-  height: auto;
-  overflow: visible;
-}
-
-#editorWorkspace.active {
-  display: grid;
-}
-
-/* Left Sidebar - Navigation & Tabs */
-.sidebar-left {
-  background-color: var(--bg-darker);
-  border-right: 1px solid var(--border-light);
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+/* Note: #editorWorkspace visibility/layout is driven entirely by the generic
+   .workspace-section / .workspace-section.active rules + Tailwind utility
+   classes on the element itself, not a dedicated grid layout — the tool
+   panels float via position:absolute rather than living in a sidebar column. */
 
 .sidebar-title {
   font-size: 0.75rem;
@@ -608,42 +598,31 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: 0.05em;
-  margin-bottom: 16px;
-  padding-left: 8px;
+  margin-bottom: 4px;
+  padding-left: 2px;
 }
 
-.tool-tabs {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* Bottom floating pill toolbar icon buttons */
 .tab-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  padding: 12px 16px;
-  border-radius: var(--border-radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-family: var(--font-family-sans);
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: left;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-  color: var(--text-primary);
+  background-color: var(--bg-dark);
+  color: var(--primary);
 }
 
 .tab-btn.active {
   background-color: var(--primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
 }
 
 .back-to-upload-btn {
@@ -653,31 +632,8 @@ h1, h2, h3, h4, h5, h6 {
 /* ==========================================================================
    Center Panel - Canvas / Studio Window
    ========================================================================== */
-.canvas-workspace {
-  background-color: var(--bg-darkest);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  position: relative;
-  overflow: auto;
-  gap: 20px;
-}
-
 .canvas-box {
   position: relative;
-  background-color: var(--bg-dark);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-light);
-  width: 100%;
-  height: 60vh;
-  min-height: 450px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.04);
 }
 
 /* Canvas transparent pattern background */
@@ -1322,6 +1278,43 @@ h1, h2, h3, h4, h5, h6 {
   background: #818cf8;
 }
 
+/* Quick export size-preset buttons */
+.quick-size-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.quick-size-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  background-color: var(--bg-darkest);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-family: var(--font-family-sans);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.quick-size-btn span:first-child {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.quick-size-btn span:last-child {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.quick-size-btn:hover {
+  border-color: var(--primary);
+  background-color: rgba(124, 58, 237, 0.05);
+}
+
 /* Divider */
 .sidebar-divider {
   border: 0;
@@ -1625,27 +1618,6 @@ dialog::backdrop {
 
 /* Responsive CSS (Tablet & Mobile) */
 @media (max-width: 1024px) {
-  #editorWorkspace {
-    grid-template-columns: 80px 1fr 300px;
-  }
-  
-  .tab-btn span {
-    display: none;
-  }
-  
-  .tab-btn {
-    justify-content: center;
-    padding: 12px;
-  }
-  
-  .sidebar-left {
-    padding: 20px 8px;
-  }
-  
-  .sidebar-title {
-    display: none;
-  }
-  
   .back-to-upload-btn span {
     display: none;
   }
@@ -1823,15 +1795,14 @@ dialog::backdrop {
   }
 
   #editorWorkspace.active, #pdfEditorWorkspace.active {
-    grid-template-columns: 100% !important;
-    grid-template-rows: auto auto auto !important;
     min-height: calc(100vh - 90px) !important;
     height: auto !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     overflow: visible !important;
-    display: grid !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   
   .sidebar-left {
@@ -1988,11 +1959,11 @@ dialog::backdrop {
     gap: 8px !important;
     border-radius: var(--border-radius-md) !important;
     z-index: 110 !important;
-    background: rgba(15, 23, 42, 0.9) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: 0 4px 20px rgba(24, 19, 31, 0.12) !important;
     display: flex !important;
     flex-direction: column !important;
     box-sizing: border-box !important;

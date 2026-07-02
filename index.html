@@ -7,7 +7,6 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -17,50 +16,50 @@
                         "secondary-container": "#fea619",
                         "primary-fixed-dim": "#d2bbff",
                         "on-error-container": "#93000a",
-                        "background": "#fef7ff",
+                        "background": "#FAFAFC",
                         "inverse-primary": "#d2bbff",
                         "on-primary-fixed": "#25005a",
                         "outline": "#7b7487",
                         "on-primary": "#ffffff",
                         "on-secondary-fixed": "#2a1700",
                         "tertiary-fixed": "#ffdcc6",
-                        "surface": "#fef7ff",
+                        "surface": "#FAFAFC",
                         "on-tertiary-fixed": "#301400",
-                        "primary": "#630ed4",
+                        "primary": "#6D28D9",
                         "on-surface-variant": "#4a4455",
                         "surface-container-lowest": "#ffffff",
                         "tertiary-fixed-dim": "#ffb784",
                         "primary-fixed": "#eaddff",
-                        "on-surface": "#1d1a24",
+                        "on-surface": "#18131F",
                         "on-secondary": "#ffffff",
                         "secondary-fixed": "#ffddb8",
                         "inverse-on-surface": "#f6eefc",
                         "surface-dim": "#dfd7e6",
                         "on-primary-fixed-variant": "#5a00c6",
                         "secondary-fixed-dim": "#ffb95f",
-                        "on-background": "#1d1a24",
-                        "surface-container-highest": "#e8dfee",
+                        "on-background": "#18131F",
+                        "surface-container-highest": "#E4DEEE",
                         "on-tertiary-fixed-variant": "#713700",
-                        "surface-variant": "#e8dfee",
+                        "surface-variant": "#E4DEEE",
                         "tertiary": "#7d3d00",
                         "on-error": "#ffffff",
-                        "outline-variant": "#ccc3d8",
-                        "surface-tint": "#732ee4",
+                        "outline-variant": "#E4E0EC",
+                        "surface-tint": "#7C3AED",
                         "error": "#ba1a1a",
                         "on-secondary-fixed-variant": "#653e00",
                         "inverse-surface": "#332f39",
-                        "on-primary-container": "#ede0ff",
-                        "surface-container-high": "#ede5f4",
-                        "surface-container-low": "#f9f1ff",
+                        "on-primary-container": "#ffffff",
+                        "surface-container-high": "#EDE8F3",
+                        "surface-container-low": "#F7F5FA",
                         "tertiary-container": "#a15100",
                         "on-secondary-container": "#684000",
                         "secondary": "#855300",
-                        "primary-container": "#7c3aed",
+                        "primary-container": "#7C3AED",
                         "error-container": "#ffdad6",
-                        "surface-bright": "#fef7ff",
+                        "surface-bright": "#FAFAFC",
                         "on-tertiary-container": "#ffe0cd",
                         "on-tertiary": "#ffffff",
-                        "surface-container": "#f3ebfa"
+                        "surface-container": "#F3F0F8"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -105,13 +104,13 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         .bg-dotted-grid {
-            background-color: #f8f9ff;
-            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+            background-color: #FAFAFC;
+            background-image: radial-gradient(#E4E0EC 1.5px, transparent 1.5px);
             background-size: 20px 20px;
         }
     </style>
 
-  <!-- FontAwesome for Premium Icons -->
+  <!-- FontAwesome (required: app.js injects fa-solid icons at runtime for toasts, upload CTA, PDF page controls) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>window.onOpenCvReady = function(){};</script>
@@ -119,48 +118,55 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <link rel="stylesheet" href="styles.css?v=1">
 
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col bg-background font-body-md text-on-surface">
-<!-- TopNavBar Component -->
-<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface border-b border-outline-variant flat no shadows">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant">
 <div class="flex items-center gap-xl">
-<div class="font-headline-md text-headline-md font-bold text-primary">
+<div class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
                 EraserPro
             </div>
 <div class="hidden md:flex items-center gap-lg h-full pt-2">
 <a id="backToUploadBtn" style="cursor:pointer;" class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="javascript:void(0)">Home</a>
-<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded" href="https://pdfhub.vercel.app" target="_blank">PDF Hub</a>
-
-
+<a class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out px-2 py-1 rounded flex items-center gap-1" href="https://pdfhub.vercel.app" target="_blank" rel="noopener">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> PDF Hub
+            </a>
 </div>
 </div>
-<div class="flex items-center gap-md">
-
-<button id="headerUpgradeBtn" class="px-4 py-2 font-label-md text-label-md bg-[#f59e0b] text-white rounded-[16px] hover:opacity-90 transition-opacity">Go Pro</button>
-<button id="headerManageBtn" class="px-4 py-2 font-label-md text-label-md bg-surface-container-low text-on-surface rounded-[16px] hover:bg-surface-container-high transition-colors hidden">Manage</button>
-<button id="btnDownloadImage" class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-[16px] hover:opacity-90 transition-opacity">Export</button>
-<button id="btnHeaderAuth" class="rounded-full flex items-center justify-center hover:opacity-80 transition-opacity">
-<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-outline-variant">
-<img alt="User profile" class="w-full h-full object-cover" data-alt="A small circular user profile picture showing a professional headshot of a person against a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUPW-EYoALq29ZWXJI5gcgmkBKfDsqgn3mmHaA0Tg2k8fpfGXrDFz4WNVOkOz4JiIy6cWPOry-vWrCeykrqQO0i9u94Nal0Sr70Bs8q-UjHwMqXIOAQ30P2DvMimvaT8Y_u-MOlEEzd85U8UXA7jtd26GwhYg6upfVs-llRB5he9_yRVkN6pvd7q43JBDh2Q29HvOXDdb-T3h01dZFWEKnSSl4BqabCU1uRpALybHzUFvb_s6Mdnz2wy63282yXIeFhB1lFDk8e7E"/>
+<div class="flex items-center gap-sm">
+<button id="btnOpenExportPanel" class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-full hover:opacity-90 transition-opacity flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">ios_share</span> Export
+            </button>
+<div id="subStatusBadge" class="sub-badge free-badge hidden">
+<i class="fa-solid fa-circle-dot"></i><span>Free Tier</span>
 </div>
+<div id="creditsBadge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant text-xs font-semibold text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-primary">bolt</span><span id="creditsCount">0 Credits</span>
+</div>
+<button id="headerUpgradeBtn" class="px-4 py-2 font-label-md text-label-md bg-[#f59e0b] text-white rounded-full hover:opacity-90 transition-opacity">Go Pro</button>
+<button id="headerManageBtn" class="px-4 py-2 font-label-md text-label-md bg-surface-container-low text-on-surface rounded-full hover:bg-surface-container-high transition-colors hidden">Manage</button>
+<button id="btnHeaderAuth" class="w-9 h-9 rounded-full flex items-center justify-center border border-outline-variant text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[22px]">account_circle</span>
 </button>
 </div>
 </nav>
 <!-- Main Workspace Area -->
 
 <!-- Upload Landing Area -->
-<main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col items-center justify-center bg-background z-50">
+<main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col items-center justify-center bg-background mt-toolbar-width">
     <div class="max-w-2xl w-full mx-auto px-4 text-center">
         <h1 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h1>
         <p class="font-body-lg text-body-lg text-on-surface-variant mb-8">Drag and drop an image here, or click to browse your files.</p>
-        
+
         <div id="dropZone" class="w-full h-64 rounded-2xl border-2 border-dashed border-primary bg-primary/5 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors duration-200">
             <span class="material-symbols-outlined text-5xl text-primary mb-4">cloud_upload</span>
             <div class="font-label-lg text-label-lg text-primary">Click or drag image to upload</div>
             <div class="font-body-md text-body-md text-on-surface-variant mt-2">Supports JPG, PNG, WEBP (Max 10MB)</div>
         </div>
-        
+
         <button id="btnUploadCTA" class="mt-8 px-8 py-3 bg-primary text-on-primary rounded-full font-label-lg text-label-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-200">
             Browse Files
         </button>
@@ -168,66 +174,185 @@
     </div>
 </main>
 
-<main id="editorWorkspace" class="flex-1 relative workspace-section canvas-workspace" mt-toolbar-width bg-dotted-grid overflow-hidden">
+<main id="editorWorkspace" class="flex-1 relative workspace-section bg-dotted-grid overflow-hidden mt-toolbar-width">
 <!-- Floating Header Pill (Top Left) -->
-<div class="absolute top-md left-md z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 flex items-center gap-2 shadow-sm">
-<button class="text-on-surface-variant hover:text-on-surface flex items-center justify-center">
+<div class="absolute top-md left-md z-40 bg-surface-container-lowest border border-outline-variant rounded-full pl-2 pr-4 py-2 flex items-center gap-2 shadow-sm">
+<button id="backToCanvasBtn" class="w-7 h-7 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center">
 <span class="material-symbols-outlined text-[18px]">arrow_back</span>
 </button>
 <span class="font-label-md text-label-md text-on-surface">Image_edited.png</span>
 </div>
-<!-- Floating Left Panel: Remove Watermark -->
-<div class="absolute top-xl left-md z-40 w-sidebar-width bg-surface-container-lowest border border-outline-variant rounded-[16px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex flex-col mt-8">
-<div class="p-md border-b border-outline-variant flex justify-between items-center">
-<h3 class="font-label-bold text-label-bold text-on-surface">Remove Watermark</h3>
-<button class="text-on-surface-variant hover:text-on-surface flex items-center justify-center">
-<span class="material-symbols-outlined text-[18px]">close</span>
-</button>
-</div>
-<div class="p-md flex flex-col gap-4">
-<!-- Segmented Control -->
-<div class="bg-[#f8f9ff] p-1 rounded-lg border border-outline-variant flex w-full">
-<button id="clearBrush" class="flex-1 py-1.5 font-label-md text-label-md bg-surface-container-lowest shadow-sm rounded-md text-on-surface">Clear Brush</button>
-<button id="undoBrush" class="flex-1 py-1.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface">Undo Brush</button>
-</div>
-<p class="font-body-md text-body-md text-on-surface-variant text-sm">
-                    
-<div class="mt-4 mb-2 flex items-center justify-between">
-    <label for="brushSize" class="text-sm font-medium">Brush Size</label>
-    <span id="brushSizeVal" class="text-sm">25px</span>
-</div>
-<input type="range" id="brushSize" min="5" max="100" value="25" class="w-full accent-primary">
 
-                </p>
-<button id="btnEraseWatermark" class="w-full py-2.5 mt-2 bg-primary-container text-on-primary rounded-[16px] font-label-bold text-label-bold hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
-                    Erase Watermark
-                </button>
+<!-- LEFT SLIDE-IN PANEL: Background Eraser -->
+<div id="config-bg-remover" class="floating-eraser-panel sidebar-config-section active" style="top:76px;">
+<div class="panel-drag-handle" style="cursor:default;">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">content_cut</span>
+<span style="flex:1;">Background Eraser</span>
+</div>
+<div class="toggle-btn-group">
+<button class="btn-toggle active" data-bg-type="transparent">Transparent</button>
+<button class="btn-toggle" data-bg-type="color">Color</button>
+<button class="btn-toggle" data-bg-type="image">Image</button>
+</div>
+<div id="bg-color-config" class="config-sub-panel hidden">
+<div class="config-group">
+<label>Custom Color</label>
+<div class="color-swatch-picker">
+<input type="color" id="bgColorPicker" value="#ffffff">
+<span>Pick a color</span>
 </div>
 </div>
-<!-- Center Canvas (The Image) -->
+<div class="config-group">
+<label>Presets</label>
+<div class="color-presets-grid">
+<div class="color-preset active" data-color="#ffffff" style="background:#ffffff;" title="White"></div>
+<div class="color-preset" data-color="#000000" style="background:#000000;" title="Black"></div>
+<div class="color-preset" data-color="#EF4444" style="background:#EF4444;" title="Red"></div>
+<div class="color-preset" data-color="#3B82F6" style="background:#3B82F6;" title="Blue"></div>
+<div class="color-preset" data-gradient="linear-gradient(135deg,#7C3AED,#EC4899)" style="background:linear-gradient(135deg,#7C3AED,#EC4899);" title="Violet"></div>
+<div class="color-preset" data-gradient="linear-gradient(135deg,#0EA5E9,#22D3EE)" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE);" title="Sky"></div>
+<div class="color-preset" data-gradient="linear-gradient(135deg,#F59E0B,#EF4444)" style="background:linear-gradient(135deg,#F59E0B,#EF4444);" title="Sunset"></div>
+<div class="color-preset" data-color="#10B981" style="background:#10B981;" title="Green"></div>
+</div>
+</div>
+</div>
+<div id="bg-image-config" class="config-sub-panel hidden">
+<button id="btnUploadBackdrop" class="btn btn-secondary btn-full"><span class="material-symbols-outlined text-[16px]">upload</span> Upload backdrop</button>
+<input type="file" id="bgImageInput" accept="image/*" class="hidden">
+<div class="config-group">
+<label>Presets</label>
+<div class="backdrop-presets-grid">
+<div class="backdrop-preset" data-bg-url="https://picsum.photos/seed/eraserpro-studio/400/400"><img src="https://picsum.photos/seed/eraserpro-studio/100/100" alt="Studio backdrop"><span>Studio</span></div>
+<div class="backdrop-preset" data-bg-url="https://picsum.photos/seed/eraserpro-gradient/400/400"><img src="https://picsum.photos/seed/eraserpro-gradient/100/100" alt="Gradient backdrop"><span>Gradient</span></div>
+<div class="backdrop-preset" data-bg-url="https://picsum.photos/seed/eraserpro-office/400/400"><img src="https://picsum.photos/seed/eraserpro-office/100/100" alt="Office backdrop"><span>Office</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- LEFT SLIDE-IN PANEL: Watermark Remover -->
+<div id="config-wm-remover" class="floating-eraser-panel sidebar-config-section" style="top:76px;">
+<div class="panel-drag-handle" id="floatingEraserHeader" style="cursor:default;">
+<span class="material-symbols-outlined text-[18px]">ink_eraser</span>
+<span style="flex:1;">Watermark Remover</span>
+</div>
+<div class="toggle-btn-group" id="wmRemoverModeGroup">
+<button type="button" class="btn-toggle active" data-wm-remover-mode="manual">Manual</button>
+<button type="button" class="btn-toggle" data-wm-remover-mode="auto">Auto</button>
+</div>
+<div id="wmRemoverAutoPanel" class="config-sub-panel hidden" style="gap:12px;">
+<label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-secondary);">
+<input type="checkbox" id="toggleDetectLogo" checked> Detect logos
+            </label>
+<label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-secondary);">
+<input type="checkbox" id="toggleDetectText" checked> Detect text
+            </label>
+<button id="btnAIDetectRemove" class="btn btn-primary btn-full">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span> Detect &amp; Remove
+            </button>
+</div>
+<div id="wmRemoverManualPanel" class="config-sub-panel" style="gap:12px;">
+<div class="toggle-btn-group">
+<button id="clearBrush" class="btn-toggle active">Clear Brush</button>
+<button id="undoBrush" class="btn-toggle">Undo Brush</button>
+</div>
+<div class="config-group">
+<div class="label-with-value">
+<label style="text-transform:none;">Brush Size</label>
+<span id="brushSizeVal">25px</span>
+</div>
+<input type="range" id="brushSize" min="5" max="100" value="25" class="range-slider">
+</div>
+<button id="btnEraseWatermark" class="btn btn-primary btn-full">Erase Watermark</button>
+</div>
+</div>
+
+<!-- LEFT SLIDE-IN PANEL: Watermark Maker -->
+<div id="config-wm-maker" class="floating-eraser-panel sidebar-config-section" style="top:76px; max-height:calc(100vh - 200px); overflow-y:auto;">
+<div class="panel-drag-handle" style="cursor:default;">
+<span class="material-symbols-outlined text-[18px]">branding_watermark</span>
+<span style="flex:1;">Watermark Maker</span>
+</div>
+<div class="toggle-btn-group">
+<button class="btn-toggle active" data-wm-source="text">Text</button>
+<button class="btn-toggle" data-wm-source="image">Logo</button>
+</div>
+<div id="wm-text-config" class="config-sub-panel">
+<div class="config-group">
+<label>Text</label>
+<input type="text" id="wmText" class="text-input" value="DRAFT COPY">
+</div>
+<div class="config-group">
+<label>Font</label>
+<select id="wmFont" class="select-input">
+<option value="Inter" selected>Inter</option>
+<option value="Georgia">Georgia</option>
+<option value="Arial">Arial</option>
+<option value="Impact">Impact</option>
+<option value="Times New Roman">Times New Roman</option>
+</select>
+</div>
+<div class="config-group">
+<label>Color</label>
+<div class="color-swatch-picker">
+<input type="color" id="wmTextColor" value="#ffffff">
+<span id="wmTextColorHex">#ffffff</span>
+</div>
+</div>
+</div>
+<div id="wm-image-config" class="config-sub-panel hidden">
+<button id="btnUploadWMLogo" class="btn btn-secondary btn-full"><span class="material-symbols-outlined text-[16px]">upload</span> Upload logo</button>
+<input type="file" id="wmLogoInput" accept="image/*" class="hidden">
+<div id="wmLogoPreviewContainer" class="wm-logo-preview-box hidden">
+<img id="wmLogoPreview" src="" alt="Logo preview">
+<button id="btnClearWMLogo" class="btn-icon-only" style="width:28px;height:28px;"><span class="material-symbols-outlined text-[16px]">close</span></button>
+</div>
+</div>
+<div class="config-group">
+<label>Layout</label>
+<div class="toggle-btn-group">
+<button class="btn-toggle active" data-wm-layout="grid">Tiled</button>
+<button class="btn-toggle" data-wm-layout="single">Single</button>
+</div>
+</div>
+<div id="wm-single-position-group" class="config-group hidden">
+<label>Position</label>
+<select id="wmPosition" class="select-input">
+<option value="center">Center</option>
+<option value="top-left">Top Left</option>
+<option value="top-right">Top Right</option>
+<option value="bottom-left">Bottom Left</option>
+<option value="bottom-right" selected>Bottom Right</option>
+</select>
+</div>
+<div class="config-group">
+<div class="label-with-value"><label style="text-transform:none;">Size</label><span id="wmSizeVal">30</span></div>
+<input type="range" id="wmSize" min="10" max="200" value="30" class="range-slider">
+</div>
+<div class="config-group">
+<div class="label-with-value"><label style="text-transform:none;">Opacity</label><span id="wmOpacityVal">0.3</span></div>
+<input type="range" id="wmOpacity" min="1" max="10" value="3" class="range-slider">
+</div>
+<div class="config-group">
+<div class="label-with-value"><label style="text-transform:none;">Rotation</label><span id="wmRotationVal">-30°</span></div>
+<input type="range" id="wmRotation" min="-90" max="90" value="-30" class="range-slider">
+</div>
+</div>
+
+<!-- Center Canvas -->
 <div class="absolute inset-0 flex items-center justify-center p-xl">
 <div class="relative shadow-[0_8px_24px_rgba(0,0,0,0.08)] rounded-lg overflow-visible max-w-[80%] max-h-[80%]">
-
 <div class="canvas-box" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
     <!-- Loading Overlay -->
-    <div class="loading-overlay hidden" id="processingOverlay" style="position: absolute; z-index: 100; background: rgba(0,0,0,0.5); color: white; display: none;">
+    <div class="loading-overlay hidden" id="processingOverlay">
+      <div class="spinner-box"><div class="double-spinner"></div></div>
       <h3 id="processingStatus">Processing...</h3>
+      <p id="processingProgress"></p>
+      <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
-    
-    <!-- WATERMARK REMOVER VIEW -->
-    <div class="workspace-view active" id="view-wm-remover" style="position: relative;">
-        <div class="editor-canvas-wrapper" style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
-            <div class="canvas-bg-pattern" style="position: relative;">
-                <div class="canvas-layers" style="position: relative;">
-                    <canvas id="wmRemoverBaseCanvas"></canvas>
-                    <canvas id="wmRemoverBrushCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- BG REMOVER VIEW (Hidden) -->
-    <div class="workspace-view" id="view-bg-remover" style="display:none;">
+
+    <!-- BG REMOVER VIEW (default active, matches state.activeTab default) -->
+    <div class="workspace-view active" id="view-bg-remover">
         <div class="preview-container">
             <div class="preview-image-wrapper" id="bgRemoverResultContainer">
                 <canvas id="bgRemoverCanvas" class="checkerboard-bg"></canvas>
@@ -235,180 +360,273 @@
         </div>
     </div>
 
-    <!-- WATERMARK MAKER VIEW (Hidden) -->
-    <div class="workspace-view" id="view-wm-maker" style="display:none;">
+    <!-- WATERMARK REMOVER VIEW -->
+    <div class="workspace-view" id="view-wm-remover">
+        <div class="editor-canvas-wrapper">
+            <div class="canvas-bg-pattern">
+                <div class="canvas-layers">
+                    <canvas id="wmRemoverBaseCanvas"></canvas>
+                    <canvas id="wmRemoverBrushCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WATERMARK MAKER VIEW -->
+    <div class="workspace-view" id="view-wm-maker">
         <div class="editor-canvas-wrapper">
             <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
         </div>
     </div>
 </div>
+</div>
+</div>
 
-<!-- Floating Download Icon on Image -->
-<button class="absolute -top-4 -right-4 w-10 h-10 bg-surface-container-lowest border border-outline-variant rounded-full flex items-center justify-center shadow-md hover:bg-surface-container-low transition-colors text-on-surface">
-<span class="material-symbols-outlined text-[20px]">download</span>
-</button>
-</div>
-</div>
-<!-- Floating Bottom Toolbar (Center) -->
-<div class="absolute bottom-lg left-1/2 transform -translate-x-1/2 z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-2 py-2 flex items-center gap-1 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
-<span class="material-symbols-outlined text-[20px] mb-0.5">content_cut</span>
+<!-- Floating Bottom Toolbar (Center) - exactly 3 tools -->
+<div class="absolute bottom-lg left-1/2 transform -translate-x-1/2 z-40 bg-surface-container-lowest border border-outline-variant rounded-full px-2 py-2 flex items-center gap-1 shadow-[0_4px_12px_rgba(24,19,31,0.08)]">
+<button class="w-12 h-12 rounded-full tab-btn active" data-tab="bg-remover" title="Background Eraser">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">content_cut</span>
 </button>
 <div class="w-px h-8 bg-outline-variant mx-1"></div>
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center bg-primary-container text-on-primary transition-colors shadow-sm tab-btn active" data-tab="wm-remover" title="Watermark Eraser">
-<span class="material-symbols-outlined text-[20px] mb-0.5" style="font-variation-settings: 'FILL' 1;">ink_eraser</span>
+<button class="w-12 h-12 rounded-full tab-btn" data-tab="wm-remover" title="Watermark Remover">
+<span class="material-symbols-outlined text-[22px]">ink_eraser</span>
 </button>
 <div class="w-px h-8 bg-outline-variant mx-1"></div>
-<button class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-on-surface-variant hover:bg-[#e0e7ff] hover:text-primary-container transition-colors group tab-btn" data-tab="bg-remover" title="Background Remover">
-<span class="material-symbols-outlined text-[20px] mb-0.5">approval</span>
+<button class="w-12 h-12 rounded-full tab-btn" data-tab="wm-maker" title="Watermark Maker">
+<span class="material-symbols-outlined text-[22px]">branding_watermark</span>
 </button>
 </div>
-<!-- Right Side: Layers/Thumbnails -->
-<div class="absolute right-md top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
-<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border-2 border-primary-container overflow-hidden shadow-sm relative cursor-pointer">
-<img class="w-full h-full object-cover opacity-90 hover:opacity-100" data-alt="A small square thumbnail showing a brightly lit portrait of a woman, acting as the currently selected layer in an image editor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4MEX_F84e2lCvRVKdCiBxhRHRtn1ns78RAffM0BUbxK5HxFvYl_wx9I9uEitjN8hYksM7--zCAfv8u6ZcGyw_RQOROXz5pKhH2LWc9dUBMi7ihyeG9IQBlFIIWYNz_Pab2lN90mIkiOXra8Jdgvi94mrSW9oqf037Imloit28qI8f1xygKePcgi7m58mT69B23-LtW6Y9MtCa0lmam0cSKlMk8GAiJmTG8Xb6Myk-9xh_N18gaFtnQPnyNphIUzAIVJoo7Bgq0WA"/>
-<div class="absolute inset-0 border-2 border-primary-container rounded-lg pointer-events-none"></div>
+
+<!-- Recent Images History Strip -->
+<div id="historyBar" class="history-bar hidden" style="position:absolute; left:16px; bottom:88px; z-index:40; width:220px;">
+<div class="history-title">Recent</div>
+<div id="historyList" class="history-list"></div>
 </div>
-<div class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-outline-variant overflow-hidden shadow-sm cursor-pointer hover:border-primary-container/50 transition-colors">
-<img class="w-full h-full object-cover opacity-70 hover:opacity-100" data-alt="A small square thumbnail showing a slightly blurred background element, acting as a background layer in an image editor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTILce-Jbw8WqEgTPoc_HvKDHMpvPoBBFYMemkXeeCC-h_KpNIKjlrkJz2-UIVnBNHv1HeD35_Ce5l2NYvPYI28ZFAv33mZKH6swgcNNyWfwIxnI0qY57Do5kwWBF8UZSAsLUDj2ZyUM8rHfxx76eB_P8vGL5qMm4M12OTzlzc1lZzzd_Pl6IyMH_w4MTeEjwYREtIP5wrBB4Alq13cUEZDEGwaSIAfX6aYwsY0-Vk7r3UId_eRWWMr-6YFjqri6-IYjvhzhOX08I"/>
-</div>
-<button class="w-16 h-16 rounded-lg bg-surface-container-lowest border border-dashed border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary-container transition-colors cursor-pointer">
-<span class="material-symbols-outlined">add</span>
-</button>
-</div>
-<!-- Bottom Right Controls -->
+
+<!-- Bottom Right: Zoom Controls -->
 <div class="absolute bottom-lg right-md z-40 flex items-center gap-3">
-<div class="bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 flex items-center gap-3 shadow-sm h-10">
-<span id="zoomLevelVal" class="font-mono-label text-mono-label text-on-surface-variant">100%</span>
-<div class="w-px h-4 bg-outline-variant"></div>
-<button id="zoomInBtn" class="font-mono-label text-mono-label text-on-surface-variant hover:text-primary">+</button><div class="w-px h-4 bg-outline-variant"></div><button id="zoomOutBtn" class="font-mono-label text-mono-label text-on-surface-variant hover:text-primary">-</button>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-full px-3 py-2 flex items-center gap-3 shadow-sm h-10">
+<button id="zoomOutBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+<span id="zoomLevelVal" class="zoom-level font-mono-label text-mono-label">100%</span>
+<button id="zoomInBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">add</span></button>
 </div>
-<button class="w-10 h-10 bg-surface-container-lowest border border-outline-variant rounded-lg flex items-center justify-center shadow-sm hover:bg-surface-container-low transition-colors text-on-surface">
-<span class="material-symbols-outlined text-[20px]">download</span>
+</div>
+
+<!-- EXPORT PANEL (floating, right side, toggled by btnOpenExportPanel) -->
+<div id="exportPanel" class="floating-eraser-panel hidden" style="right:16px; left:auto; top:76px; width:280px; z-index:60; max-height:calc(100vh - 100px); overflow-y:auto;">
+<div class="panel-drag-handle" style="cursor:default;">
+<span class="material-symbols-outlined text-[18px]">ios_share</span>
+<span style="flex:1;">Export</span>
+<button id="btnCloseExportPanel" class="btn-icon-only" style="width:28px;height:28px;"><span class="material-symbols-outlined text-[16px]">close</span></button>
+</div>
+<div class="config-group">
+<label>Format</label>
+<select id="exportFormat" class="select-input">
+<option value="png" selected>PNG (Transparent)</option>
+<option value="jpg">JPG</option>
+<option value="webp">WebP</option>
+<option value="pdf">PDF</option>
+</select>
+</div>
+<div class="config-group">
+<label>Color Mode</label>
+<select id="exportColorSpace" class="select-input">
+<option value="rgb" selected>RGB</option>
+<option value="cmyk">CMYK (Print)</option>
+</select>
+</div>
+<div class="config-group">
+<label>Quick Sizes</label>
+<div class="quick-size-grid">
+<button type="button" class="quick-size-btn" data-quick-w="500" data-quick-h="500"><span>500 × 500</span><span>Square</span></button>
+<button type="button" class="quick-size-btn" data-quick-w="800" data-quick-h="800"><span>800 × 800</span><span>Square</span></button>
+<button type="button" class="quick-size-btn" data-quick-w="1080" data-quick-h="1080"><span>1080 × 1080</span><span>Social</span></button>
+<button type="button" class="quick-size-btn" data-quick-w="1200" data-quick-h="630"><span>1200 × 630</span><span>Banner</span></button>
+</div>
+</div>
+<div class="config-group">
+<label>Resolution</label>
+<select id="resolutionPreset" class="select-input">
+<option value="medium" selected>Medium (Free, up to 800px)</option>
+<option value="full">Full Resolution</option>
+<option value="square">Square 500×500</option>
+<option value="banner">Banner 1000×500</option>
+<option value="story">Story 500×1000</option>
+<option value="custom">Custom</option>
+</select>
+</div>
+<div id="customResolutionPanel" class="config-group hidden">
+<label>Custom Size</label>
+<div class="custom-res-row">
+<div class="input-unit"><input type="number" id="customWidth" class="res-num-input" value="800"><span>WIDTH</span></div>
+<button id="aspectRatioLock" class="btn-icon-only active" style="width:32px;height:32px;flex-shrink:0;" title="Lock aspect ratio">
+<span class="material-symbols-outlined text-[16px]">link</span>
 </button>
+<div class="input-unit"><input type="number" id="customHeight" class="res-num-input" value="600"><span>HEIGHT</span></div>
 </div>
+</div>
+<div id="sidebarProBanner" class="pro-ad-banner hidden">
+<span class="pro-badge">PRO</span>
+<p>Unlock full-resolution exports &amp; every size preset with <strong>EraserPro Pro</strong>.</p>
+</div>
+<button id="btnDownloadImage" class="btn btn-primary btn-full btn-large">
+<span class="material-symbols-outlined text-[18px]">download</span> Export Now
+        </button>
+</div>
+
 </main>
-<script type="module" src="app.js?v=37"></script>
+
+<!-- Auth Modal -->
+<dialog id="authModal">
+<div class="modal-card">
+<button id="closeAuthModalBtn" class="modal-close-btn"><span class="material-symbols-outlined text-[18px]">close</span></button>
+<div class="modal-header">
+<div class="crown-icon"><span class="material-symbols-outlined">account_circle</span></div>
+<h2>Welcome to EraserPro</h2>
+<p class="modal-subtitle">Sign in to save your credits and unlock Pro exports.</p>
+</div>
+<div class="auth-tabs">
+<button type="button" class="auth-tab-btn active" data-auth-tab="login">Sign In</button>
+<button type="button" class="auth-tab-btn" data-auth-tab="register">Create Account</button>
+</div>
+<form id="loginForm" class="auth-form">
+<div id="loginError" class="auth-error-msg hidden"></div>
+<div class="form-row">
+<label for="loginEmail">Email</label>
+<input type="email" id="loginEmail" class="text-input" required autocomplete="email">
+</div>
+<div class="form-row">
+<label for="loginPassword">Password</label>
+<input type="password" id="loginPassword" class="text-input" required autocomplete="current-password">
+</div>
+<button type="submit" class="btn btn-primary btn-full btn-large">Sign In</button>
+</form>
+<form id="registerForm" class="auth-form hidden">
+<div id="registerError" class="auth-error-msg hidden"></div>
+<div class="form-row">
+<label for="registerEmail">Email</label>
+<input type="email" id="registerEmail" class="text-input" required autocomplete="email">
+</div>
+<div class="form-row">
+<label for="registerPassword">Password</label>
+<input type="password" id="registerPassword" class="text-input" required autocomplete="new-password">
+</div>
+<div class="form-row">
+<label for="registerConfirmPassword">Confirm Password</label>
+<input type="password" id="registerConfirmPassword" class="text-input" required autocomplete="new-password">
+</div>
+<button type="submit" class="btn btn-primary btn-full btn-large">Create Account</button>
+<div id="authVerificationBanner" class="verification-banner hidden">
+<i class="fa-solid fa-circle-info"></i>
+<span>Check your inbox to verify your new account.</span>
+</div>
+</form>
+<div class="auth-divider"><span>or</span></div>
+<button id="btnGoogleSignIn" type="button" class="btn btn-secondary btn-full">
+<i class="fa-brands fa-google"></i> Continue with Google
+        </button>
+</div>
+</dialog>
+
+<!-- Checkout Modal -->
+<dialog id="checkoutModal">
+<div class="modal-card">
+<button id="closeCheckoutBtn" class="modal-close-btn"><span class="material-symbols-outlined text-[18px]">close</span></button>
+<form id="checkoutForm">
+<div class="modal-header">
+<div class="crown-icon"><i class="fa-solid fa-crown"></i></div>
+<h2>Upgrade to Pro</h2>
+<p class="modal-subtitle">Unlock full-resolution exports, AI watermark removal, and more.</p>
+</div>
+<div class="checkout-features">
+<div class="feature-item"><i class="fa-solid fa-check"></i> Full-resolution PNG / JPG / WebP / PDF export</div>
+<div class="feature-item"><i class="fa-solid fa-check"></i> AI-powered watermark auto-detect &amp; removal</div>
+<div class="feature-item"><i class="fa-solid fa-check"></i> No ads, priority processing</div>
+</div>
+<div class="credit-pack-option">
+<div>
+<div style="font-weight:700;">150 Credits Pack</div>
+<div style="font-size:0.8rem;color:var(--text-secondary);">One-time purchase</div>
+</div>
+<button type="button" id="btnBuyPack150" class="btn btn-premium">Buy $49.99</button>
+</div>
+<div class="credit-payg-option">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<div style="font-weight:700;">Pay As You Go</div>
+<div id="paygTotalPrice" style="font-weight:700;">$5.00</div>
+</div>
+<div class="quantity-picker">
+<button type="button" id="btnDecPAYG" class="btn btn-secondary">−</button>
+<input type="number" id="inputQuantityPAYG" value="10" min="1">
+<button type="button" id="btnIncPAYG" class="btn btn-secondary">+</button>
+<button type="button" id="btnBuyPAYG" class="btn btn-primary" style="flex:1;">Buy Credits</button>
+</div>
+</div>
+<p class="secure-checkout-text"><span class="material-symbols-outlined text-[14px]">lock</span> Secure checkout powered by Stripe</p>
+</form>
+<div id="checkoutSuccessScreen" class="success-screen hidden">
+<div class="success-icon-box"><span class="material-symbols-outlined" style="font-size:2rem;">check</span></div>
+<h2>Payment Successful!</h2>
+<p>Your credits have been added to your account. You're all set to continue editing.</p>
+<button id="btnDismissSuccess" class="btn btn-primary btn-full btn-large">Continue Editing</button>
+</div>
+</div>
+</dialog>
+
+<script type="module" src="app.js?v=38"></script>
+<script type="module" src="ui-panels.js?v=1"></script>
 <div id="dummy-elements" style="display: none;">
   <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>
   <div id="pdfWatermarkSize"></div>
-    <div id="wmRotationVal"></div>
-  <div id="closeAuthModalBtn"></div>
   <div id="btnConfirmPdfPage"></div>
   <div id="pdfHubUploadTitle"></div>
-  <div id="bg-color-config"></div>
-  <div id="btnUploadBackdrop"></div>
-  <div id="closeCheckoutBtn"></div>
-  <div id="inputQuantityPAYG"></div>
   <div id="wmRemoverCompareImg"></div>
-    <div id="wmText"></div>
   <div id="pdfTotalPages"></div>
-  <div id="bgColorPicker"></div>
   <div id="pdfToImgColorSpace"></div>
-  <div id="checkoutSuccessScreen"></div>
-  <div id="toggleDetectLogo"></div>
-  <div id="authVerificationBanner"></div>
-  <div id="btnDecPAYG"></div>
-  <div id="btnBuyPack150"></div>
   <div id="pdfSplitModeGroup"></div>
   <div id="btnAddPdfFile"></div>
   <div id="btnPrevPdfPage"></div>
   <div id="wmComparisonSlider"></div>
   <div id="btnNextPdfPage"></div>
-  <div id="bgImageInput"></div>
   <div id="pdfEditorWorkspace"></div>
-  <div id="processingProgress"></div>
-  <div id="wmFont"></div>
   <div id="navModePdf"></div>
-  <div id="authModal"></div>
-  <div id="registerEmail"></div>
   <div id="comparisonSlider"></div>
-  <div id="creditsCount"></div>
-  <div id="loginError"></div>
   <div id="previewOriginalWrapper"></div>
-  <div id="wmOpacityVal"></div>
-  <div id="loginPassword"></div>
-  <div id="wmPosition"></div>
   <div id="imgBefore"></div>
-  <div id="checkoutModal"></div>
-  <div id="bg-image-config"></div>
   <div id="btnRotateAllCw"></div>
-  <div id="btnGoogleSignIn"></div>
   <div id="pdfToolsLanding"></div>
   <div id="pdfDropZone"><div class="browse-link"></div></div>
-  <div id="subStatusBadge"><span></span><i></i></div>
   <div id="btnExecutePdfTool"></div>
   <div id="pdfSplitEndPage"></div>
-  <div id="btnUploadWMLogo"></div>
-  <div id="wmSize"></div>
-    <div id="customWidth"></div>
-    <div id="toast-notification-container"></div>
   <div id="panToggleBtn"></div>
-  <div id="sidebarProBanner"></div>
-  <div id="exportColorSpace"></div>
   <div id="landingHeroGraphic"></div>
-  <div id="wm-text-config"></div>
-  <div id="progressBar"></div>
-  <div id="btnAIDetectRemove"></div>
-  <div id="wm-image-config"></div>
-  <div id="btnIncPAYG"></div>
   <div id="wmModeSwitcher"></div>
   <div id="btnBackToPdfHub"></div>
-  <div id="registerForm"></div>
   <div id="pdfCompressModeGroup"></div>
   <div id="zoomFitBtn"></div>
-  <div id="registerError"></div>
-  <div id="btnDismissSuccess"></div>
-  <div id="wmOpacity"></div>
-  <div id="creditsBadge"></div>
   <div id="pdfPageModal"></div>
   <div id="heroGraphicBadge"></div>
   <div id="pdfSplitRangePanel"></div>
-  <div id="floatingEraserHeader"></div>
-  <div id="historyBar"></div>
   <div id="pdfHubFileInput"></div>
-  <div id="wmTextColor"></div>
-  <div id="wm-single-position-group"></div>
   <div id="uploadTitle"></div>
-  <div id="wmLogoPreview"></div>
-  <div id="wmLogoInput"></div>
-  <div id="loginForm"></div>
-  <div id="checkoutForm"></div>
   <div id="btnSubmitCheckout"></div>
-  <div id="paygTotalPrice"></div>
-  <div id="wmSizeVal"></div>
-    <div id="toggleDetectText"></div>
   <div id="navModeStudio"></div>
   <div id="closePdfModalBtn"></div>
   <div id="pdfWatermarkOpacity"></div>
-  <div id="historyList"></div>
-    <div id="wmTextColorHex"></div>
-  <div id="btnClearWMLogo"></div>
-  <div id="customHeight"></div>
-  <div id="resolutionPreset"></div>
   <div id="pdfHubUploadLimits"></div>
-  <div id="wmLogoPreviewContainer"></div>
-  <div id="wmRotation"></div>
   <div id="pdfCurrentPageDisplay"></div>
   <div id="pdfToImgResolution"></div>
-    <div id="pdfWatermarkText"></div>
+  <div id="pdfWatermarkText"></div>
   <div id="pdfPagesPreviewGrid"></div>
-  <div id="customResolutionPanel"></div>
   <div id="heroGraphicImg"></div>
   <div id="floatingEraserPanel"></div>
   <div id="pdfPagesViewport"></div>
-  <div id="exportFormat"></div>
-  <div id="aspectRatioLock"></div>
   <div id="pdfToImgFormat"></div>
-  <div id="loginEmail"></div>
-  <div id="registerPassword"></div>
   <div id="uploadDesc"></div>
   <div id="pdfHubUploadIconBox"></div>
-  <div id="btnBuyPAYG"></div>
   <div id="pdfHubUploadIcon"></div>
   <div id="pdfHubUploadDesc"></div>
-  <div id="registerConfirmPassword"></div>
   <div class="header-logo"></div>
 </div>
 </body></html>
