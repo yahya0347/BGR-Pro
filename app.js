@@ -303,6 +303,7 @@ const elements = {
   btnDownloadImage: document.getElementById('btnDownloadImage'),
   sidebarProBanner: document.getElementById('sidebarProBanner'),
   backToUploadBtn: document.getElementById('backToUploadBtn'),
+  backToCanvasBtn: document.getElementById('backToCanvasBtn'),
   exportFormat: document.getElementById('exportFormat'),
   exportColorSpace: document.getElementById('exportColorSpace'),
   
@@ -406,6 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (state.activeTab === 'wm-maker') {
         renderWMMakerCanvas();
       }
+    }
+    // Re-sync the AI processing overlay's bounding box in case its own
+    // render path above didn't already trigger applyZoomPan().
+    if (elements.aiProcessingOverlay && elements.aiProcessingOverlay.classList.contains('visible')) {
+      positionAIProcessingOverlay();
     }
   });
 });
@@ -870,6 +876,22 @@ function initUploadHandlers() {
     if (elements.uploadLanding) elements.uploadLanding.classList.add('active');
   });
 
+  // Floating "← filename" pill top-left of the canvas also navigates back to upload/home
+  if (elements.backToCanvasBtn) {
+    elements.backToCanvasBtn.addEventListener('click', () => {
+      state.originalImage = null;
+      state.transparentImage = null;
+      state.eraserBaseImage = null;
+      state.brushStrokes = [];
+      state.redoStrokes = [];
+      state.bgRemoved = false;
+      wmHistory.clear();
+
+      if (elements.editorWorkspace) elements.editorWorkspace.classList.remove('active');
+      if (elements.uploadLanding) elements.uploadLanding.classList.add('active');
+    });
+  }
+
   // Logo click listener (acts as "home" button to reset workspace and return to landing page)
   const logo = document.getElementById('navLogoHome');
   if (logo) {
@@ -1174,9 +1196,12 @@ function showAIProcessingOverlay(text) {
 
   if (!el.classList.contains('visible')) {
     el.classList.remove('hidden');
+    positionAIProcessingOverlay();
     void el.offsetWidth; // force reflow so the opacity transition plays
     el.classList.add('visible');
     aiOverlayShownAt = Date.now();
+  } else {
+    positionAIProcessingOverlay();
   }
   // If already visible (e.g. scan -> erase chained calls), keep the original
   // aiOverlayShownAt so the minimum-duration clock isn't reset mid-flow.
@@ -1717,6 +1742,63 @@ function applyZoomPan() {
   if (zoomLevelVal) {
     zoomLevelVal.innerText = `${Math.round(state.zoom * 100)}%`;
   }
+
+  // Keep the AI processing overlay matched to the image's current bounding box
+  positionAIProcessingOverlay();
+}
+
+// Size + position the AI processing overlay to exactly match the visible
+// image's bounding box (not the whole canvas-box), so it keeps the image's
+// own aspect ratio/position through zoom, pan, and window resize.
+//
+// .canvas-layers (the Watermark Remover zoom/pan target) animates its
+// `transform` via a short CSS transition (styles.css `transition: transform
+// 0.05s ease-out`). Reading getBoundingClientRect() synchronously right
+// after applyZoomPan() writes a new transform can therefore catch a
+// pre/mid-transition box instead of the final one, and nothing else would
+// ever re-measure it afterward. So we measure immediately (for a responsive
+// feel while zoom/pan happens continuously, e.g. wheel/drag) and then
+// re-measure again once the transition has had time to settle.
+let aiOverlayResyncTimer = null;
+
+function positionAIProcessingOverlay() {
+  const el = elements.aiProcessingOverlay;
+  if (!el) return;
+
+  const canvasBox = el.parentElement;
+  if (!canvasBox) return;
+
+  const applyMeasuredRect = () => {
+    let target = null;
+    if (state.activeTab === 'bg-remover') {
+      target = elements.bgRemoverResultContainer;
+    } else if (state.activeTab === 'wm-remover') {
+      target = elements.wmRemoverBaseCanvas ? elements.wmRemoverBaseCanvas.parentElement : null;
+    } else if (state.activeTab === 'wm-maker') {
+      target = elements.wmMakerCanvas;
+    }
+
+    const targetRect = target ? target.getBoundingClientRect() : null;
+
+    if (targetRect && targetRect.width > 0 && targetRect.height > 0) {
+      const boxRect = canvasBox.getBoundingClientRect();
+      el.style.left = `${targetRect.left - boxRect.left}px`;
+      el.style.top = `${targetRect.top - boxRect.top}px`;
+      el.style.width = `${targetRect.width}px`;
+      el.style.height = `${targetRect.height}px`;
+    } else {
+      // Image not measurable yet (not rendered) — fall back to filling the canvas box
+      el.style.left = '0';
+      el.style.top = '0';
+      el.style.width = '100%';
+      el.style.height = '100%';
+    }
+  };
+
+  applyMeasuredRect();
+
+  clearTimeout(aiOverlayResyncTimer);
+  aiOverlayResyncTimer = setTimeout(applyMeasuredRect, 140);
 }
 
 function initWMEraserHandlers() {

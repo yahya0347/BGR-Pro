@@ -845,6 +845,8 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(120deg, #6D28D9 0%, #EC4899 33%, #3B82F6 66%, #6D28D9 100%);
   background-size: 300% 300%;
   animation: aiGradientShift 18s ease-in-out infinite;
+  /* Semi-transparent so the image being processed stays visible underneath */
+  opacity: 0.55;
 }
 
 @keyframes aiGradientShift {
@@ -857,6 +859,7 @@ h1, h2, h3, h4, h5, h6 {
 .ai-processing-starfield {
   position: absolute;
   inset: 0;
+  opacity: 0.6;
 }
 
 .ai-star {
@@ -884,7 +887,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 10px;
   padding: 18px 30px;
   border-radius: var(--border-radius-lg);
-  background: rgba(24, 19, 31, 0.35);
+  background: rgba(24, 19, 31, 0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   text-align: center;
