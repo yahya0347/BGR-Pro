@@ -810,6 +810,124 @@ h1, h2, h3, h4, h5, h6 {
   transition: width 0.3s ease;
 }
 
+/* ==========================================================================
+   AI Processing Overlay — animated gradient + starfield ("AI is thinking")
+   Shown on the canvas during background removal / watermark AI actions.
+   ========================================================================== */
+.ai-processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.ai-processing-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ai-processing-overlay.hidden {
+  display: none;
+}
+
+.ai-processing-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, #6D28D9 0%, #EC4899 33%, #3B82F6 66%, #6D28D9 100%);
+  background-size: 300% 300%;
+  animation: aiGradientShift 18s ease-in-out infinite;
+}
+
+@keyframes aiGradientShift {
+  0%   { background-position: 0% 50%; }
+  33%  { background-position: 100% 50%; }
+  66%  { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ai-processing-starfield {
+  position: absolute;
+  inset: 0;
+}
+
+.ai-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  animation: aiTwinkle var(--t, 3s) ease-in-out var(--d, 0s) infinite;
+}
+
+@keyframes aiTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  50%      { opacity: 1; transform: scale(1.3); }
+}
+
+.ai-processing-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 30px;
+  border-radius: var(--border-radius-lg);
+  background: rgba(24, 19, 31, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.ai-processing-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  animation: aiBadgePulse 2.4s ease-in-out infinite;
+}
+
+.ai-processing-badge .material-symbols-outlined {
+  color: #ffffff;
+  font-size: 22px;
+}
+
+@keyframes aiBadgePulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+
+.ai-processing-content h3 {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-processing-gradient,
+  .ai-star,
+  .ai-processing-badge {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 /* --- View 1: BG Remover Slider --- */
 /* --- View 1: BG Remover Preview Layout --- */
 .preview-container {

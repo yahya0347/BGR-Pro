@@ -230,7 +230,11 @@ const elements = {
   processingStatus: document.getElementById('processingStatus'),
   processingProgress: document.getElementById('processingProgress'),
   progressBar: document.getElementById('progressBar'),
-  
+
+  // AI Processing Overlay (canvas-level "AI is thinking" animation)
+  aiProcessingOverlay: document.getElementById('aiProcessingOverlay'),
+  aiProcessingText: document.getElementById('aiProcessingText'),
+
   // BG Remover UI
   imgBefore: document.getElementById('imgBefore'),
   bgRemoverCanvas: document.getElementById('bgRemoverCanvas'),
@@ -973,11 +977,10 @@ function processUploadedImage(img) {
    AI Background Removal Integration
    ========================================================================== */
 async function runAIBackgroundRemoval(imgSource) {
-  showGlobalLoader('Removing Background...', 'Preparing image for cloud upload...');
-  elements.progressBar.style.width = '10%';
-  
+  showAIProcessingOverlay('AI is removing your background...');
+
   const targetHistoryId = state.currentHistoryId;
-  
+
   try {
     // Draw image to a canvas to get base64 data URL
     const canvas = document.createElement('canvas');
@@ -985,15 +988,11 @@ async function runAIBackgroundRemoval(imgSource) {
     canvas.height = imgSource.naturalHeight || imgSource.height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(imgSource, 0, 0);
-    
+
     // Extract base64 representation of image
     const dataURL = canvas.toDataURL('image/jpeg', 0.95);
     const base64Data = dataURL.split(',')[1];
-    
-    elements.progressBar.style.width = '30%';
-    elements.processingStatus.innerText = 'Uploading to Cloud AI...';
-    elements.processingProgress.innerText = 'Sending image to secure remove.bg servers...';
-    
+
     // Call the Vercel Serverless Function
     const response = await fetch('/api/remove-bg', {
       method: 'POST',
@@ -1002,19 +1001,14 @@ async function runAIBackgroundRemoval(imgSource) {
       },
       body: JSON.stringify({ image: base64Data })
     });
-    
-    elements.progressBar.style.width = '70%';
-    elements.processingStatus.innerText = 'Processing Cutout...';
-    elements.processingProgress.innerText = 'Generating premium alpha-channel tracing...';
-    
+
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`);
     }
-    
+
     // Retrieve processed binary PNG blob
     const blob = await response.blob();
-    elements.progressBar.style.width = '95%';
-    
+
     const resultUrl = URL.createObjectURL(blob);
     const transparentImg = new Image();
     transparentImg.onload = () => {
@@ -1038,14 +1032,14 @@ async function runAIBackgroundRemoval(imgSource) {
       renderWMMakerCanvas();
       
       updateHistoryUI();
-      hideGlobalLoader();
+      hideAIProcessingOverlay();
     };
     transparentImg.src = resultUrl;
-    
+
   } catch (error) {
     console.error('AI background removal failed:', error);
-    hideGlobalLoader();
-    
+    hideAIProcessingOverlay({ immediate: true });
+
     // Elegant Failover notice & prompt
     const useSampleCutout = confirm(
       'Cloud background removal failed (this can occur on slow networks or if API credits are exhausted).\n\n' +
@@ -1143,6 +1137,56 @@ function showGlobalLoader(statusText, progressText) {
 
 function hideGlobalLoader() {
   elements.processingOverlay.classList.add('hidden');
+}
+
+// ── AI Processing Overlay ───────────────────────────────────────────────
+// Canvas-level "AI is thinking" animation for Background Eraser / Watermark
+// Remover / Watermark Maker AI actions. Runs for at least AI_OVERLAY_MIN_MS
+// so fast responses don't feel like a flicker; loops indefinitely (via CSS
+// infinite animations) if the real work takes longer.
+const AI_OVERLAY_MIN_MS = 20000;
+let aiOverlayShownAt = 0;
+let aiOverlayHideTimer = null;
+
+function showAIProcessingOverlay(text) {
+  const el = elements.aiProcessingOverlay;
+  if (!el) return;
+
+  if (aiOverlayHideTimer) {
+    clearTimeout(aiOverlayHideTimer);
+    aiOverlayHideTimer = null;
+  }
+  if (elements.aiProcessingText) {
+    elements.aiProcessingText.innerText = text || 'AI is working on your image...';
+  }
+
+  if (!el.classList.contains('visible')) {
+    el.classList.remove('hidden');
+    void el.offsetWidth; // force reflow so the opacity transition plays
+    el.classList.add('visible');
+    aiOverlayShownAt = Date.now();
+  }
+  // If already visible (e.g. scan -> erase chained calls), keep the original
+  // aiOverlayShownAt so the minimum-duration clock isn't reset mid-flow.
+}
+
+function hideAIProcessingOverlay(options = {}) {
+  const el = elements.aiProcessingOverlay;
+  if (!el) return;
+
+  if (aiOverlayHideTimer) {
+    clearTimeout(aiOverlayHideTimer);
+    aiOverlayHideTimer = null;
+  }
+
+  const elapsed = Date.now() - aiOverlayShownAt;
+  const wait = options.immediate ? 0 : Math.max(0, AI_OVERLAY_MIN_MS - elapsed);
+
+  aiOverlayHideTimer = setTimeout(() => {
+    el.classList.remove('visible');
+    setTimeout(() => el.classList.add('hidden'), 550); // let the opacity fade finish first
+    aiOverlayHideTimer = null;
+  }, wait);
 }
 
 /* ==========================================================================
@@ -2076,9 +2120,15 @@ function applyBrushToMask(brushCanvas, maskCanvas) {
 
 // Run watermark inpainting — tries LaMa AI backend first, falls back to local OpenCV
 function runWatermarkInpaint(isUndoOrRedo = false) {
+  // Only show the full "AI is thinking" treatment for a fresh erase — undo/redo
+  // replays a cached mask and should feel instant, not re-trigger a 20s animation.
+  if (!isUndoOrRedo) {
+    showAIProcessingOverlay('AI is erasing the watermark...');
+  }
+
   const baseCanvas = elements.wmRemoverBaseCanvas;
   const brushCanvas = elements.wmRemoverBrushCanvas;
-  
+
   const brushCtx = brushCanvas.getContext('2d');
   
   const w = baseCanvas.width;
@@ -2109,8 +2159,6 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     return;
   }
   
-  showGlobalLoader('Erasing Watermark...', 'Reconstructing background with AI...');
-  
   // ── Try LaMa backend first ──────────────────────────────────────────
   _tryLamaInpaint(imageDataURL, maskDataURL)
     .then(resultDataURI => {
@@ -2131,11 +2179,11 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     .catch(err => {
       console.warn('LaMa AI backend unavailable, falling back to local OpenCV:', err.message || err);
       if (err.message === 'NO_CREDITS') {
-        hideGlobalLoader();
+        hideAIProcessingOverlay({ immediate: true });
         elements.checkoutModal.showModal();
         showToastNotification('You have run out of credits. Please purchase a credit pack.');
       } else if (err.message === 'UNAUTHORIZED') {
-        hideGlobalLoader();
+        hideAIProcessingOverlay({ immediate: true });
         elements.authModal.showModal();
         showToastNotification('Please sign in to use the AI Watermark Eraser.');
       } else {
@@ -2174,13 +2222,11 @@ async function _tryLamaInpaint(imageDataURL, maskDataURL) {
 // ── Local OpenCV fallback ─────────────────────────────────────────────
 function _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo) {
   if (!window.cvReady) {
-    hideGlobalLoader();
+    hideAIProcessingOverlay({ immediate: true });
     showToastNotification('AI engines unavailable. Please reload the page and try again.');
     return;
   }
-  
-  showGlobalLoader('Erasing Watermark...', 'Using local OpenCV engine (fallback)...');
-  
+
   setTimeout(() => {
     try {
       const w = baseCanvas.width;
@@ -2217,7 +2263,7 @@ function _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo) {
       
     } catch (error) {
       console.error("OpenCV inpainting error:", error);
-      hideGlobalLoader();
+      hideAIProcessingOverlay({ immediate: true });
       alert("Watermark erasure failed: " + error.message);
     }
   }, 50);
@@ -2247,8 +2293,10 @@ function _handleInpaintResult(baseCanvas, isUndoOrRedo) {
     if (!isUndoOrRedo) {
       setWMEraserMode('compare');
     }
-    
-    hideGlobalLoader();
+
+    // Undo/redo never opened the overlay, so close it instantly if it's
+    // still showing from an unrelated action instead of inheriting its wait.
+    hideAIProcessingOverlay({ immediate: isUndoOrRedo });
   };
   updatedImg.src = baseCanvas.toDataURL();
 }
@@ -2324,8 +2372,8 @@ function runAIWatermarkDetection() {
     return;
   }
   
-  showGlobalLoader('AI Scanning...', 'Running machine-vision watermark detection...');
-  
+  showAIProcessingOverlay('AI is scanning for watermarks...');
+
   setTimeout(() => {
     try {
       const mask = detectWatermarkMask(imgData, detectText, detectLogo);
@@ -2349,20 +2397,21 @@ function runAIWatermarkDetection() {
       
       if (count > 0) {
         brushCtx.putImageData(brushImgData, 0, 0);
-        hideGlobalLoader();
-        
+
         // Push dummy brush stroke to support undo history stack triggers
         state.brushStrokes.push([{ x: 0, y: 0, size: 0 }]);
-        
+
         showToastNotification(`AI successfully highlighted watermark areas. Erasing...`);
+        // Keep the same overlay running straight into the erase pass — no
+        // hide/show flicker between "scanning" and "erasing".
         runWatermarkInpaint();
       } else {
-        hideGlobalLoader();
+        hideAIProcessingOverlay({ immediate: true });
         showToastNotification('No watermarks automatically detected. Please use Brush Mode to paint manually.');
       }
     } catch (err) {
       console.error(err);
-      hideGlobalLoader();
+      hideAIProcessingOverlay({ immediate: true });
       showToastNotification('Detection failed. Try manual brushing.');
     }
   }, 150);
