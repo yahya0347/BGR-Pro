@@ -5,6 +5,9 @@
 node_modules/
 **/node_modules/
 
+# Scratch / local test artifacts (never deploy)
+scratch/
+
 # Test output and screenshots
 scratch/*.png
 *diff*.png

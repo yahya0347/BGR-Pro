@@ -16,22 +16,36 @@ const OUT_DIR = join(__dirname, '..', 'pdf');
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Phase 1 client-side tools get the pdf-lib processing wiring; others stay shells.
-const PHASE1 = new Set(['merge', 'split', 'rotate', 'delete-pages', 'extract-pages', 'reorder', 'page-numbers', 'crop', 'compress']);
+// Office-format conversions need a backend (Phase 3) — those stay UI shells.
+// Everything else is client-side functional (Phase 1 + Phase 2 + protect/unlock).
+const OFFICE = new Set(['word-to-pdf', 'ppt-to-pdf', 'excel-to-pdf', 'pdf-to-word', 'pdf-to-ppt', 'pdf-to-excel']);
+const MULTIPLE = new Set(['merge', 'jpg-to-pdf', 'png-to-pdf']);
+const NEEDS_PDFJS = new Set(['reorder', 'pdf-to-jpg', 'pdf-to-png', 'pdf-to-text', 'pdf-to-html', 'redact']);
+const NEEDS_TESSERACT = new Set(['pdf-to-text']);
+const NEEDS_HTML2PDF = new Set(['html-to-pdf']);
+const NEEDS_QPDF = new Set(['protect', 'unlock']);
+
+const PDFJS_TAG = '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>\n<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>';
+const TESSERACT_TAG = '<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>';
+const HTML2PDF_TAG = '<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>';
+const QPDF_TAG = '<script type="module">import createModule from "https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm/+esm";window.__createQpdf=createModule;window.dispatchEvent(new Event("qpdf-lib-ready"));</script>';
+// Office pages call the CloudConvert-backed /api/convert; they need Firebase
+// (compat) to obtain the signed-in user's ID token for the credit check.
+const FIREBASE_TAGS = '<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>\n<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>';
 
 function renderPage({ slug, name, description, formatNote, icon, accept }) {
-  const functional = PHASE1.has(slug);
-  const multipleAttr = slug === 'merge' ? ' multiple' : '';
-  const scripts = functional
-    ? [
+  const multipleAttr = MULTIPLE.has(slug) ? ' multiple' : '';
+  const scripts = OFFICE.has(slug)
+    ? [FIREBASE_TAGS, '<script src="pdf-convert.js"></script>'].join('\n')
+    : [
         '<script src="vendor/pdf-lib.min.js"></script>',
         '<script src="vendor/jszip.min.js"></script>',
-        slug === 'reorder'
-          ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>\n<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>'
-          : '',
+        NEEDS_PDFJS.has(slug) ? PDFJS_TAG : '',
+        NEEDS_TESSERACT.has(slug) ? TESSERACT_TAG : '',
+        NEEDS_HTML2PDF.has(slug) ? HTML2PDF_TAG : '',
+        NEEDS_QPDF.has(slug) ? QPDF_TAG : '',
         '<script src="pdf-tools.js"></script>',
-      ].filter(Boolean).join('\n')
-    : '';
+      ].filter(Boolean).join('\n');
   return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>

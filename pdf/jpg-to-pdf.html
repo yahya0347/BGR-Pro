@@ -191,13 +191,15 @@
 <span class="material-symbols-outlined text-[14px]">info</span>
                         JPG images only, max 10MB per file
                     </p>
-<input id="pdfFileInput" type="file" class="hidden" accept="image/jpeg"/>
+<input id="pdfFileInput" type="file" class="hidden" accept="image/jpeg" multiple/>
 </label>
 </div>
 </div>
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
-
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="pdf-tools.js"></script>
 <script src="pdf-grid.js"></script>
 </body></html>
