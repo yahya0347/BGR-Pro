@@ -1,6 +1,6 @@
 // Generates one static PDF tool page per entry in pdf-tools.config.mjs.
 // Run: node scripts/generate-pdf-pages.mjs
-// Output: pdf/<slug>.html  (each reuses pdf/pdf-grid.js for the repel animation)
+// Output: pdf/<slug>.html  (each uses the shared /dot-grid.js background animation)
 //
 // The template below is the single reusable "component"; it accepts a tool's
 // name, description, formatNote, icon and accept list. Only those swap per page.
@@ -177,7 +177,7 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="${esc(slug)}">
 <!-- Interactive Background Canvas -->
-<canvas id="interactive-grid"></canvas>
+<canvas id="interactive-grid" data-dot-grid></canvas>
 <!-- TopNavBar -->
 <header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] transition-all duration-300">
 <div class="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
@@ -247,7 +247,7 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
 ${scripts}
-<script src="pdf-grid.js"></script>
+<script src="/dot-grid.js"></script>
 </body></html>
 `;
 }

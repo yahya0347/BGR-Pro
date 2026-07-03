@@ -266,9 +266,9 @@
 
 <!-- Upload Landing Area / Home Hub -->
 <main id="uploadLanding" class="flex-1 relative workspace-section active flex flex-col mt-toolbar-width overflow-y-auto hub-landing">
-    <!-- Mouse-reactive dot grid (home-hub.js). Child of #uploadLanding so it
-         auto-hides when the editor is shown (parent becomes display:none). -->
-    <canvas id="homeHubCanvas" class="hub-canvas" aria-hidden="true"></canvas>
+    <!-- Mouse-reactive dot grid (shared /dot-grid.js). Child of #uploadLanding
+         so it auto-hides when the editor is shown (parent becomes display:none). -->
+    <canvas id="homeHubCanvas" class="hub-canvas" aria-hidden="true" data-dot-grid></canvas>
 
     <div class="hub-wrap" id="hubLauncher">
         <!-- Hero -->
@@ -937,7 +937,8 @@
 
 <script type="module" src="app.js?v=38"></script>
 <script type="module" src="ui-panels.js?v=1"></script>
-<script src="home-hub.js?v=4"></script>
+<script src="/dot-grid.js?v=1"></script>
+<script src="home-hub.js?v=5"></script>
 <div id="dummy-elements" style="display: none;">
   <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>
