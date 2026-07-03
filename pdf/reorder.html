@@ -2,8 +2,16 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Reorder Pages - EraserPro</title>
-<meta name="description" content="Drag and drop to reorder pages exactly how you want."/>
+<title>Reorder PDF Pages Online Free — EraserPro</title>
+<meta name="description" content="Rearrange PDF pages with drag-and-drop thumbnails, free and in your browser. Reorder pages and download the new PDF."/>
+<meta name="keywords" content="reorder pdf pages, rearrange pdf, organize pdf pages, sort pdf pages"/>
+<link rel="canonical" href="https://bgr-pro.vercel.app/pdf/reorder.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Reorder PDF Pages Online Free — EraserPro"/>
+<meta property="og:description" content="Rearrange PDF pages with drag-and-drop thumbnails, free and in your browser. Reorder pages and download the new PDF."/>
+<meta property="og:url" content="https://bgr-pro.vercel.app/pdf/reorder.html"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Reorder PDF Pages Online Free","description":"Rearrange PDF pages with drag-and-drop thumbnails, free and in your browser. Reorder pages and download the new PDF.","step":[{"@type":"HowToStep","name":"Upload your PDF","text":"Add the PDF whose page order you want to change."},{"@type":"HowToStep","name":"Drag to rearrange","text":"Drag the page thumbnails into the new order you want."},{"@type":"HowToStep","name":"Download the new PDF","text":"Apply your order and download the reorganized PDF."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are my pages uploaded to reorder them?","acceptedAnswer":{"@type":"Answer","text":"No — thumbnails render and reorder locally in your browser; nothing is uploaded."}},{"@type":"Question","name":"How do I move a page?","acceptedAnswer":{"@type":"Answer","text":"Simply drag its thumbnail and drop it where you want it in the sequence."}},{"@type":"Question","name":"Can I reorder large PDFs?","acceptedAnswer":{"@type":"Answer","text":"Yes, though very large documents take a moment to render all thumbnails."}},{"@type":"Question","name":"Is reordering pages free?","acceptedAnswer":{"@type":"Answer","text":"Yes, it is entirely free and requires no sign-up."}}]}</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
         tailwind.config = {
@@ -125,6 +133,26 @@
             -webkit-mask-composite: xor;
             padding: 2px;
         }
+
+        /* SEO educational block */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .brand-gradient-text, .brand-gradient-icon {
+            background: linear-gradient(135deg, #630ed4, #b4136d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="reorder">
@@ -198,6 +226,99 @@
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+
+<!-- ===== SEO educational content (bottom of page) ===== -->
+<section class="w-full max-w-7xl mx-auto px-lg pb-xl flex flex-col gap-xl lg:gap-[64px] relative z-10">
+<div class="text-center max-w-3xl mx-auto pt-xl">
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-md">How to <span class="brand-gradient-text">Reorder PDF Pages</span> Online</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Pages out of sequence? <strong class="text-on-surface">Reorder PDF pages</strong> visually by dragging thumbnails into place. You may also want to <a href="/pdf/merge.html" class="text-primary font-medium hover:underline">merge multiple PDFs</a> first or <a href="/pdf/rotate.html" class="text-primary font-medium hover:underline">rotate pages</a> that are turned the wrong way.</p>
+</div>
+<div class="w-full">
+<div class="text-center mb-xl"><h2 class="font-headline-lg text-headline-lg text-on-surface">Reorder PDF Pages in 3 Easy Steps</h2></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">upload_file</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">1</span>Upload your PDF</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Add the PDF whose page order you want to change.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">drag_indicator</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">2</span>Drag to rearrange</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Drag the page thumbnails into the new order you want.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">download_done</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">3</span>Download the new PDF</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Apply your order and download the reorganized PDF.</p>
+</div></div>
+</div>
+<div class="w-full flex flex-col lg:flex-row gap-xl items-center">
+<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden aspect-[4/3]"><svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of PDF page thumbnails being dragged into a new order"><title>Illustration of PDF page thumbnails being dragged into a new order</title><rect width="400" height="300" fill="#f6f2fc"/><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#630ed4"/><stop offset="1" stop-color="#b4136d"/></linearGradient></defs><rect x="120" y="50" width="160" height="200" rx="20" fill="url(#bg)"/><rect x="158" y="108" width="84" height="14" rx="5" fill="#fff"/><rect x="158" y="143" width="84" height="14" rx="5" fill="#fff"/><rect x="158" y="178" width="84" height="14" rx="5" fill="#fff"/><path d="M148 128 l0 -18 m-7 7 l7 -7 l7 7" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M252 172 l0 18 m-7 -7 l7 7 l7 -7" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+<div class="w-full lg:w-1/2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to reorder your PDF pages</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">money_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">100% Free</h3><p class="font-body-md text-body-md text-on-surface-variant">Reorder your PDF pages without paying a cent — no watermarks and no forced sign-up.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs" style="font-variation-settings:'FILL' 1;">verified_user</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Private &amp; Secure</h3><p class="font-body-md text-body-md text-on-surface-variant">Everything runs in your browser — files are never uploaded, so your data never leaves your device.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">cloud_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">No Installation</h3><p class="font-body-md text-body-md text-on-surface-variant">Works right in your web browser — there's nothing to download or install.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">devices</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Any Device</h3><p class="font-body-md text-body-md text-on-surface-variant">Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.</p></div>
+</div></div>
+</div>
+</div>
+<div class="w-full max-w-3xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
+<div class="flex flex-col gap-sm">
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Are my pages uploaded to reorder them?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">No — thumbnails render and reorder locally in your browser; nothing is uploaded.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">How do I move a page?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Simply drag its thumbnail and drop it where you want it in the sequence.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Can I reorder large PDFs?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Yes, though very large documents take a moment to render all thumbnails.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Is reordering pages free?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Yes, it is entirely free and requires no sign-up.</div>
+</details></div>
+</div>
+</section>
+<footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
+<a href="/" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
+<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved.</div>
+<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/#pdfHub">PDF Hub</a></div>
+</footer>
 <script src="vendor/pdf-lib.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>

@@ -2,8 +2,16 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Delete Pages - EraserPro</title>
-<meta name="description" content="Remove unwanted pages from your PDF instantly."/>
+<title>Delete PDF Pages Online Free — EraserPro</title>
+<meta name="description" content="Remove unwanted pages from a PDF online for free. Delete specific pages in your browser and download the trimmed PDF."/>
+<meta name="keywords" content="delete pdf pages, remove pages from pdf, pdf page remover"/>
+<link rel="canonical" href="https://bgr-pro.vercel.app/pdf/delete-pages.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Delete PDF Pages Online Free — EraserPro"/>
+<meta property="og:description" content="Remove unwanted pages from a PDF online for free. Delete specific pages in your browser and download the trimmed PDF."/>
+<meta property="og:url" content="https://bgr-pro.vercel.app/pdf/delete-pages.html"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Delete PDF Pages Online Free","description":"Remove unwanted pages from a PDF online for free. Delete specific pages in your browser and download the trimmed PDF.","step":[{"@type":"HowToStep","name":"Upload your PDF","text":"Add the PDF you want to edit by dragging it in or selecting it."},{"@type":"HowToStep","name":"Choose pages to remove","text":"Enter the page numbers or ranges to delete, such as 2, 4-6."},{"@type":"HowToStep","name":"Download the result","text":"Remove the pages and download your trimmed PDF instantly."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do you upload my PDF to delete pages?","acceptedAnswer":{"@type":"Answer","text":"No — everything happens in your browser, so your document is never sent to a server."}},{"@type":"Question","name":"Which pages can I delete?","acceptedAnswer":{"@type":"Answer","text":"Any pages you specify, individually or in ranges (for example 2, 4-6)."}},{"@type":"Question","name":"Can I delete every page?","acceptedAnswer":{"@type":"Answer","text":"At least one page must remain, so a PDF is never left empty."}},{"@type":"Question","name":"Is deleting PDF pages free?","acceptedAnswer":{"@type":"Answer","text":"Yes, completely free with no watermarks or sign-up."}}]}</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
         tailwind.config = {
@@ -125,6 +133,26 @@
             -webkit-mask-composite: xor;
             padding: 2px;
         }
+
+        /* SEO educational block */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .brand-gradient-text, .brand-gradient-icon {
+            background: linear-gradient(135deg, #630ed4, #b4136d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="delete-pages">
@@ -198,6 +226,99 @@
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+
+<!-- ===== SEO educational content (bottom of page) ===== -->
+<section class="w-full max-w-7xl mx-auto px-lg pb-xl flex flex-col gap-xl lg:gap-[64px] relative z-10">
+<div class="text-center max-w-3xl mx-auto pt-xl">
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-md">How to <span class="brand-gradient-text">Delete PDF Pages</span> Online</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Have blank or unwanted pages? <strong class="text-on-surface">Delete PDF pages</strong> quickly and keep only what you need. You can also <a href="/pdf/extract-pages.html" class="text-primary font-medium hover:underline">extract pages</a> into a new file or <a href="/pdf/split.html" class="text-primary font-medium hover:underline">split the PDF</a> instead.</p>
+</div>
+<div class="w-full">
+<div class="text-center mb-xl"><h2 class="font-headline-lg text-headline-lg text-on-surface">Delete PDF Pages in 3 Easy Steps</h2></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">upload_file</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">1</span>Upload your PDF</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Add the PDF you want to edit by dragging it in or selecting it.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">delete_sweep</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">2</span>Choose pages to remove</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter the page numbers or ranges to delete, such as 2, 4-6.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">download_done</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">3</span>Download the result</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Remove the pages and download your trimmed PDF instantly.</p>
+</div></div>
+</div>
+<div class="w-full flex flex-col lg:flex-row gap-xl items-center">
+<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden aspect-[4/3]"><svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of an unwanted page being removed from a PDF document"><title>Illustration of an unwanted page being removed from a PDF document</title><rect width="400" height="300" fill="#f6f2fc"/><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#630ed4"/><stop offset="1" stop-color="#b4136d"/></linearGradient></defs><rect x="120" y="50" width="160" height="200" rx="20" fill="url(#bg)"/><path d="M172 122 h56 M184 122 v-8 h32 v8 M180 122 l5 74 h30 l5 -74" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M192 138 v42 M208 138 v42" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg></div></div>
+<div class="w-full lg:w-1/2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to delete pages from your PDF</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">money_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">100% Free</h3><p class="font-body-md text-body-md text-on-surface-variant">Delete pages from your PDF without paying a cent — no watermarks and no forced sign-up.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs" style="font-variation-settings:'FILL' 1;">verified_user</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Private &amp; Secure</h3><p class="font-body-md text-body-md text-on-surface-variant">Everything runs in your browser — files are never uploaded, so your data never leaves your device.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">cloud_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">No Installation</h3><p class="font-body-md text-body-md text-on-surface-variant">Works right in your web browser — there's nothing to download or install.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">devices</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Any Device</h3><p class="font-body-md text-body-md text-on-surface-variant">Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.</p></div>
+</div></div>
+</div>
+</div>
+<div class="w-full max-w-3xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
+<div class="flex flex-col gap-sm">
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Do you upload my PDF to delete pages?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">No — everything happens in your browser, so your document is never sent to a server.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Which pages can I delete?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Any pages you specify, individually or in ranges (for example 2, 4-6).</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Can I delete every page?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">At least one page must remain, so a PDF is never left empty.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Is deleting PDF pages free?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Yes, completely free with no watermarks or sign-up.</div>
+</details></div>
+</div>
+</section>
+<footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
+<a href="/" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
+<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved.</div>
+<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/#pdfHub">PDF Hub</a></div>
+</footer>
 <script src="vendor/pdf-lib.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="pdf-tools.js"></script>

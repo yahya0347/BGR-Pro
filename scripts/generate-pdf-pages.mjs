@@ -9,12 +9,141 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { pdfTools } from './pdf-tools.config.mjs';
+import { SEO } from './pdf-seo.config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(__dirname, '..', 'pdf');
+const SITE = 'https://bgr-pro.vercel.app';
 
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// ── SEO block builders (bottom educational content) ───────────────────────
+function headSeo(seo, slug) {
+  const url = `${SITE}/pdf/${slug}.html`;
+  const howto = {
+    '@context': 'https://schema.org', '@type': 'HowTo',
+    name: seo.title.replace(/\s*[—-]\s*EraserPro$/, ''), description: seo.desc,
+    step: seo.steps.map((s) => ({ '@type': 'HowToStep', name: s.name, text: s.text })),
+  };
+  const faq = {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: seo.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  };
+  return [
+    `<title>${esc(seo.title)}</title>`,
+    `<meta name="description" content="${esc(seo.desc)}"/>`,
+    `<meta name="keywords" content="${esc(seo.keywords)}"/>`,
+    `<link rel="canonical" href="${url}"/>`,
+    `<meta property="og:type" content="website"/>`,
+    `<meta property="og:title" content="${esc(seo.title)}"/>`,
+    `<meta property="og:description" content="${esc(seo.desc)}"/>`,
+    `<meta property="og:url" content="${url}"/>`,
+    `<script type="application/ld+json">${JSON.stringify(howto)}</script>`,
+    `<script type="application/ld+json">${JSON.stringify(faq)}</script>`,
+  ].join('\n');
+}
+
+function stepsHtml(seo) {
+  return seo.steps.map((s, i) => `
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">${esc(s.icon)}</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">${i + 1}</span>${esc(s.name)}</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">${esc(s.text)}</p>
+</div>`).join('');
+}
+
+function benefitsHtml(seo) {
+  const secure = seo.cs
+    ? { icon: 'verified_user', title: 'Private & Secure', text: `Everything runs in your browser — files are never uploaded, so your data never leaves your device.`, fill: true }
+    : { icon: 'lock', title: 'Secure Processing', text: `Files are sent over an encrypted connection to convert, then deleted automatically right after processing.`, fill: true };
+  const items = [
+    { icon: 'money_off', title: '100% Free', text: `${cap(seo.action)} without paying a cent — no watermarks and no forced sign-up.` },
+    secure,
+    { icon: 'cloud_off', title: 'No Installation', text: `Works right in your web browser — there's nothing to download or install.` },
+    { icon: 'devices', title: 'Any Device', text: `Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.` },
+  ];
+  return items.map((it) => `
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs"${it.fill ? ` style="font-variation-settings:'FILL' 1;"` : ''}>${it.icon}</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">${esc(it.title)}</h3><p class="font-body-md text-body-md text-on-surface-variant">${esc(it.text)}</p></div>
+</div>`).join('');
+}
+
+function faqHtml(seo) {
+  return seo.faqs.map((f) => `
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">${esc(f.q)}</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">${esc(f.a)}</div>
+</details>`).join('');
+}
+
+// Unique, on-brand inline-SVG illustration per tool (purple→pink gradient).
+function illoSvg(illo, alt) {
+  const defs = `<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#630ed4"/><stop offset="1" stop-color="#b4136d"/></linearGradient></defs>`;
+  const wrap = (inner) => `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(alt)}"><title>${esc(alt)}</title><rect width="400" height="300" fill="#f6f2fc"/>${defs}${inner}</svg>`;
+  const doc = (x, y, w, h, label) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="#ffffff" stroke="url(#bg)" stroke-width="3"/>${label ? `<text x="${x + w / 2}" y="${y + h / 2 + 8}" text-anchor="middle" font-family="Geist,sans-serif" font-weight="800" font-size="22" fill="url(#bg)">${label}</text>` : ''}`;
+  const arrow = (x1, x2, y) => `<path d="M${x1} ${y} H${x2}" stroke="url(#bg)" stroke-width="5" stroke-linecap="round"/><path d="M${x2 - 14} ${y - 12} L${x2} ${y} L${x2 - 14} ${y + 12}" fill="none" stroke="url(#bg)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if (illo.t === 'conv') return wrap(`${doc(58, 80, 110, 140, illo.a)}${arrow(184, 236, 150)}${doc(252, 80, 110, 140, illo.b)}`);
+  if (illo.t === 'merge') return wrap(`${doc(48, 68, 92, 128)}${doc(92, 96, 92, 128)}${arrow(200, 252, 150)}${doc(268, 80, 92, 140, 'PDF')}`);
+  if (illo.t === 'split') return wrap(`${doc(44, 80, 92, 140, 'PDF')}${arrow(150, 202, 150)}${doc(228, 58, 92, 118)}${doc(228, 150, 92, 118)}`);
+  const badge = (inner) => `<rect x="120" y="50" width="160" height="200" rx="20" fill="url(#bg)"/>${inner}`;
+  const G = { fill: '#fff', stroke: '#fff' };
+  const glyph = {
+    compress: `<path d="M200 92 V126 M188 114 l12 12 l12 -12 M200 208 V174 M188 186 l12 -12 l12 12" stroke="${G.stroke}" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="160" y="146" width="80" height="8" rx="4" fill="#fff" opacity=".6"/>`,
+    rotate: `<path d="M232 150 a32 32 0 1 1 -10 -23" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M222 108 l4 24 l-24 -2" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`,
+    delete: `<path d="M172 122 h56 M184 122 v-8 h32 v8 M180 122 l5 74 h30 l5 -74" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M192 138 v42 M208 138 v42" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`,
+    extract: `<rect x="168" y="132" width="64" height="80" rx="8" fill="none" stroke="#fff" stroke-width="6"/><path d="M200 120 V84 M184 100 l16 -16 l16 16" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`,
+    reorder: `<rect x="158" y="108" width="84" height="14" rx="5" fill="#fff"/><rect x="158" y="143" width="84" height="14" rx="5" fill="#fff"/><rect x="158" y="178" width="84" height="14" rx="5" fill="#fff"/><path d="M148 128 l0 -18 m-7 7 l7 -7 l7 7" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M252 172 l0 18 m-7 -7 l7 7 l7 -7" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    numbers: `<text x="200" y="166" text-anchor="middle" font-family="Geist,sans-serif" font-weight="800" font-size="46" fill="#fff">1 2 3</text>`,
+    crop: `<path d="M170 128 v52 h52 M230 172 v-52 h-52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M158 145 h84 M200 104 v92" stroke="#fff" stroke-width="3" opacity=".55"/>`,
+    lock: `<rect x="166" y="150" width="68" height="54" rx="9" fill="#fff"/><path d="M178 150 v-14 a22 22 0 0 1 44 0 v14" fill="none" stroke="#fff" stroke-width="8"/><circle cx="200" cy="172" r="7" fill="url(#bg)"/><rect x="197" y="176" width="6" height="15" rx="3" fill="url(#bg)"/>`,
+    unlock: `<rect x="166" y="150" width="68" height="54" rx="9" fill="#fff"/><path d="M178 150 v-14 a22 22 0 0 1 40 -9" fill="none" stroke="#fff" stroke-width="8"/><circle cx="200" cy="172" r="7" fill="url(#bg)"/><rect x="197" y="176" width="6" height="15" rx="3" fill="url(#bg)"/>`,
+    sign: `<path d="M158 178 q14 -40 28 -6 t26 -14 q10 -18 20 4" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M152 196 h96" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`,
+    watermark: `<rect x="150" y="108" width="100" height="84" rx="8" fill="none" stroke="#fff" stroke-width="4" opacity=".7"/><text x="200" y="162" text-anchor="middle" font-family="Geist,sans-serif" font-weight="800" font-size="34" fill="#fff" opacity=".6" transform="rotate(-20 200 150)">WM</text>`,
+    redact: `<rect x="150" y="110" width="100" height="15" rx="4" fill="#fff"/><rect x="150" y="142" width="72" height="15" rx="4" fill="#191c1d"/><rect x="150" y="174" width="92" height="15" rx="4" fill="#fff"/>`,
+    flatten: `<rect x="158" y="106" width="84" height="18" rx="5" fill="#fff" opacity=".45"/><rect x="158" y="130" width="84" height="18" rx="5" fill="#fff" opacity=".7"/><rect x="158" y="162" width="84" height="26" rx="5" fill="#fff"/><path d="M200 94 v10 M192 98 l8 6 l8 -6" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    repair: `<g transform="rotate(45 200 150)"><rect x="192" y="120" width="16" height="72" rx="8" fill="#fff"/><circle cx="200" cy="118" r="15" fill="none" stroke="#fff" stroke-width="11"/></g>`,
+  };
+  return wrap(badge(glyph[illo.s] || ''));
+}
+
+function seoBlock(seo) {
+  return `
+<!-- ===== SEO educational content (bottom of page) ===== -->
+<section class="w-full max-w-7xl mx-auto px-lg pb-xl flex flex-col gap-xl lg:gap-[64px] relative z-10">
+<div class="text-center max-w-3xl mx-auto pt-xl">
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-md">How to <span class="brand-gradient-text">${esc(seo.kw)}</span> Online</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">${seo.intro}</p>
+</div>
+<div class="w-full">
+<div class="text-center mb-xl"><h2 class="font-headline-lg text-headline-lg text-on-surface">${esc(seo.kw)} in 3 Easy Steps</h2></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">${stepsHtml(seo)}</div>
+</div>
+<div class="w-full flex flex-col lg:flex-row gap-xl items-center">
+<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden aspect-[4/3]">${illoSvg(seo.illo, seo.illoAlt)}</div></div>
+<div class="w-full lg:w-1/2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to ${esc(seo.action)}</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">${benefitsHtml(seo)}</div>
+</div>
+</div>
+<div class="w-full max-w-3xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
+<div class="flex flex-col gap-sm">${faqHtml(seo)}</div>
+</div>
+</section>
+<footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
+<a href="/" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
+<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved.</div>
+<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/#pdfHub">PDF Hub</a></div>
+</footer>`;
+}
 
 // Office-format conversions need a backend (Phase 3) — those stay UI shells.
 // Everything else is client-side functional (Phase 1 + Phase 2 + protect/unlock).
@@ -34,6 +163,7 @@ const QPDF_TAG = '<script type="module">import createModule from "https://cdn.js
 const FIREBASE_TAGS = '<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>\n<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>';
 
 function renderPage({ slug, name, description, formatNote, icon, accept }) {
+  const seo = SEO[slug];
   const multipleAttr = MULTIPLE.has(slug) ? ' multiple' : '';
   const scripts = OFFICE.has(slug)
     ? [FIREBASE_TAGS, '<script src="pdf-convert.js"></script>'].join('\n')
@@ -50,8 +180,7 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>${esc(name)} - EraserPro</title>
-<meta name="description" content="${esc(description)}"/>
+${headSeo(seo, slug)}
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
         tailwind.config = {
@@ -173,6 +302,26 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
             -webkit-mask-composite: xor;
             padding: 2px;
         }
+
+        /* SEO educational block */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .brand-gradient-text, .brand-gradient-icon {
+            background: linear-gradient(135deg, #630ed4, #b4136d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="${esc(slug)}">
@@ -246,6 +395,7 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+${seoBlock(seo)}
 ${scripts}
 <script src="/dot-grid.js"></script>
 </body></html>

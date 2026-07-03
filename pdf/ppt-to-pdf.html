@@ -2,8 +2,16 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>PowerPoint to PDF - EraserPro</title>
-<meta name="description" content="Turn PowerPoint slides into a portable PDF deck."/>
+<title>PowerPoint to PDF Online — EraserPro</title>
+<meta name="description" content="Convert PowerPoint (PPT, PPTX) slides to PDF online with layouts preserved. Share decks anyone can open."/>
+<meta name="keywords" content="powerpoint to pdf, ppt to pdf, pptx to pdf, convert slides to pdf"/>
+<link rel="canonical" href="https://bgr-pro.vercel.app/pdf/ppt-to-pdf.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="PowerPoint to PDF Online — EraserPro"/>
+<meta property="og:description" content="Convert PowerPoint (PPT, PPTX) slides to PDF online with layouts preserved. Share decks anyone can open."/>
+<meta property="og:url" content="https://bgr-pro.vercel.app/pdf/ppt-to-pdf.html"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"PowerPoint to PDF Online","description":"Convert PowerPoint (PPT, PPTX) slides to PDF online with layouts preserved. Share decks anyone can open.","step":[{"@type":"HowToStep","name":"Upload your slides","text":"Add your .ppt or .pptx presentation to convert."},{"@type":"HowToStep","name":"Convert to PDF","text":"Each slide is rendered to a PDF page on our secure conversion engine."},{"@type":"HowToStep","name":"Download the PDF","text":"Download your deck as a shareable, print-ready PDF."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is my presentation handled?","acceptedAnswer":{"@type":"Answer","text":"It is uploaded over an encrypted connection to our conversion service and deleted immediately after processing."}},{"@type":"Question","name":"Are animations included?","acceptedAnswer":{"@type":"Answer","text":"PDFs are static, so each slide becomes a page; animations and transitions are not preserved."}},{"@type":"Question","name":"Which formats work?","acceptedAnswer":{"@type":"Answer","text":"Both .ppt and .pptx presentations are supported."}},{"@type":"Question","name":"How many credits does it cost?","acceptedAnswer":{"@type":"Answer","text":"PowerPoint to PDF uses 2 credits per conversion."}}]}</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
         tailwind.config = {
@@ -125,6 +133,26 @@
             -webkit-mask-composite: xor;
             padding: 2px;
         }
+
+        /* SEO educational block */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .brand-gradient-text, .brand-gradient-icon {
+            background: linear-gradient(135deg, #630ed4, #b4136d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="ppt-to-pdf">
@@ -198,6 +226,99 @@
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
+
+<!-- ===== SEO educational content (bottom of page) ===== -->
+<section class="w-full max-w-7xl mx-auto px-lg pb-xl flex flex-col gap-xl lg:gap-[64px] relative z-10">
+<div class="text-center max-w-3xl mx-auto pt-xl">
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-md">How to <span class="brand-gradient-text">PowerPoint to PDF</span> Online</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Turn a slide deck into a portable file — <strong class="text-on-surface">convert PowerPoint to PDF</strong> so anyone can view it without PowerPoint. To edit slides from a PDF, use <a href="/pdf/pdf-to-ppt.html" class="text-primary font-medium hover:underline">PDF to PowerPoint</a>; for documents, see <a href="/pdf/word-to-pdf.html" class="text-primary font-medium hover:underline">Word to PDF</a>.</p>
+</div>
+<div class="w-full">
+<div class="text-center mb-xl"><h2 class="font-headline-lg text-headline-lg text-on-surface">PowerPoint to PDF in 3 Easy Steps</h2></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">upload_file</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">1</span>Upload your slides</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Add your .ppt or .pptx presentation to convert.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">sync</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">2</span>Convert to PDF</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Each slide is rendered to a PDF page on our secure conversion engine.</p>
+</div>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-md group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[32px] brand-gradient-icon" style="font-variation-settings:'FILL' 1;">download_done</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-sm"><span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">3</span>Download the PDF</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Download your deck as a shareable, print-ready PDF.</p>
+</div></div>
+</div>
+<div class="w-full flex flex-col lg:flex-row gap-xl items-center">
+<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden aspect-[4/3]"><svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration showing a PowerPoint presentation being converted into a PDF file"><title>Illustration showing a PowerPoint presentation being converted into a PDF file</title><rect width="400" height="300" fill="#f6f2fc"/><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#630ed4"/><stop offset="1" stop-color="#b4136d"/></linearGradient></defs><rect x="58" y="80" width="110" height="140" rx="10" fill="#ffffff" stroke="url(#bg)" stroke-width="3"/><text x="113" y="158" text-anchor="middle" font-family="Geist,sans-serif" font-weight="800" font-size="22" fill="url(#bg)">PPT</text><path d="M184 150 H236" stroke="url(#bg)" stroke-width="5" stroke-linecap="round"/><path d="M222 138 L236 150 L222 162" fill="none" stroke="url(#bg)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="252" y="80" width="110" height="140" rx="10" fill="#ffffff" stroke="url(#bg)" stroke-width="3"/><text x="307" y="158" text-anchor="middle" font-family="Geist,sans-serif" font-weight="800" font-size="22" fill="url(#bg)">PDF</text></svg></div></div>
+<div class="w-full lg:w-1/2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to convert PowerPoint slides to PDF</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">money_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">100% Free</h3><p class="font-body-md text-body-md text-on-surface-variant">Convert PowerPoint slides to PDF without paying a cent — no watermarks and no forced sign-up.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs" style="font-variation-settings:'FILL' 1;">lock</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Secure Processing</h3><p class="font-body-md text-body-md text-on-surface-variant">Files are sent over an encrypted connection to convert, then deleted automatically right after processing.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">cloud_off</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">No Installation</h3><p class="font-body-md text-body-md text-on-surface-variant">Works right in your web browser — there's nothing to download or install.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">devices</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Any Device</h3><p class="font-body-md text-body-md text-on-surface-variant">Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.</p></div>
+</div></div>
+</div>
+</div>
+<div class="w-full max-w-3xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
+<div class="flex flex-col gap-sm">
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">How is my presentation handled?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">It is uploaded over an encrypted connection to our conversion service and deleted immediately after processing.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Are animations included?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">PDFs are static, so each slide becomes a page; animations and transitions are not preserved.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Which formats work?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Both .ppt and .pptx presentations are supported.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">How many credits does it cost?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">PowerPoint to PDF uses 2 credits per conversion.</div>
+</details></div>
+</div>
+</section>
+<footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
+<a href="/" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
+<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved.</div>
+<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/#pdfHub">PDF Hub</a></div>
+</footer>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="pdf-convert.js"></script>
