@@ -62,6 +62,13 @@
     const GYRO_MAX_OFFSET = 6;  // px — "a few pixels max"
     const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion
 
+    // ---- TEMPORARY on-screen debug badge (Android real-device diagnosis) --
+    // Remove this block once the drift issue is confirmed fixed on-device.
+    let gyroDebugEl = null;
+    function setGyroDebugState(text) {
+      if (gyroDebugEl) gyroDebugEl.textContent = 'gyro: ' + text;
+    }
+
     function gyroLoop() {
       gyroRafId = null;
       if (document.hidden) return; // paused while backgrounded; visibilitychange resumes it
@@ -76,7 +83,10 @@
     }
 
     function handleOrientation(e) {
-      if (typeof e.gamma !== 'number' && typeof e.beta !== 'number') return; // no real sensor data
+      if (typeof e.gamma !== 'number' && typeof e.beta !== 'number') {
+        setGyroDebugState('listener attached (no data received)');
+        return; // no real sensor data
+      }
       const gamma = Math.max(-45, Math.min(45, e.gamma || 0));       // left-right tilt
       const beta = Math.max(-45, Math.min(45, (e.beta || 0) - 45));  // front-back tilt, recentred to a natural holding angle
       gyroTarget.x = (gamma / 45) * GYRO_MAX_OFFSET;
@@ -85,24 +95,32 @@
         gyroActive = true;
         startGyroLoop();
       }
+      setGyroDebugState('granted, listener attached — β:' + Math.round(e.beta) + ' γ:' + Math.round(e.gamma));
     }
 
     function requestGyroPermission() {
       if (gyroRequested) return;
       gyroRequested = true;
       const DOE = window.DeviceOrientationEvent;
-      if (!DOE) return; // no gyroscope support -> stays on the static frame
+      if (!DOE) { setGyroDebugState('unsupported (no DeviceOrientationEvent)'); return; } // no gyroscope support -> stays on the static frame
       if (typeof DOE.requestPermission === 'function') {
         // iOS 13+: must be invoked from a user gesture. Denial or error ->
         // silent fallback, we never ask again this session.
+        setGyroDebugState('requesting');
         DOE.requestPermission()
           .then((state) => {
-            if (state === 'granted') window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+              setGyroDebugState('granted, listener attached');
+            } else {
+              setGyroDebugState('denied (' + state + ')');
+            }
           })
-          .catch(() => {});
+          .catch((err) => setGyroDebugState('denied (error: ' + (err && err.message) + ')'));
       } else {
         // No permission gate needed (Android / older iOS)
         window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+        setGyroDebugState('granted, listener attached');
       }
     }
 
@@ -120,6 +138,15 @@
     resize();
 
     if (isTouchDevice) {
+      // TEMPORARY: visible on-screen state badge for real-device diagnosis.
+      // Remove this element once the drift issue is confirmed fixed.
+      gyroDebugEl = document.createElement('div');
+      gyroDebugEl.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:0;z-index:2147483647;'
+        + 'background:rgba(0,0,0,0.8);color:#39ff14;font:11px/1.4 monospace;padding:4px 8px;'
+        + 'border-bottom-right-radius:8px;pointer-events:none;white-space:pre-wrap;max-width:100vw;';
+      gyroDebugEl.textContent = 'gyro: not requested';
+      document.body.appendChild(gyroDebugEl);
+
       drawStatic();
       // Request gyro permission gracefully on the first tap anywhere on the
       // page, rather than immediately on load (iOS requires a user gesture).
