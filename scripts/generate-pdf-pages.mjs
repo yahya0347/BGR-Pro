@@ -136,9 +136,9 @@ function seoBlock(seo, slug) {
 <div class="text-center mb-xl"><h2 class="font-headline-lg text-headline-lg text-on-surface">${esc(seo.kw)} in 3 Easy Steps</h2></div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">${stepsHtml(seo)}</div>
 </div>
-<div class="w-full flex flex-col lg:flex-row gap-xl items-center">
-<div class="w-full lg:w-1/2"><div class="hero-illustration-container">${heroImg(slug, seo)}</div></div>
-<div class="w-full lg:w-1/2">
+<div class="w-full flex flex-col lg:flex-row gap-xl items-center lg:items-stretch">
+<div class="w-full lg:w-1/2"><div class="hero-illustration-container w-full lg:h-full">${heroImg(slug, seo)}</div></div>
+<div class="w-full lg:w-1/2 flex flex-col lg:justify-center">
 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to ${esc(seo.action)}</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">${benefitsHtml(seo)}</div>
 </div>
