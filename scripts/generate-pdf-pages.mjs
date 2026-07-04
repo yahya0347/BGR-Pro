@@ -192,6 +192,11 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 ${headSeo(seo, slug)}
+<link rel="icon" type="image/svg+xml" href="../favicon.svg"/>
+<link rel="alternate icon" href="../favicon.ico"/>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"/>
+<link rel="manifest" href="../site.webmanifest"/>
+<meta name="theme-color" content="#4800a0"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
         tailwind.config = {
