@@ -8,6 +8,10 @@ node_modules/
 # Scratch / local test artifacts (never deploy)
 scratch/
 
+# Raw hi-res source illustrations (170MB); only the optimized
+# pdf-hub-images/*.jpg are committed/deployed.
+PDF -HUB-Images/
+
 # Test output and screenshots
 scratch/*.png
 *diff*.png
@@ -24,3 +28,7 @@ init_*.png
 local_*.png
 star_*.png
 bilateral_*.png
+
+# macOS
+.DS_Store
+**/.DS_Store

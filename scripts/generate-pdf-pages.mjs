@@ -114,7 +114,19 @@ function illoSvg(illo, alt) {
   return wrap(badge(glyph[illo.s] || ''));
 }
 
-function seoBlock(seo) {
+// Per-tool transform-origin for the hero-image watermark crop. The Gemini
+// watermark sits in the bottom-right corner on every image, so scaling from
+// the top-left pushes that corner out of frame. Override here if any image's
+// watermark is in a different corner (origin = corner OPPOSITE the watermark).
+const HERO_ORIGIN = {
+  // e.g. 'some-slug': 'right top',  // for a bottom-left watermark
+};
+function heroImg(slug, seo) {
+  const origin = HERO_ORIGIN[slug] || 'left top';
+  return `<img src="/pdf-hub-images/${slug}.jpg" alt="${esc(seo.illoAlt)}" loading="lazy" width="1280" height="720" style="transform-origin:${origin}"/>`;
+}
+
+function seoBlock(seo, slug) {
   return `
 <!-- ===== SEO educational content (bottom of page) ===== -->
 <section class="w-full max-w-7xl mx-auto px-lg pb-xl flex flex-col gap-xl lg:gap-[64px] relative z-10">
@@ -127,7 +139,7 @@ function seoBlock(seo) {
 <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">${stepsHtml(seo)}</div>
 </div>
 <div class="w-full flex flex-col lg:flex-row gap-xl items-center">
-<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden aspect-[4/3]">${illoSvg(seo.illo, seo.illoAlt)}</div></div>
+<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden hero-illustration">${heroImg(slug, seo)}</div></div>
 <div class="w-full lg:w-1/2">
 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to ${esc(seo.action)}</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">${benefitsHtml(seo)}</div>
@@ -321,6 +333,11 @@ ${headSeo(seo, slug)}
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+
+        /* Hero illustration: 16:9 card; scale-from-corner hides the Gemini
+           watermark (bottom-right on every image) outside the clipped frame. */
+        .hero-illustration { aspect-ratio: 16 / 9; overflow: hidden; border-radius: 0.75rem; background: #f6f2fc; }
+        .hero-illustration img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.14); }
         @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -395,7 +412,7 @@ ${headSeo(seo, slug)}
 <!-- Processing / options / result render here (pdf-tools.js) -->
 <div id="pdfToolStage" class="w-full mt-8"></div>
 </main>
-${seoBlock(seo)}
+${seoBlock(seo, slug)}
 ${scripts}
 <script src="/dot-grid.js"></script>
 </body></html>
