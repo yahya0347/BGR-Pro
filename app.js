@@ -922,6 +922,26 @@ function initUploadHandlers() {
   }
 
   initMyProjectsView();
+  initHistoryStripActions();
+}
+
+// "+" and download buttons docked at the top/bottom of the shared right-side
+// history strip (see updateHistoryUI/loadHistoryItem for the thumbnail list
+// itself). One instance, reused by all 3 editor tools.
+function initHistoryStripActions() {
+  const addBtn = document.getElementById('historyAddBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      elements.fileInput.click();
+    });
+  }
+
+  const downloadBtn = document.getElementById('historyDownloadBtn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      triggerImageDownload();
+    });
+  }
 }
 
 /* ==========================================================================
@@ -1120,12 +1140,24 @@ async function runAIBackgroundRemoval(imgSource) {
   const targetHistoryId = state.currentHistoryId;
 
   try {
-    // Draw image to a canvas to get base64 data URL
+    // Draw image to a canvas to get base64 data URL. Downscaled to a safe
+    // max dimension first: Vercel Serverless Functions hard-cap both request
+    // AND response bodies at 4.5MB (FUNCTION_PAYLOAD_TOO_LARGE otherwise),
+    // and a full-resolution phone photo re-encoded losslessly as PNG +
+    // base64 (~33% overhead) blows past that routinely. remove.bg's own
+    // free/no-credit tier is capped to "preview" resolution anyway, so this
+    // costs nothing there while making full-credit "auto" requests reliable
+    // for large source images too.
+    const MAX_API_DIMENSION = 1600;
+    const srcW = imgSource.naturalWidth || imgSource.width;
+    const srcH = imgSource.naturalHeight || imgSource.height;
+    const apiScale = Math.min(1, MAX_API_DIMENSION / Math.max(srcW, srcH));
+
     const canvas = document.createElement('canvas');
-    canvas.width = imgSource.naturalWidth || imgSource.width;
-    canvas.height = imgSource.naturalHeight || imgSource.height;
+    canvas.width = Math.round(srcW * apiScale);
+    canvas.height = Math.round(srcH * apiScale);
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(imgSource, 0, 0);
+    ctx.drawImage(imgSource, 0, 0, canvas.width, canvas.height);
 
     // Extract base64 representation of image (lossless PNG — JPEG re-encoding
     // introduces chroma-block artifacts that remove.bg then bakes into the
@@ -1182,20 +1214,15 @@ async function runAIBackgroundRemoval(imgSource) {
     console.error('AI background removal failed:', error);
     hideAIProcessingOverlay({ immediate: true });
 
-    // Elegant Failover notice & prompt
-    const useSampleCutout = confirm(
-      'Cloud background removal failed (this can occur on slow networks or if API credits are exhausted).\n\n' +
-      'Would you like to auto-cutout using contrast thresholds (Magic Cutout)?'
-    );
-    
-    if (useSampleCutout) {
-      applyMagicCutoutFallback(imgSource);
-    } else {
+    // Styled fallback modal (replaces the old native alert()/confirm()).
+    const useSampleCutout = await showBgRemovalFallbackModal(imgSource);
+
+    if (!useSampleCutout) {
       // Switch back to original transparent
       state.transparentImage = imgSource;
       state.eraserBaseImage = imgSource;
       state.bgRemoved = true;
-      
+
       // Update history item
       const item = state.history.find(h => h.id === targetHistoryId);
       if (item) {
@@ -1203,7 +1230,7 @@ async function runAIBackgroundRemoval(imgSource) {
         item.eraserBaseImage = imgSource;
         item.bgRemoved = true;
       }
-      
+
       renderBGRemoverCanvas();
       fitBGRemoverCanvasToView();
       initWatermarkEraserBase();
@@ -1212,67 +1239,157 @@ async function runAIBackgroundRemoval(imgSource) {
 
       updateHistoryUI();
     }
+    // If useSampleCutout is true, applyMagicCutoutFallback() (invoked by the
+    // modal itself) has already updated state and re-rendered the canvases.
   }
 }
 
-// Simple Magic Cutout (removes near-white backgrounds as a client fallback)
+// Styled replacement for the native alert()/confirm() previously shown when
+// the remove.bg call fails. Resolves true if the user asked for (and got) a
+// successful Magic Cutout fallback, false if they cancelled/closed the modal.
+function showBgRemovalFallbackModal(imgSource) {
+  return new Promise((resolve) => {
+    const dialog = document.getElementById('bgRemovalFallbackModal');
+    const stateChoice = document.getElementById('bgFallbackStateChoice');
+    const stateLoading = document.getElementById('bgFallbackStateLoading');
+    const stateError = document.getElementById('bgFallbackStateError');
+    const errorText = document.getElementById('bgFallbackErrorText');
+    const btnTry = document.getElementById('btnBgFallbackTry');
+    const btnCancel = document.getElementById('btnBgFallbackCancel');
+    const btnClose = document.getElementById('btnBgFallbackClose');
+    const btnCloseX = document.getElementById('closeBgFallbackModalBtn');
+    if (!dialog || !stateChoice || !stateLoading || !stateError || !btnTry || !btnCancel || !btnClose || !btnCloseX) {
+      resolve(false);
+      return;
+    }
+
+    let settled = false;
+
+    function showState(which) {
+      stateChoice.classList.toggle('hidden', which !== 'choice');
+      stateLoading.classList.toggle('hidden', which !== 'loading');
+      stateError.classList.toggle('hidden', which !== 'error');
+    }
+
+    function cleanup() {
+      btnTry.removeEventListener('click', onTry);
+      btnCancel.removeEventListener('click', onCancel);
+      btnClose.removeEventListener('click', onCancel);
+      btnCloseX.removeEventListener('click', onCancel);
+      dialog.removeEventListener('close', onDialogClose);
+    }
+
+    function finish(result) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    }
+
+    function onCancel() {
+      finish(false);
+      dialog.close();
+    }
+
+    // Catches ESC / backdrop-driven native close too, so the Promise never
+    // hangs if the user dismisses the dialog some way other than our buttons.
+    function onDialogClose() {
+      finish(false);
+    }
+
+    async function onTry() {
+      showState('loading');
+      try {
+        await applyMagicCutoutFallback(imgSource);
+        finish(true);
+        dialog.close();
+      } catch (e) {
+        console.error('Magic Cutout fallback failed:', e);
+        errorText.textContent = 'Something went wrong applying the local cutout' + (e && e.message ? ': ' + e.message : '.') + ' Please try a different image.';
+        showState('error');
+      }
+    }
+
+    btnTry.addEventListener('click', onTry);
+    btnCancel.addEventListener('click', onCancel);
+    btnClose.addEventListener('click', onCancel);
+    btnCloseX.addEventListener('click', onCancel);
+    dialog.addEventListener('close', onDialogClose);
+
+    showState('choice');
+    dialog.showModal();
+  });
+}
+
+// Local, in-browser fallback for when the cloud API call fails: cuts out
+// pixels near the top-left corner's color (a crude but dependency-free
+// background guess). Returns a Promise so callers (the fallback modal) can
+// show a loading state and surface a real error instead of failing silently.
 function applyMagicCutoutFallback(img) {
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0);
-  
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-  
-  // Sample top-left corner color as background color target
-  const bgR = data[0];
-  const bgG = data[1];
-  const bgB = data[2];
-  
-  const threshold = 40; // color distance threshold
-  
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i+1];
-    const b = data[i+2];
-    
-    const dist = Math.sqrt(
-      Math.pow(r - bgR, 2) +
-      Math.pow(g - bgG, 2) +
-      Math.pow(b - bgB, 2)
-    );
-    
-    if (dist < threshold) {
-      data[i+3] = 0; // Set alpha to transparent
+  return new Promise((resolve, reject) => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      // Sample top-left corner color as background color target
+      const bgR = data[0];
+      const bgG = data[1];
+      const bgB = data[2];
+
+      const threshold = 40; // color distance threshold
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+
+        const dist = Math.sqrt(
+          Math.pow(r - bgR, 2) +
+          Math.pow(g - bgG, 2) +
+          Math.pow(b - bgB, 2)
+        );
+
+        if (dist < threshold) {
+          data[i+3] = 0; // Set alpha to transparent
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => {
+        state.transparentImage = fallbackImg;
+        state.eraserBaseImage = fallbackImg;
+        state.bgRemoved = true;
+
+        // Update history item
+        const item = state.history.find(h => h.id === state.currentHistoryId);
+        if (item) {
+          item.transparentImage = fallbackImg;
+          item.eraserBaseImage = fallbackImg;
+          item.bgRemoved = true;
+        }
+
+        renderBGRemoverCanvas();
+        fitBGRemoverCanvasToView();
+        initWatermarkEraserBase();
+        renderWMMakerCanvas();
+        fitWMMakerCanvasToView();
+        updateHistoryUI();
+        resolve();
+      };
+      fallbackImg.onerror = () => reject(new Error('Failed to load the processed image.'));
+      fallbackImg.src = canvas.toDataURL();
+    } catch (e) {
+      reject(e);
     }
-  }
-  
-  ctx.putImageData(imgData, 0, 0);
-  
-  const fallbackImg = new Image();
-  fallbackImg.onload = () => {
-    state.transparentImage = fallbackImg;
-    state.eraserBaseImage = fallbackImg;
-    state.bgRemoved = true;
-    
-    // Update history item
-    const item = state.history.find(h => h.id === state.currentHistoryId);
-    if (item) {
-      item.transparentImage = fallbackImg;
-      item.eraserBaseImage = fallbackImg;
-      item.bgRemoved = true;
-    }
-    
-    renderBGRemoverCanvas();
-    fitBGRemoverCanvasToView();
-    initWatermarkEraserBase();
-    renderWMMakerCanvas();
-    fitWMMakerCanvasToView();
-    updateHistoryUI();
-  };
-  fallbackImg.src = canvas.toDataURL();
+  });
 }
 
 function showGlobalLoader(statusText, progressText) {
@@ -1848,6 +1965,20 @@ function applyZoomPan() {
   const zoomLevelVal = document.getElementById('zoomLevelVal');
   if (zoomLevelVal) {
     zoomLevelVal.innerText = `${Math.round(state.zoom * 100)}%`;
+  }
+
+  // Update the image dimension readout ("2752 x 1536 px")
+  const dimsVal = document.getElementById('canvasDimensionsVal');
+  if (dimsVal) {
+    let img = null;
+    if (state.activeTab === 'bg-remover') {
+      img = state.transparentImage;
+    } else if (state.activeTab === 'wm-remover') {
+      img = state.eraserBaseImage;
+    } else if (state.activeTab === 'wm-maker') {
+      img = state.processedImage || state.transparentImage;
+    }
+    dimsVal.textContent = img ? `${img.width}×${img.height} px` : '';
   }
 
   // Keep the AI processing overlay matched to the image's current bounding box

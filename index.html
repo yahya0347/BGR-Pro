@@ -812,18 +812,21 @@
 </button>
 </div>
 
-<!-- Recent Images History Strip -->
-<div id="historyBar" class="history-bar hidden" style="position:absolute; left:16px; bottom:88px; z-index:40; width:220px;">
-<div class="history-title">Recent</div>
-<div id="historyList" class="history-list"></div>
+<!-- Recent Images History Strip: narrow vertical strip docked to the right
+     edge, shared across all 3 editor tools (bg-remover / wm-remover / wm-maker). -->
+<div id="historyBar" class="history-strip hidden">
+<button id="historyAddBtn" class="history-strip-action" title="Add image"><span class="material-symbols-outlined">add</span></button>
+<div id="historyList" class="history-strip-list"></div>
+<button id="historyDownloadBtn" class="history-strip-action" title="Download current image"><span class="material-symbols-outlined">download</span></button>
 </div>
 
-<!-- Bottom Right: Zoom Controls -->
-<div class="absolute bottom-lg right-md z-40 flex items-center gap-3">
+<!-- Bottom Left: Zoom Controls + image dimensions -->
+<div class="absolute bottom-lg left-md z-40 flex items-center gap-3">
 <div class="bg-surface-container-lowest/75 backdrop-blur-xl border border-outline-variant/60 rounded-full px-3 py-2 flex items-center gap-3 shadow-[0_4px_16px_rgba(24,19,31,0.08)] h-10">
 <button id="zoomOutBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">remove</span></button>
 <span id="zoomLevelVal" class="zoom-level font-mono-label text-mono-label">100%</span>
 <button id="zoomInBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">add</span></button>
+<span id="canvasDimensionsVal" class="zoom-dimensions font-mono-label text-mono-label"></span>
 </div>
 </div>
 
@@ -996,7 +999,43 @@
 </div>
 </dialog>
 
-<script type="module" src="app.js?v=40"></script>
+<!-- Background Removal Fallback Modal — replaces the native alert()/confirm()
+     previously shown when the cloud (remove.bg) call fails. Three states,
+     toggled via .hidden: choice -> loading -> (done, modal closes) or error. -->
+<dialog id="bgRemovalFallbackModal">
+<div class="modal-card">
+<button id="closeBgFallbackModalBtn" class="modal-close-btn"><span class="material-symbols-outlined text-[18px]">close</span></button>
+
+<div id="bgFallbackStateChoice">
+<div class="modal-header">
+<div class="crown-icon bg-fallback-icon"><span class="material-symbols-outlined">cloud_off</span></div>
+<h2>Background removal failed</h2>
+<p class="modal-subtitle">Cloud background removal couldn't complete — this can happen on slow networks or when API capacity runs out. Want to try a local automatic cutout instead? It runs entirely in your browser.</p>
+</div>
+<div style="display:flex; gap:12px;">
+<button id="btnBgFallbackCancel" class="btn btn-secondary" style="flex:1;">Cancel</button>
+<button id="btnBgFallbackTry" class="btn btn-primary" style="flex:1;">Try Magic Cutout</button>
+</div>
+</div>
+
+<div id="bgFallbackStateLoading" class="hidden" style="text-align:center; padding: 8px 0 4px;">
+<div class="spinner-box" style="width:56px; height:56px; margin:0 auto 18px;"><div class="double-spinner"></div></div>
+<p class="modal-subtitle">Applying automatic cutout…</p>
+</div>
+
+<div id="bgFallbackStateError" class="hidden">
+<div class="modal-header">
+<div class="crown-icon bg-fallback-icon-error"><span class="material-symbols-outlined">error</span></div>
+<h2>That didn't work either</h2>
+<p class="modal-subtitle" id="bgFallbackErrorText">Something went wrong applying the local cutout. Please try a different image.</p>
+</div>
+<button id="btnBgFallbackClose" class="btn btn-primary btn-full">Close</button>
+</div>
+
+</div>
+</dialog>
+
+<script type="module" src="app.js?v=41"></script>
 <script type="module" src="ui-panels.js?v=1"></script>
 <script src="/project-history.js?v=1"></script>
 <script src="/dot-grid.js?v=1"></script>

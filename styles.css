@@ -1845,6 +1845,19 @@ dialog::backdrop {
   box-shadow: var(--shadow-glow-gold);
 }
 
+/* Background Removal Fallback Modal icon variants (brand purple/magenta) */
+.bg-fallback-icon {
+  background: linear-gradient(135deg, #4800a0 0%, #b4136d 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(72, 0, 160, 0.3);
+}
+
+.bg-fallback-icon-error {
+  background: linear-gradient(135deg, var(--danger) 0%, #b4136d 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
 .modal-price {
   font-family: var(--font-family-display);
   font-size: 2.5rem;
@@ -2748,46 +2761,86 @@ dialog::backdrop {
 }
 
 /* ==========================================================================
-   Recent Images History Bar
+   Recent Images History Strip — narrow vertical strip docked to the right
+   edge of the editor, full height. Shared across Background Eraser,
+   Watermark Remover, and Watermark Maker (one instance, outside the
+   per-tool .workspace-view sections, same pattern as the zoom control).
    ========================================================================== */
-.history-bar {
+.history-strip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  width: 84px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: var(--border-radius-lg);
-  padding: 12px 16px;
+  border-left: var(--glass-border);
   box-shadow: var(--shadow-md);
 }
 
-.history-bar.hidden {
+.history-strip.hidden {
   display: none !important;
 }
 
-.history-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.history-strip-action {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-darker);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-premium);
 }
 
-.history-list {
+.history-strip-action:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.history-strip-action .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.history-strip-list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
   display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+.history-strip-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-strip-list::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
 }
 
 .history-item {
   position: relative;
-  width: 60px;
-  height: 60px;
-  border-radius: var(--border-radius-sm);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--border-radius-md);
   border: 2px solid var(--border-light);
   background-color: var(--bg-darkest);
   cursor: pointer;
@@ -2799,7 +2852,7 @@ dialog::backdrop {
 .history-item:hover, .history-item.active {
   border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 4px 12px rgba(79, 70, 233, 0.15);
 }
 
 .history-item img {
@@ -2812,13 +2865,22 @@ dialog::backdrop {
 .history-item-bg {
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
-                    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
-                    linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
+  background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
                     linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
   background-color: #ffffff;
+}
+
+.zoom-dimensions {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding-left: 8px;
+  margin-left: 2px;
+  border-left: 1px solid var(--border-light);
+  white-space: nowrap;
 }
 
 /* ==========================================================================

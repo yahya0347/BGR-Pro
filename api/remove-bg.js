@@ -2,8 +2,6 @@
  * Vercel Serverless Function: Secure remove.bg API Proxy
  */
 
-const API_KEY = 'tLpSUjHq9fYYV9A1sMQw2ikS';
-
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,6 +14,12 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  const API_KEY = process.env.REMOVE_BG_API_KEY;
+  if (!API_KEY) {
+    console.error('REMOVE_BG_API_KEY is not set');
+    return res.status(500).json({ error: 'Background removal is not configured on the server.' });
   }
 
   try {
