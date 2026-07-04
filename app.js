@@ -407,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initWatermarkEraserBase();
       } else if (state.activeTab === 'wm-maker') {
         renderWMMakerCanvas();
+        fitWMMakerCanvasToView();
       }
     }
     // Re-sync the AI processing overlay's bounding box in case its own
@@ -1170,7 +1171,8 @@ async function runAIBackgroundRemoval(imgSource) {
       // Auto-trigger layout setup for other workspaces
       initWatermarkEraserBase();
       renderWMMakerCanvas();
-      
+      fitWMMakerCanvasToView();
+
       updateHistoryUI();
       hideAIProcessingOverlay();
     };
@@ -1206,6 +1208,7 @@ async function runAIBackgroundRemoval(imgSource) {
       fitBGRemoverCanvasToView();
       initWatermarkEraserBase();
       renderWMMakerCanvas();
+      fitWMMakerCanvasToView();
 
       updateHistoryUI();
     }
@@ -1266,6 +1269,7 @@ function applyMagicCutoutFallback(img) {
     fitBGRemoverCanvasToView();
     initWatermarkEraserBase();
     renderWMMakerCanvas();
+    fitWMMakerCanvasToView();
     updateHistoryUI();
   };
   fallbackImg.src = canvas.toDataURL();
@@ -1392,6 +1396,7 @@ function switchTab(tab) {
     }, 50);
   } else if (tab === 'wm-maker') {
     renderWMMakerCanvas();
+    fitWMMakerCanvasToView();
   }
 
   applyZoomPan();
@@ -1736,24 +1741,10 @@ function initWatermarkEraserBase() {
   brushCanvas.width = w;
   brushCanvas.height = h;
   
-  // Set Canvas wrapper responsive max-height and max-width to fit parent container bounds
-  let maxW = window.innerWidth - 32;
-  let maxH = window.innerHeight * 0.55;
-  
-  if (container) {
-    const containerRect = container.getBoundingClientRect();
-    if (containerRect.width > 0) maxW = containerRect.width;
-    if (containerRect.height > 0) maxH = containerRect.height;
-  }
-  
-  // We want to fit to 90% of the container to leave a nice padding
-  maxW = maxW * 0.9;
-  maxH = maxH * 0.9;
-  
-  const scaleW = maxW / w;
-  const scaleH = maxH / h;
-  const screenScale = Math.min(scaleW, scaleH);
-  
+  // Fit this canvas to the available container space (same shared formula
+  // used by Background Eraser and Watermark Maker, see computeFitZoom).
+  const screenScale = computeFitZoom(container, w, h);
+
   // Canvas layout dimensions should be exactly the original image dimensions
   baseCanvas.style.width = `${w}px`;
   baseCanvas.style.height = `${h}px`;
@@ -1805,24 +1796,32 @@ function initWatermarkEraserBase() {
   setWMEraserMode(state.wmMode || 'brush');
 }
 
-// Scale + center the BG Remover canvas to fit inside the visible viewport.
-// Mirrors the fit logic used for the Watermark Remover tab (initWatermarkEraserBase)
-// so the cutout is never left unscaled/clipped at the container edges.
-function fitBGRemoverCanvasToView() {
-  if (!state.transparentImage) return;
-
-  const canvasBox = elements.bgRemoverCanvas.closest('.canvas-box') || document.querySelector('.canvas-box');
+// Shared "fit image to the available canvas area" formula used by all 3
+// editor tools (Background Eraser, Watermark Remover, Watermark Maker) so
+// switching tabs always lands on the same, consistent zoom level instead of
+// each tool computing its own scale. Returns a zoom multiplier such that an
+// image of imgWidth x imgHeight fills ~90% of containerEl's box (falling
+// back to a viewport-relative box if containerEl isn't measurable yet).
+function computeFitZoom(containerEl, imgWidth, imgHeight) {
   let maxW = window.innerWidth * 0.9;
   let maxH = window.innerHeight * 0.55 * 0.9;
-  if (canvasBox) {
-    const rect = canvasBox.getBoundingClientRect();
+  if (containerEl) {
+    const rect = containerEl.getBoundingClientRect();
     if (rect.width > 0) maxW = rect.width * 0.9;
     if (rect.height > 0) maxH = rect.height * 0.9;
   }
 
-  const scaleW = maxW / state.transparentImage.width;
-  const scaleH = maxH / state.transparentImage.height;
-  state.zoom = Math.min(scaleW, scaleH);
+  const scaleW = maxW / imgWidth;
+  const scaleH = maxH / imgHeight;
+  return Math.min(scaleW, scaleH);
+}
+
+// Scale + center the BG Remover canvas to fit inside the visible viewport.
+function fitBGRemoverCanvasToView() {
+  if (!state.transparentImage) return;
+
+  const canvasBox = elements.bgRemoverCanvas.closest('.canvas-box') || document.querySelector('.canvas-box');
+  state.zoom = computeFitZoom(canvasBox, state.transparentImage.width, state.transparentImage.height);
   state.panX = 0;
   state.panY = 0;
   applyZoomPan();
@@ -3006,25 +3005,18 @@ function renderWMMakerCanvas() {
   
   canvas.width = w;
   canvas.height = h;
-  
-  // Scale Canvas wrapper to fit parent container bounds
-  const container = canvas.closest('.canvas-box') || canvas.parentElement;
-  let maxW = window.innerWidth - 32;
-  let maxH = window.innerHeight * 0.55;
-  
-  if (container) {
-    const containerRect = container.getBoundingClientRect();
-    if (containerRect.width > 0) maxW = containerRect.width - 16;
-    if (containerRect.height > 0) maxH = containerRect.height - 16;
-  }
-  
-  const scaleW = maxW / w;
-  const scaleH = maxH / h;
-  const screenScale = Math.min(1, scaleW, scaleH);
-  
-  canvas.style.width = `${w * screenScale}px`;
-  canvas.style.height = `${h * screenScale}px`;
-  
+
+  // Layout box = the image's natural pixel size (explicit px, not a %
+  // max-height, to avoid relying on this canvas's flex ancestors having a
+  // definite height -- same technique Watermark Remover already uses for
+  // its base/brush canvases). Visual fit/zoom is then purely a
+  // transform:scale(state.zoom) on top, applied by applyZoomPan(); see
+  // fitWMMakerCanvasToView() for the "fit to container" step, called on tab
+  // switch / initial load / resize -- not on every render, so live edits
+  // (text, opacity, position, etc.) don't reset the user's current zoom/pan.
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+
   // Draw base image contents (BG removal layout output)
   if (state.processedImage) {
     ctx.drawImage(state.processedImage, 0, 0);
@@ -3102,6 +3094,23 @@ function renderWMMakerCanvas() {
   }
   
   ctx.restore();
+}
+
+// Scale + center the Watermark Maker canvas to fit inside the visible
+// viewport. Mirrors fitBGRemoverCanvasToView so all 3 editor tools land on
+// the same, consistent zoom level on tab switch / initial load / resize.
+function fitWMMakerCanvasToView() {
+  if (!state.transparentImage) return;
+
+  const canvas = elements.wmMakerCanvas;
+  const w = state.processedImage ? state.processedImage.width : state.transparentImage.width;
+  const h = state.processedImage ? state.processedImage.height : state.transparentImage.height;
+
+  const container = canvas.closest('.canvas-box') || canvas.parentElement;
+  state.zoom = computeFitZoom(container, w, h);
+  state.panX = 0;
+  state.panY = 0;
+  applyZoomPan();
 }
 
 // Calculate absolute position mapping helper for Single Watermarks

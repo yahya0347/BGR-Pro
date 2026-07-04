@@ -736,10 +736,19 @@ h1, h2, h3, h4, h5, h6 {
   background-color: transparent !important;
 }
 
+/* Wraps the Watermark Remover canvas layers. Used to be a dot-grid pattern;
+   now uses the same checkerboard transparency pattern as the other two
+   editor tools (Background Eraser, Watermark Maker) for a consistent look.
+   Layout properties (flex centering, overflow, radius, shadow) are unrelated
+   to the background and stay as-is. */
 .canvas-bg-pattern {
-  background-color: #f8fafc;
-  background-image: radial-gradient(#DCD5EA 1.5px, transparent 1.5px);
-  background-size: 22px 22px;
+  background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+                    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1296,11 +1305,15 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
 }
 
-/* Watermark Maker Canvas */
+/* Watermark Maker Canvas — sizing is driven by state.zoom/applyZoomPan (see
+   fitWMMakerCanvasToView in app.js), same as Background Eraser's canvas.
+   max-width/max-height:100% here is just a safety cap relative to its own
+   flex parent (.editor-canvas-wrapper), not an independent vh-based fit, so
+   it doesn't fight the JS-computed zoom. */
 #wmMakerCanvas {
   display: block;
   max-width: 100%;
-  max-height: 70vh;
+  max-height: 100%;
 }
 
 /* ==========================================================================
