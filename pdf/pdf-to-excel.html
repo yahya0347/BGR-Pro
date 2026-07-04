@@ -177,6 +177,58 @@
             padding: 0;
         }
         @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* ---- Mobile chrome: hamburger + drawer + bottom nav (<768px) ---- */
+        .mobile-menu-btn {
+            display: none; width: 40px; height: 40px; align-items: center; justify-content: center;
+            border-radius: 50%; border: 1px solid rgba(24,19,31,0.08); background: #fff; color: #191c1d;
+            flex-shrink: 0; cursor: pointer;
+        }
+        .mobile-drawer-scrim { display: none; position: fixed; inset: 0; background: rgba(24,19,31,0.45); z-index: 90; opacity: 0; transition: opacity .25s ease; }
+        .mobile-drawer-scrim.open { display: block; opacity: 1; }
+        .mobile-drawer {
+            position: fixed; top: 0; left: 0; bottom: 0; width: min(300px, 84vw); background: #fff; z-index: 100;
+            box-shadow: 0 16px 40px rgba(24,19,31,0.12); transform: translateX(-100%); transition: transform .3s cubic-bezier(.16,1,.3,1);
+            display: flex; flex-direction: column; padding: 20px 0; padding-top: calc(20px + env(safe-area-inset-top)); overflow-y: auto;
+        }
+        .mobile-drawer.open { transform: translateX(0); }
+        .mobile-drawer-head { display:flex; align-items:center; justify-content:space-between; padding:0 20px 16px; margin-bottom:8px; border-bottom:1px solid rgba(24,19,31,0.08); }
+        .mobile-drawer-close { width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:none; background:transparent; color:#4a4455; cursor:pointer; }
+        .mobile-drawer-links { display:flex; flex-direction:column; gap:2px; padding:8px 12px; }
+        .mobile-drawer-links a { display:flex; align-items:center; gap:14px; padding:13px 12px; min-height:44px; border-radius:12px; color:#191c1d; font-weight:600; font-size:0.95rem; text-decoration:none; }
+        .mobile-drawer-links a:hover, .mobile-drawer-links a:active { background:#f3f4f5; }
+        .mobile-drawer-links a .material-symbols-outlined { color: #630ed4; font-size: 22px; }
+        body.mobile-drawer-locked { overflow: hidden; }
+
+        .mobile-bottom-nav { display: none; }
+
+        @media (max-width: 767px) {
+            .mobile-menu-btn { display: flex; }
+            .nav-brand-group { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+            .desktop-only-action { display: none !important; }
+            .credits-pill { display: flex !important; padding: 6px 10px !important; }
+            .credits-pill span:last-child { font-size: 0.72rem; }
+
+            .mobile-bottom-nav {
+                display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+                background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                border-top: 1px solid rgba(24,19,31,0.08); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+                justify-content: space-around; align-items: stretch;
+            }
+            .mobile-bottom-nav a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; flex:1; min-height:44px; padding:4px 2px; border-radius:12px; color:#7b7487; text-decoration:none; font-size:0.65rem; font-weight:600; }
+            .mobile-bottom-nav a .material-symbols-outlined { font-size: 22px; }
+            .mobile-bottom-nav a.active { color: #630ed4; }
+
+            main { padding-bottom: 88px !important; }
+
+            /* 16px horizontal screen padding + full-width CTA on small phones */
+            main.pt-32 { padding-left: 16px !important; padding-right: 16px !important; }
+            #pdfDropzone .inline-flex { width: 100%; justify-content: center; }
+            #pdfProcessBtn { width: 100%; justify-content: center; min-height: 48px; }
+        }
+        @media (min-width: 768px) {
+            .mobile-drawer, .mobile-drawer-scrim, .mobile-bottom-nav { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container" data-tool="pdf-to-excel">
@@ -184,18 +236,19 @@
 <canvas id="interactive-grid" data-dot-grid></canvas>
 <!-- TopNavBar -->
 <header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] transition-all duration-300">
-<div class="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
-<a class="flex items-center gap-2 cursor-pointer hover:scale-95 transition-transform duration-200" href="../index.html">
+<div class="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto relative">
+<button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer"><span class="material-symbols-outlined">menu</span></button>
+<a class="flex items-center gap-2 cursor-pointer hover:scale-95 transition-transform duration-200 nav-brand-group" href="../index.html">
 <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed">EraserPro</span>
 </a>
 <nav class="hidden md:flex items-center gap-8"></nav>
-<div class="flex items-center gap-4">
-<div class="hidden sm:flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/30 hover:bg-surface-container-high/50 transition-all duration-300 cursor-pointer">
+<div class="flex items-center gap-4 nav-actions-group">
+<div class="hidden sm:flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/30 hover:bg-surface-container-high/50 transition-all duration-300 cursor-pointer credits-pill">
 <span class="material-symbols-outlined text-[18px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">stars</span>
 <span class="font-label-md text-label-md text-on-surface-variant">3 Credits</span>
 </div>
-<div class="h-6 w-px bg-outline-variant/50 hidden sm:block"></div>
-<button class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2 hover:scale-95 transition-transform duration-200 shadow-sm">
+<div class="h-6 w-px bg-outline-variant/50 hidden sm:block desktop-only-action"></div>
+<button class="bg-primary hover:bg-primary/90 text-on-primary px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2 hover:scale-95 transition-transform duration-200 shadow-sm desktop-only-action">
 <span class="material-symbols-outlined text-[16px]">download</span>
                     Export
                 </button>
@@ -203,12 +256,33 @@
                     PRO ACTIVE
                 </div>
 <a class="hidden lg:block font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Manage</a>
-<button class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 hover:ring-2 hover:ring-primary/50 transition-all flex items-center justify-center shrink-0 ml-2 text-on-surface-variant">
+<button id="btnHeaderAuth" class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 hover:ring-2 hover:ring-primary/50 transition-all flex items-center justify-center shrink-0 ml-2 text-on-surface-variant desktop-only-action">
 <span class="material-symbols-outlined text-[20px]">account_circle</span>
 </button>
 </div>
 </div>
 </header>
+
+<!-- Mobile drawer + scrim + bottom nav (shared behaviour via /mobile-nav.js) -->
+<div id="mobileDrawerScrim" class="mobile-drawer-scrim"></div>
+<aside id="mobileDrawer" class="mobile-drawer" aria-hidden="true">
+<div class="mobile-drawer-head">
+<span class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">EraserPro</span>
+<button id="mobileDrawerClose" class="mobile-drawer-close" aria-label="Close menu"><span class="material-symbols-outlined">close</span></button>
+</div>
+<nav class="mobile-drawer-links">
+<a href="../index.html"><span class="material-symbols-outlined">home</span>Home</a>
+<a href="../index.html#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span>PDF Hub</a>
+<a href="javascript:void(0)" onclick="document.querySelector('.nav-actions-group button.bg-primary')?.click()"><span class="material-symbols-outlined">ios_share</span>Export</a>
+<a href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span>Account</a>
+</nav>
+</aside>
+<nav class="mobile-bottom-nav" aria-label="Primary">
+<a data-nav="home" href="../index.html"><span class="material-symbols-outlined">home</span><span>Home</span></a>
+<a data-nav="pdf-hub" href="../index.html#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span></a>
+<a data-nav="workspace" href="../index.html"><span class="material-symbols-outlined">work</span><span>Workspace</span></a>
+<a data-nav="account" href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span><span>Account</span></a>
+</nav>
 <!-- Main Content Container -->
 <main class="pt-32 pb-16 px-6 max-w-[800px] mx-auto min-h-screen flex flex-col items-center justify-center relative z-10">
 <!-- Back Navigation -->
@@ -347,4 +421,5 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="pdf-convert.js"></script>
 <script src="/dot-grid.js"></script>
+<script src="/mobile-nav.js"></script>
 </body></html>

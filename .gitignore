@@ -12,6 +12,9 @@ scratch/
 # pdf-hub-images/*.jpg are committed/deployed.
 PDF -HUB-Images/
 
+# Stitch mobile mockups (visual reference only, not app code)
+design-reference:/
+
 # Test output and screenshots
 scratch/*.png
 *diff*.png

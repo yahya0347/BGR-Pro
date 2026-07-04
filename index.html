@@ -137,7 +137,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=11">
 
   <!-- FAQ structured data (all 10 Q&As) for SEO rich results -->
   <script type="application/ld+json">
@@ -233,7 +233,10 @@
 <body class="h-screen w-screen overflow-hidden flex flex-col bg-background font-body-md text-on-surface">
 <!-- TopNavBar -->
 <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md h-toolbar-width bg-surface-container-lowest/75 backdrop-blur-xl border-b border-outline-variant/60 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_4px_20px_rgba(24,19,31,0.04)]">
-<div class="flex items-center gap-xl">
+<button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-xl nav-brand-group">
 <div id="navLogoHome" class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2" style="cursor:pointer;" role="button" aria-label="Go to home">
 <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
                 EraserPro
@@ -245,8 +248,8 @@
             </a>
 </div>
 </div>
-<div class="flex items-center gap-sm">
-<button id="btnOpenExportPanel" class="px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-full shadow-[0_4px_12px_rgba(124,58,237,0.3)] hover:shadow-[0_6px_18px_rgba(124,58,237,0.4)] hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-1.5">
+<div class="flex items-center gap-sm nav-actions-group">
+<button id="btnOpenExportPanel" class="desktop-only-action px-4 py-2 font-label-md text-label-md bg-primary-container text-on-primary rounded-full shadow-[0_4px_12px_rgba(124,58,237,0.3)] hover:shadow-[0_6px_18px_rgba(124,58,237,0.4)] hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[18px]">ios_share</span> Export
             </button>
 <div id="subStatusBadge" class="sub-badge free-badge hidden">
@@ -255,12 +258,49 @@
 <div id="creditsBadge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant text-xs font-semibold text-on-surface">
 <span class="material-symbols-outlined text-[16px] text-primary">bolt</span><span id="creditsCount">0 Credits</span>
 </div>
-<button id="headerUpgradeBtn" class="px-4 py-2 font-label-md text-label-md bg-gradient-to-br from-accent-gold to-accent-gold-dark text-white rounded-full shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_18px_rgba(245,158,11,0.45)] hover:-translate-y-0.5 transition-all duration-200">Go Pro</button>
-<button id="headerManageBtn" class="px-4 py-2 font-label-md text-label-md bg-surface-container-low text-on-surface rounded-full hover:bg-surface-container-high transition-colors hidden">Manage</button>
-<button id="btnHeaderAuth" class="w-9 h-9 rounded-full flex items-center justify-center border border-outline-variant text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
+<button id="headerUpgradeBtn" class="desktop-only-action px-4 py-2 font-label-md text-label-md bg-gradient-to-br from-accent-gold to-accent-gold-dark text-white rounded-full shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_18px_rgba(245,158,11,0.45)] hover:-translate-y-0.5 transition-all duration-200">Go Pro</button>
+<button id="headerManageBtn" class="desktop-only-action px-4 py-2 font-label-md text-label-md bg-surface-container-low text-on-surface rounded-full hover:bg-surface-container-high transition-colors hidden">Manage</button>
+<button id="btnHeaderAuth" class="desktop-only-action w-9 h-9 rounded-full flex items-center justify-center border border-outline-variant text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
 <span class="material-symbols-outlined text-[22px]">account_circle</span>
 </button>
 </div>
+</nav>
+
+<!-- Mobile drawer (hamburger target) + scrim. Every action below proxy-clicks
+     the real desktop button by id, so app.js's existing logic (auth, export,
+     upgrade) is never duplicated -- see mobile-nav.js. -->
+<div id="mobileDrawerScrim" class="mobile-drawer-scrim"></div>
+<aside id="mobileDrawer" class="mobile-drawer" aria-hidden="true">
+<div class="mobile-drawer-head">
+<span class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>EraserPro
+</span>
+<button id="mobileDrawerClose" class="mobile-drawer-close" aria-label="Close menu"><span class="material-symbols-outlined">close</span></button>
+</div>
+<nav class="mobile-drawer-links">
+<a href="javascript:void(0)" onclick="document.getElementById('backToUploadBtn')?.click()"><span class="material-symbols-outlined">home</span>Home</a>
+<a href="#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span>PDF Hub</a>
+<a href="javascript:void(0)" onclick="document.getElementById('btnOpenExportPanel')?.click()"><span class="material-symbols-outlined">ios_share</span>Export</a>
+<a href="javascript:void(0)" onclick="document.getElementById('headerUpgradeBtn')?.click()"><span class="material-symbols-outlined">workspace_premium</span>Go Pro</a>
+<a href="javascript:void(0)" onclick="document.getElementById('headerManageBtn')?.click()"><span class="material-symbols-outlined">settings</span>Manage</a>
+<a href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span>Account</a>
+</nav>
+</aside>
+
+<!-- Sticky bottom nav (mobile only). Hidden entirely at >=768px in CSS. -->
+<nav class="mobile-bottom-nav" aria-label="Primary">
+<a data-nav="home" href="javascript:void(0)" onclick="document.getElementById('backToUploadBtn')?.click()">
+<span class="material-symbols-outlined">home</span><span>Home</span>
+</a>
+<a data-nav="pdf-hub" href="#pdfHub">
+<span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span>
+</a>
+<a data-nav="workspace" href="javascript:void(0)">
+<span class="material-symbols-outlined">work</span><span>Workspace</span>
+</a>
+<a data-nav="account" href="javascript:void(0)">
+<span class="material-symbols-outlined">account_circle</span><span>Account</span>
+</a>
 </nav>
 <!-- Main Workspace Area -->
 
@@ -306,10 +346,11 @@
                 <h2 class="hub-pdf-head-title"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">picture_as_pdf</span> PDF Hub</h2>
                 <p class="hub-pdf-head-sub">Your complete toolkit for converting, editing, and securing documents — 30 tools.</p>
             </div>
+            <div class="hub-pdf-search"><span class="material-symbols-outlined">search</span><input type="text" id="pdfHubSearch" placeholder="Search PDF tools..." aria-label="Search PDF tools" autocomplete="off"/></div>
             <div class="hub-pdf-grid">
                 <!-- Convert to PDF -->
                 <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Convert to PDF</h4>
+                    <div class="pdf-cat-header" data-pdf-cat-toggle><h4 class="pdf-cat-title">Convert to PDF</h4><span class="material-symbols-outlined pdf-cat-chevron">expand_more</span></div>
                     <div class="pdf-cat-tiles">
                         <a class="pdf-tile" data-pdf-tool="jpg-to-pdf" href="/pdf/jpg-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">image</span><span class="pdf-tile-label">JPG to PDF</span></a>
                         <a class="pdf-tile" data-pdf-tool="png-to-pdf" href="/pdf/png-to-pdf.html"><span class="material-symbols-outlined pdf-tile-ic">photo_library</span><span class="pdf-tile-label">PNG to PDF</span></a>
@@ -322,7 +363,7 @@
                 </div>
                 <!-- Convert from PDF -->
                 <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Convert from PDF</h4>
+                    <div class="pdf-cat-header" data-pdf-cat-toggle><h4 class="pdf-cat-title">Convert from PDF</h4><span class="material-symbols-outlined pdf-cat-chevron">expand_more</span></div>
                     <div class="pdf-cat-tiles">
                         <a class="pdf-tile" data-pdf-tool="pdf-to-jpg" href="/pdf/pdf-to-jpg.html"><span class="material-symbols-outlined pdf-tile-ic">picture_as_pdf</span><span class="pdf-tile-label">PDF to JPG</span></a>
                         <a class="pdf-tile" data-pdf-tool="pdf-to-word" href="/pdf/pdf-to-word.html"><span class="material-symbols-outlined pdf-tile-ic">description</span><span class="pdf-tile-label">PDF to Word</span></a>
@@ -335,7 +376,7 @@
                 </div>
                 <!-- Organize & Edit -->
                 <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Organize &amp; Edit</h4>
+                    <div class="pdf-cat-header" data-pdf-cat-toggle><h4 class="pdf-cat-title">Organize &amp; Edit</h4><span class="material-symbols-outlined pdf-cat-chevron">expand_more</span></div>
                     <div class="pdf-cat-tiles">
                         <a class="pdf-tile" data-pdf-tool="merge" href="/pdf/merge.html"><span class="material-symbols-outlined pdf-tile-ic">merge</span><span class="pdf-tile-label">Merge</span></a>
                         <a class="pdf-tile" data-pdf-tool="split" href="/pdf/split.html"><span class="material-symbols-outlined pdf-tile-ic">call_split</span><span class="pdf-tile-label">Split</span></a>
@@ -350,7 +391,7 @@
                 </div>
                 <!-- Security & Signing -->
                 <div class="pdf-cat">
-                    <h4 class="pdf-cat-title">Security &amp; Signing</h4>
+                    <div class="pdf-cat-header" data-pdf-cat-toggle><h4 class="pdf-cat-title">Security &amp; Signing</h4><span class="material-symbols-outlined pdf-cat-chevron">expand_more</span></div>
                     <div class="pdf-cat-tiles">
                         <a class="pdf-tile" data-pdf-tool="protect" href="/pdf/protect.html"><span class="material-symbols-outlined pdf-tile-ic">lock</span><span class="pdf-tile-label">Protect</span></a>
                         <a class="pdf-tile" data-pdf-tool="unlock" href="/pdf/unlock.html"><span class="material-symbols-outlined pdf-tile-ic">lock_open</span><span class="pdf-tile-label">Unlock</span></a>
@@ -939,6 +980,8 @@
 <script type="module" src="ui-panels.js?v=1"></script>
 <script src="/dot-grid.js?v=1"></script>
 <script src="home-hub.js?v=5"></script>
+<script src="/mobile-nav.js?v=1"></script>
+<script src="/pdf-hub-mobile.js?v=1"></script>
 <div id="dummy-elements" style="display: none;">
   <div id="pdfActiveToolTitle"></div>
   <div id="pdfSplitStartPage"></div>

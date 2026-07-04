@@ -10,6 +10,12 @@
 // auto-initialised on load.
 
 (function () {
+  // Touch/no-hover devices have no cursor to react to, so the continuous
+  // rAF loop would just burn battery for a static-looking result. Draw the
+  // grid once at rest instead. (matchMedia, not UA sniffing, so a touch
+  // laptop with a real mouse still gets the interactive version.)
+  const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
   function initDotGrid(canvas) {
     if (!canvas || canvas.__dotGridInit) return;
     canvas.__dotGridInit = true;
@@ -26,10 +32,30 @@
     function resize() {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      if (isTouchDevice) drawStatic();
     }
 
     window.addEventListener('resize', resize);
     resize();
+
+    function drawStatic() {
+      ctx.clearRect(0, 0, width, height);
+      const cols = Math.ceil(width / spacing);
+      const rows = Math.ceil(height / spacing);
+      ctx.fillStyle = 'rgb(204, 195, 216)';
+      for (let i = 0; i <= cols; i++) {
+        for (let j = 0; j <= rows; j++) {
+          ctx.beginPath();
+          ctx.arc(i * spacing, j * spacing, baseRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    if (isTouchDevice) {
+      drawStatic();
+      return; // no mousemove listeners, no rAF loop
+    }
 
     window.addEventListener('mousemove', (e) => {
       mouse.x = e.clientX;

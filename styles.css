@@ -2314,22 +2314,14 @@ dialog::backdrop {
     overflow: visible !important;
   }
   
-  /* Floating Eraser Panel on mobile — keep it floating overlaying canvas, but more compact */
+  /* Floating Eraser Panel on mobile: position/size only. This block predates
+     the full-width bottom-sheet treatment (see the "Editor: floating side
+     panels" section later in this file, which wins on position/size via
+     source order for the shared !important declarations). Crucially this no
+     longer forces `display` -- that must stay governed by .hidden /
+     .sidebar-config-section.active like everywhere else, or every panel
+     (including ones the user hasn't opened) would render at once. */
   .floating-eraser-panel {
-    position: absolute !important;
-    left: 8px !important;
-    top: 8px !important;
-    width: 180px !important;
-    padding: 10px !important;
-    gap: 8px !important;
-    border-radius: var(--border-radius-md) !important;
-    z-index: 110 !important;
-    background: rgba(255, 255, 255, 0.92) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid var(--border-light) !important;
-    box-shadow: 0 4px 20px rgba(24, 19, 31, 0.12) !important;
-    display: flex !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
   }
@@ -3893,6 +3885,324 @@ dialog::backdrop {
 @media (prefers-reduced-motion: reduce) {
   .faq-a { transition: opacity 0.2s ease; }
   .faq-item, .faq-chevron { transition: none; }
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE ENHANCEMENTS (< 768px)
+   Additive only: every rule here either targets NEW elements (hamburger,
+   drawer, bottom nav) or restyles an existing element strictly inside a
+   max-width:767px query, so desktop (>=768px) is pixel-identical to before.
+   Breakpoint matches the app's existing md convention (768px).
+   ========================================================================== */
+
+/* ---- Mobile top bar: hamburger (new) + centered logo + credits -------- */
+.mobile-menu-btn {
+  display: none; /* desktop: not part of the flex layout at all */
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: #fff;
+  color: var(--text-primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.mobile-menu-btn:active { background: var(--bg-dark); }
+
+@media (max-width: 767px) {
+  .mobile-menu-btn { display: flex; }
+
+  /* nav becomes: [hamburger] ... [logo absolutely centered] ... [credits] */
+  nav.fixed.top-0 { position: fixed; }
+  .nav-brand-group {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    gap: 0;
+  }
+  .nav-links-desktop { display: none !important; }
+  .desktop-only-action { display: none !important; }
+  /* A legacy #headerManageBtn ID rule from an older header redesign
+     (dead everywhere else, but its bare-ID selector still matches this real
+     button) outranks the class rule above on specificity. Beat it directly
+     rather than touching the legacy block. Same for the other action
+     buttons in case any similar leftover ID rule exists. */
+  #headerManageBtn.desktop-only-action,
+  #btnHeaderAuth.desktop-only-action,
+  #btnOpenExportPanel.desktop-only-action,
+  #headerUpgradeBtn.desktop-only-action {
+    display: none !important;
+  }
+  .nav-actions-group { gap: 0; margin-left: auto; }
+  #creditsBadge { font-size: 0.72rem; padding: 6px 10px !important; }
+  #creditsBadge .material-symbols-outlined { font-size: 14px !important; }
+}
+
+/* ---- Slide-in drawer + scrim ------------------------------------------- */
+.mobile-drawer-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 19, 31, 0.45);
+  z-index: 90;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-premium, ease);
+}
+.mobile-drawer-scrim.open { display: block; opacity: 1; }
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(300px, 84vw);
+  background: #fff;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(-100%);
+  transition: transform 0.3s var(--ease-premium, ease);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  padding-top: calc(20px + env(safe-area-inset-top));
+  overflow-y: auto;
+}
+.mobile-drawer.open { transform: translateX(0); }
+
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+.mobile-drawer-close {
+  width: 36px;
+  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.mobile-drawer-close:active { background: var(--bg-dark); }
+
+.mobile-drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+}
+.mobile-drawer-links a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 12px;
+  min-height: 44px;
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.mobile-drawer-links a:active,
+.mobile-drawer-links a:hover { background: var(--bg-dark); }
+.mobile-drawer-links a .material-symbols-outlined { color: var(--primary); font-size: 22px; }
+
+body.mobile-drawer-locked { overflow: hidden; }
+
+@media (min-width: 768px) {
+  .mobile-drawer, .mobile-drawer-scrim { display: none !important; }
+}
+
+/* ---- Sticky bottom nav (mobile only) ----------------------------------- */
+.mobile-bottom-nav {
+  display: none;
+}
+@media (max-width: 767px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--border-light);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    align-items: stretch;
+  }
+  .mobile-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    min-height: 44px;
+    padding: 4px 2px;
+    border-radius: var(--border-radius-md);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+  .mobile-bottom-nav a .material-symbols-outlined { font-size: 22px; }
+  .mobile-bottom-nav a.active { color: var(--primary); }
+  /* Editor already has its own bottom tool-switcher; avoid stacking two
+     bottom bars while the user is actively editing. */
+  body:has(#editorWorkspace.active) .mobile-bottom-nav { display: none; }
+
+  /* Give the page's natural bottom content room to clear the bar. */
+  #uploadLanding.hub-landing { padding-bottom: 72px; }
+}
+
+/* ---- Home hub: AI tool cards -> horizontal snap carousel --------------- */
+@media (max-width: 767px) {
+  #toolPicker {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding-bottom: 4px;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #toolPicker::-webkit-scrollbar { display: none; }
+  #toolPicker .tool-card {
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+  }
+  .hub-wrap { padding-left: 16px; padding-right: 16px; }
+  .hub-hero-title { font-size: 32px; }
+}
+
+/* ---- PDF Hub: collapsible accordion categories + search ---------------- */
+.hub-pdf-search {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-full);
+  padding: 10px 16px;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-xs);
+}
+.hub-pdf-search input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  min-height: 24px;
+}
+.pdf-tile.search-hidden { display: none !important; }
+
+/* Desktop default: the accordion header renders as a plain title with no
+   chevron/click affordance, pixel-identical to the original plain <h4>. */
+.pdf-cat-chevron { display: none; }
+
+@media (max-width: 767px) {
+  .hub-pdf-search {
+    display: flex;
+  }
+  .pdf-cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 8px 4px;
+  }
+  .pdf-cat-header .pdf-cat-chevron {
+    display: block;
+    color: var(--text-muted);
+    transition: transform 0.25s var(--ease-premium, ease);
+  }
+  .pdf-cat.open .pdf-cat-header .pdf-cat-chevron { transform: rotate(180deg); }
+  .pdf-cat-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s var(--ease-premium, ease);
+  }
+  .pdf-cat.open .pdf-cat-tiles {
+    max-height: 600px; /* generous cap; content is short so this never clips */
+  }
+  .pdf-tile { min-height: 44px; }
+}
+
+/* ---- Editor: floating side panels -> full-width bottom sheets ---------- */
+@media (max-width: 767px) {
+  .floating-eraser-panel {
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 70vh !important;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom)) !important;
+    box-shadow: 0 -8px 30px rgba(24, 19, 31, 0.18) !important;
+  }
+  /* The desktop hover-collapse trick doesn't apply to a bottom sheet. */
+  #config-bg-remover.active,
+  #config-wm-remover.active,
+  #config-wm-maker.active,
+  #exportPanel:not(.hidden) {
+    transform: none !important;
+    animation: sheetSlideUp 0.28s var(--ease-premium, ease) !important;
+  }
+  /* Never collapse to icon-only on touch -- but :not(.hidden) so this
+     doesn't force-show sub-panels a tool's own tab toggle (e.g. the
+     Color/Image config-sub-panel) has deliberately hidden. */
+  #config-bg-remover.active.is-panel-collapsed > *:not(.panel-drag-handle):not(.hidden),
+  #config-wm-remover.active.is-panel-collapsed > *:not(.panel-drag-handle):not(.hidden),
+  #config-wm-maker.active.is-panel-collapsed > *:not(.panel-drag-handle):not(.hidden) {
+    display: flex !important;
+  }
+  @keyframes sheetSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Drag handle becomes a plain sheet title (no float/hover affordance). */
+  .panel-drag-handle { cursor: default; }
+
+  /* Bottom tool-switcher: keep it clear of the home-indicator safe area. */
+  #editorWorkspace .absolute.bottom-lg.left-1\/2 {
+    bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Zoom controls: pin bottom-right, above safe area, thumb-reachable. */
+  #editorWorkspace .absolute.bottom-lg.right-md {
+    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    right: 12px !important;
+  }
+  .zoom-btn { width: 44px !important; height: 44px !important; }
+
+  /* Floating header pill: don't let it collide with the hamburger area. */
+  #editorWorkspace .absolute.top-md.left-md { top: 12px !important; left: 12px !important; }
 }
 
 
