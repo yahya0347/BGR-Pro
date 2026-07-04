@@ -295,8 +295,8 @@
 <a data-nav="pdf-hub" href="#pdfHub">
 <span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span>
 </a>
-<a data-nav="workspace" href="javascript:void(0)">
-<span class="material-symbols-outlined">work</span><span>Workspace</span>
+<a data-nav="projects" href="#myProjects">
+<span class="material-symbols-outlined">folder</span><span>My Projects</span>
 </a>
 <a data-nav="account" href="javascript:void(0)">
 <span class="material-symbols-outlined">account_circle</span><span>Account</span>
@@ -539,6 +539,26 @@
             </button>
             <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="hidden">
         </div>
+    </div>
+</main>
+
+<!-- My Projects: saved work history (editor exports + PDF Hub outputs), stored
+     locally via IndexedDB (see project-history.js). Mobile bottom-nav destination. -->
+<main id="myProjectsView" class="flex-1 relative workspace-section overflow-y-auto mt-toolbar-width">
+    <div class="projects-wrap">
+        <header class="projects-head">
+            <h1 class="projects-title">My Projects</h1>
+            <p class="projects-sub">Your recent edits and downloads, saved on this device.</p>
+        </header>
+
+        <div id="projectsEmptyState" class="projects-empty hidden">
+            <span class="material-symbols-outlined projects-empty-icon">folder_open</span>
+            <p class="projects-empty-title">No projects yet</p>
+            <p class="projects-empty-sub">Start editing an image or PDF and it'll show up here.</p>
+            <button type="button" id="projectsEmptyCta" class="projects-empty-cta">Start editing</button>
+        </div>
+
+        <div id="projectsList" class="projects-list"></div>
     </div>
 </main>
 
@@ -976,8 +996,9 @@
 </div>
 </dialog>
 
-<script type="module" src="app.js?v=38"></script>
+<script type="module" src="app.js?v=39"></script>
 <script type="module" src="ui-panels.js?v=1"></script>
+<script src="/project-history.js?v=1"></script>
 <script src="/dot-grid.js?v=1"></script>
 <script src="home-hub.js?v=5"></script>
 <script src="/mobile-nav.js?v=1"></script>

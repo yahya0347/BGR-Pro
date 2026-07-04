@@ -139,6 +139,8 @@
     if (res.status === 503) return error('Conversion service isn\'t configured yet. Please try again later.');
     return error(res.error || 'Conversion failed. Please try again.');
   }
+  const toolLabel = document.querySelector('h1')?.textContent?.trim() || slug;
+
   async function downloadUrl(url, filename) {
     try {
       const r = await fetch(url);
@@ -147,6 +149,12 @@
       const a = el('a', { href: u, download: filename });
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(u), 4000);
+      // Best-effort "My Projects" history record (IndexedDB) — only possible
+      // when the blob was actually fetched (see the cross-origin fallback below).
+      if (window.ProjectHistory) {
+        try { window.ProjectHistory.record({ type: 'convert', tool: slug, toolLabel, filename, blob, mime: blob.type }); }
+        catch (e) { console.warn('Failed to record project history', e); }
+      }
     } catch (e) {
       // Cross-origin fetch blocked → open directly (CloudConvert serves as attachment)
       window.open(url, '_blank');

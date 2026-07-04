@@ -11,7 +11,7 @@
 //   #mobileDrawer         the slide-in drawer panel
 //   #mobileDrawerScrim    backdrop behind the drawer, closes on click
 //   #mobileDrawerClose    close (X) button inside the drawer
-//   .mobile-bottom-nav a[data-nav]  the 4 bottom nav links (home/pdf-hub/workspace/account)
+//   .mobile-bottom-nav a[data-nav]  the 4 bottom nav links (home/pdf-hub/projects/account)
 (function () {
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -56,14 +56,16 @@
       const path = window.location.pathname;
       const onEditor = !!document.getElementById('editorWorkspace') &&
         document.getElementById('editorWorkspace').classList.contains('active');
+      const onProjects = !!document.getElementById('myProjectsView') &&
+        document.getElementById('myProjectsView').classList.contains('active');
       const isPdfPage = path.includes('/pdf/');
 
       bottomNav.querySelectorAll('a[data-nav]').forEach((link) => {
         const which = link.getAttribute('data-nav');
         let active = false;
-        if (which === 'home') active = !isPdfPage && !onEditor;
+        if (which === 'home') active = !isPdfPage && !onEditor && !onProjects;
         else if (which === 'pdf-hub') active = isPdfPage;
-        else if (which === 'workspace') active = onEditor;
+        else if (which === 'projects') active = onProjects;
         link.classList.toggle('active', active);
 
         // "Account" opens whatever auth control already exists on this page
@@ -77,28 +79,27 @@
             }
           });
         }
-        // "Workspace": if an editor session is already open in this tab,
-        // tapping it again is a no-op instead of reloading the SPA.
-        if (which === 'workspace' && !isPdfPage) {
-          link.addEventListener('click', (e) => {
-            const editorEl = document.getElementById('editorWorkspace');
-            if (editorEl && editorEl.classList.contains('active')) e.preventDefault();
-          });
-        }
       });
     }
 
-    // Re-run active-state detection when the SPA switches between the hub
-    // and the editor workspace (index.html toggles `.active` on both mains).
+    // Re-run active-state detection when the SPA switches between the hub,
+    // the editor workspace, and My Projects (index.html toggles `.active` on
+    // each of these <main> sections).
     const editorEl = document.getElementById('editorWorkspace');
-    if (editorEl && bottomNav) {
-      new MutationObserver(() => {
-        const onEditor = editorEl.classList.contains('active');
+    const projectsEl = document.getElementById('myProjectsView');
+    if (bottomNav && (editorEl || projectsEl)) {
+      const sync = () => {
+        const onEditorNow = !!editorEl && editorEl.classList.contains('active');
+        const onProjectsNow = !!projectsEl && projectsEl.classList.contains('active');
         bottomNav.querySelectorAll('a[data-nav]').forEach((link) => {
           const which = link.getAttribute('data-nav');
-          link.classList.toggle('active', which === 'workspace' ? onEditor : which === 'home' ? !onEditor : false);
+          link.classList.toggle('active',
+            which === 'projects' ? onProjectsNow :
+            which === 'home' ? (!onEditorNow && !onProjectsNow) : false);
         });
-      }).observe(editorEl, { attributes: true, attributeFilter: ['class'] });
+      };
+      if (editorEl) new MutationObserver(sync).observe(editorEl, { attributes: true, attributeFilter: ['class'] });
+      if (projectsEl) new MutationObserver(sync).observe(projectsEl, { attributes: true, attributeFilter: ['class'] });
     }
   });
 })();

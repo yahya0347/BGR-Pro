@@ -29,16 +29,7 @@
     const maxRadius = 2.5;
     const hoverDistance = 120;
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      if (isTouchDevice) drawStatic();
-    }
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    function drawStatic() {
+    function drawFrame(offsetX, offsetY) {
       ctx.clearRect(0, 0, width, height);
       const cols = Math.ceil(width / spacing);
       const rows = Math.ceil(height / spacing);
@@ -46,15 +37,95 @@
       for (let i = 0; i <= cols; i++) {
         for (let j = 0; j <= rows; j++) {
           ctx.beginPath();
-          ctx.arc(i * spacing, j * spacing, baseRadius, 0, Math.PI * 2);
+          ctx.arc(i * spacing + offsetX, j * spacing + offsetY, baseRadius, 0, Math.PI * 2);
           ctx.fill();
         }
       }
     }
 
+    function drawStatic() {
+      drawFrame(0, 0);
+    }
+
+    // ---- Mobile: subtle gyroscope-driven drift ----
+    // Touch devices have no cursor, so instead of the mouse-reactive loop
+    // below we let a *very* small parallax offset follow the phone's tilt.
+    // Everything here is additive/opt-in: if there's no DeviceOrientation
+    // support, permission is denied, or no real sensor data ever arrives,
+    // we just keep showing the single static frame drawn above — silently,
+    // no console errors, no retry loop.
+    let gyroOffset = { x: 0, y: 0 }; // eased, on-screen position
+    let gyroTarget = { x: 0, y: 0 }; // latest raw reading (clamped)
+    let gyroActive = false;          // true once a real orientation reading has arrived
+    let gyroRafId = null;
+    let gyroRequested = false;
+    const GYRO_MAX_OFFSET = 6;  // px — "a few pixels max"
+    const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion
+
+    function gyroLoop() {
+      gyroRafId = null;
+      if (document.hidden) return; // paused while backgrounded; visibilitychange resumes it
+      gyroOffset.x += (gyroTarget.x - gyroOffset.x) * GYRO_EASE;
+      gyroOffset.y += (gyroTarget.y - gyroOffset.y) * GYRO_EASE;
+      drawFrame(gyroOffset.x, gyroOffset.y);
+      gyroRafId = requestAnimationFrame(gyroLoop);
+    }
+
+    function startGyroLoop() {
+      if (gyroRafId == null) gyroRafId = requestAnimationFrame(gyroLoop);
+    }
+
+    function handleOrientation(e) {
+      if (typeof e.gamma !== 'number' && typeof e.beta !== 'number') return; // no real sensor data
+      const gamma = Math.max(-45, Math.min(45, e.gamma || 0));       // left-right tilt
+      const beta = Math.max(-45, Math.min(45, (e.beta || 0) - 45));  // front-back tilt, recentred to a natural holding angle
+      gyroTarget.x = (gamma / 45) * GYRO_MAX_OFFSET;
+      gyroTarget.y = (beta / 45) * GYRO_MAX_OFFSET;
+      if (!gyroActive) {
+        gyroActive = true;
+        startGyroLoop();
+      }
+    }
+
+    function requestGyroPermission() {
+      if (gyroRequested) return;
+      gyroRequested = true;
+      const DOE = window.DeviceOrientationEvent;
+      if (!DOE) return; // no gyroscope support -> stays on the static frame
+      if (typeof DOE.requestPermission === 'function') {
+        // iOS 13+: must be invoked from a user gesture. Denial or error ->
+        // silent fallback, we never ask again this session.
+        DOE.requestPermission()
+          .then((state) => {
+            if (state === 'granted') window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+          })
+          .catch(() => {});
+      } else {
+        // No permission gate needed (Android / older iOS)
+        window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && gyroActive) startGyroLoop();
+    });
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      if (isTouchDevice && !gyroActive) drawStatic();
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
     if (isTouchDevice) {
       drawStatic();
-      return; // no mousemove listeners, no rAF loop
+      // Request gyro permission gracefully on the first tap anywhere on the
+      // page, rather than immediately on load (iOS requires a user gesture).
+      document.addEventListener('click', requestGyroPermission, { once: true, passive: true });
+      document.addEventListener('touchend', requestGyroPermission, { once: true, passive: true });
+      return; // no mousemove listeners, no continuous loop unless gyro kicks in
     }
 
     window.addEventListener('mousemove', (e) => {

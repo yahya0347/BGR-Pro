@@ -34,6 +34,19 @@
   };
   const fmtBytes = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(2) + ' MB';
   const isPdf = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+  const toolLabel = document.querySelector('h1')?.textContent?.trim() || slug;
+
+  // Best-effort "My Projects" history record (project-history.js, IndexedDB).
+  // Never lets a history-recording failure affect the actual download.
+  function recordProjectHistory(filename, data, mime) {
+    if (!window.ProjectHistory) return;
+    try {
+      const blob = data instanceof Blob ? data : new Blob([data], { type: mime || 'application/pdf' });
+      window.ProjectHistory.record({ type: 'pdf', tool: slug, toolLabel, filename, blob, mime: blob.type });
+    } catch (e) {
+      console.warn('Failed to record project history', e);
+    }
+  }
 
   function download(data, filename, mime) {
     const blob = data instanceof Blob ? data : new Blob([data], { type: mime || 'application/pdf' });
@@ -666,6 +679,7 @@
     try {
       const result = await tool.run(ctx);
       if (!result.handled) download(result.data, result.filename, result.mime); // html2pdf downloads itself
+      if (!result.handled) recordProjectHistory(result.filename, result.data, result.mime);
       showResult(result);
     } catch (e) {
       console.error(e);

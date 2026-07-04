@@ -222,6 +222,7 @@ const elements = {
   // Upload panel
   uploadLanding: document.getElementById('uploadLanding'),
   editorWorkspace: document.getElementById('editorWorkspace'),
+  myProjectsView: document.getElementById('myProjectsView'),
   dropZone: document.getElementById('dropZone'),
   fileInput: document.getElementById('fileInput'),
   sampleItems: document.querySelectorAll('.sample-item'),
@@ -873,6 +874,7 @@ function initUploadHandlers() {
     wmHistory.clear();
     
     if (elements.editorWorkspace) elements.editorWorkspace.classList.remove('active');
+    if (elements.myProjectsView) elements.myProjectsView.classList.remove('active');
     if (elements.uploadLanding) elements.uploadLanding.classList.add('active');
   });
 
@@ -888,6 +890,7 @@ function initUploadHandlers() {
       wmHistory.clear();
 
       if (elements.editorWorkspace) elements.editorWorkspace.classList.remove('active');
+      if (elements.myProjectsView) elements.myProjectsView.classList.remove('active');
       if (elements.uploadLanding) elements.uploadLanding.classList.add('active');
     });
   }
@@ -913,8 +916,113 @@ function initUploadHandlers() {
       // Switch panels
       elements.uploadLanding.classList.add('active');
       elements.editorWorkspace.classList.remove('active');
+      if (elements.myProjectsView) elements.myProjectsView.classList.remove('active');
     });
   }
+
+  initMyProjectsView();
+}
+
+/* ==========================================================================
+   My Projects — saved work history (bottom-nav "My Projects" tab)
+   Reads from window.ProjectHistory (project-history.js, IndexedDB-backed).
+   ========================================================================== */
+const PROJECT_TYPE_ICONS = { editor: 'image', pdf: 'picture_as_pdf', convert: 'picture_as_pdf' };
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function openMyProjectsView() {
+  if (!elements.myProjectsView) return;
+  if (elements.uploadLanding) elements.uploadLanding.classList.remove('active');
+  if (elements.editorWorkspace) elements.editorWorkspace.classList.remove('active');
+  elements.myProjectsView.classList.add('active');
+  renderProjectsList();
+}
+
+async function renderProjectsList() {
+  const listEl = document.getElementById('projectsList');
+  const emptyEl = document.getElementById('projectsEmptyState');
+  if (!listEl || !emptyEl) return;
+
+  const items = window.ProjectHistory ? await window.ProjectHistory.list() : [];
+
+  if (items.length === 0) {
+    emptyEl.classList.remove('hidden');
+    listEl.innerHTML = '';
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  listEl.innerHTML = items.map((item) => {
+    const icon = PROJECT_TYPE_ICONS[item.type] || 'description';
+    const thumb = item.thumbnail
+      ? `<img src="${item.thumbnail}" alt="">`
+      : `<span class="material-symbols-outlined">${icon}</span>`;
+    return `
+      <div class="project-card" data-id="${escapeHtml(item.id)}">
+        <div class="project-card-thumb">${thumb}</div>
+        <div class="project-card-info">
+          <p class="project-card-title" title="${escapeHtml(item.filename)}">${escapeHtml(item.filename)}</p>
+          <p class="project-card-meta">${escapeHtml(item.toolLabel)} · ${escapeHtml(window.ProjectHistory.formatWhen(item.createdAt))}</p>
+        </div>
+        <div class="project-card-actions">
+          <button type="button" class="project-card-action" data-action="redownload" title="Re-download" aria-label="Re-download"><span class="material-symbols-outlined">download</span></button>
+          <button type="button" class="project-card-action" data-action="reopen" title="Open" aria-label="Open"><span class="material-symbols-outlined">open_in_new</span></button>
+          <button type="button" class="project-card-action" data-action="delete" title="Delete" aria-label="Delete"><span class="material-symbols-outlined">delete</span></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function initMyProjectsView() {
+  if (!elements.myProjectsView) return;
+
+  const navLink = document.querySelector('.mobile-bottom-nav a[data-nav="projects"]');
+  if (navLink) {
+    navLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      history.replaceState(null, '', '#myProjects');
+      openMyProjectsView();
+    });
+  }
+
+  const emptyCta = document.getElementById('projectsEmptyCta');
+  if (emptyCta) {
+    emptyCta.addEventListener('click', () => {
+      elements.backToUploadBtn.click();
+    });
+  }
+
+  const listEl = document.getElementById('projectsList');
+  if (listEl) {
+    listEl.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.project-card-action');
+      if (!btn || !window.ProjectHistory) return;
+      const card = btn.closest('.project-card');
+      const id = card && card.getAttribute('data-id');
+      if (!id) return;
+      const action = btn.getAttribute('data-action');
+
+      if (action === 'redownload') {
+        await window.ProjectHistory.redownload(id);
+      } else if (action === 'reopen') {
+        await window.ProjectHistory.open(id);
+      } else if (action === 'delete') {
+        await window.ProjectHistory.remove(id);
+        renderProjectsList();
+      }
+    });
+  }
+
+  // Deep link from the PDF Hub pages: ../index.html#myProjects
+  if (window.location.hash === '#myProjects') openMyProjectsView();
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#myProjects') openMyProjectsView();
+  });
 }
 
 // Convert uploaded file to Image object
@@ -3170,6 +3278,39 @@ function exportCanvasToBlob(sourceCanvas, format, bgColor = '#FFFFFF', quality =
 }
 
 // Master Canvas Compiler Exporter
+const EDITOR_TOOL_LABELS = {
+  'bg-remover': 'Background Eraser',
+  'wm-remover': 'Watermark Remover',
+  'wm-maker': 'Watermark Maker'
+};
+
+// Records a "My Projects" history entry for this export. Best-effort: if
+// ProjectHistory (project-history.js) isn't loaded or IndexedDB fails, the
+// download itself must not be affected, so failures are swallowed silently.
+function recordEditorProjectHistory(sourceCanvas, filename, blob) {
+  if (!window.ProjectHistory) return;
+  try {
+    const thumbCanvas = document.createElement('canvas');
+    const maxSize = 200;
+    const scale = Math.min(1, maxSize / Math.max(sourceCanvas.width, sourceCanvas.height));
+    thumbCanvas.width = Math.max(1, Math.round(sourceCanvas.width * scale));
+    thumbCanvas.height = Math.max(1, Math.round(sourceCanvas.height * scale));
+    thumbCanvas.getContext('2d').drawImage(sourceCanvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+    const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7);
+
+    window.ProjectHistory.record({
+      type: 'editor',
+      tool: state.activeTab,
+      toolLabel: EDITOR_TOOL_LABELS[state.activeTab] || 'Editor',
+      filename: filename,
+      thumbnail: thumbnail,
+      blob: blob
+    });
+  } catch (e) {
+    console.warn('Failed to record project history', e);
+  }
+}
+
 function triggerImageDownload() {
   if (!state.originalImage) return;
   
@@ -3247,7 +3388,9 @@ function triggerImageDownload() {
     });
     
     pdfDoc.addImage(dataURL, 'PNG', 0, 0, w, h);
-    pdfDoc.save(`${state.originalFilename}_processed_${w}x${h}.pdf`);
+    const pdfFilename = `${state.originalFilename}_processed_${w}x${h}.pdf`;
+    pdfDoc.save(pdfFilename);
+    recordEditorProjectHistory(exportCanvas, pdfFilename, pdfDoc.output('blob'));
   } else {
     // Normal Image export formats
     let mimeType = 'image/png';
@@ -3271,10 +3414,12 @@ function triggerImageDownload() {
       .then((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.download = `${state.originalFilename}_processed_${w}x${h}.${fileExt}`;
+        const imgFilename = `${state.originalFilename}_processed_${w}x${h}.${fileExt}`;
+        link.download = imgFilename;
         link.href = url;
         link.click();
         URL.revokeObjectURL(url);
+        recordEditorProjectHistory(exportCanvas, imgFilename, blob);
       })
       .catch((err) => {
         console.error(err);

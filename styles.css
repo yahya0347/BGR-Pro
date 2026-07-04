@@ -3888,6 +3888,122 @@ dialog::backdrop {
 }
 
 /* ==========================================================================
+   My Projects — saved work history (bottom-nav "My Projects" tab)
+   Reuses the same glass/purple tokens as the rest of the Home Hub.
+   ========================================================================== */
+.projects-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.projects-head { display: flex; flex-direction: column; gap: 6px; }
+.projects-title {
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 1.9rem;
+  color: var(--text-primary);
+}
+.projects-sub { color: var(--text-secondary); font-size: 0.95rem; }
+
+.projects-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 56px 24px;
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-soft);
+}
+.projects-empty.hidden { display: none; }
+.projects-empty-icon { font-size: 44px; color: var(--text-muted); margin-bottom: 4px; }
+.projects-empty-title { font-weight: 700; font-size: 1.15rem; color: var(--text-primary); }
+.projects-empty-sub { color: var(--text-secondary); font-size: 0.9rem; max-width: 340px; }
+.projects-empty-cta {
+  margin-top: 12px;
+  padding: 10px 24px;
+  border-radius: var(--border-radius-full);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.projects-empty-cta:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.project-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+.project-card:hover { border-color: var(--border-primary); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+
+.project-card-thumb {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.project-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.project-card-thumb .material-symbols-outlined { color: var(--primary); font-size: 24px; }
+
+.project-card-info { flex: 1; min-width: 0; }
+.project-card-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-card-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+.project-card-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.project-card-action {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-full);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.project-card-action:hover { color: var(--primary); background: var(--bg-dark); }
+.project-card-action .material-symbols-outlined { font-size: 20px; }
+.project-card-action[data-action="delete"]:hover { color: var(--danger); }
+
+/* ==========================================================================
    MOBILE RESPONSIVE ENHANCEMENTS (< 768px)
    Additive only: every rule here either targets NEW elements (hamburger,
    drawer, bottom nav) or restyles an existing element strictly inside a

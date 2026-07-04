@@ -176,7 +176,7 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
   const seo = SEO[slug];
   const multipleAttr = MULTIPLE.has(slug) ? ' multiple' : '';
   const scripts = OFFICE.has(slug)
-    ? [FIREBASE_TAGS, '<script src="pdf-convert.js"></script>'].join('\n')
+    ? [FIREBASE_TAGS, '<script src="../project-history.js?v=1"></script>', '<script src="pdf-convert.js?v=1"></script>'].join('\n')
     : [
         '<script src="vendor/pdf-lib.min.js"></script>',
         '<script src="vendor/jszip.min.js"></script>',
@@ -184,7 +184,8 @@ function renderPage({ slug, name, description, formatNote, icon, accept }) {
         NEEDS_TESSERACT.has(slug) ? TESSERACT_TAG : '',
         NEEDS_HTML2PDF.has(slug) ? HTML2PDF_TAG : '',
         NEEDS_QPDF.has(slug) ? QPDF_TAG : '',
-        '<script src="pdf-tools.js"></script>',
+        '<script src="../project-history.js?v=1"></script>',
+        '<script src="pdf-tools.js?v=1"></script>',
       ].filter(Boolean).join('\n');
   return `<!DOCTYPE html>
 <html lang="en"><head>
@@ -459,7 +460,7 @@ ${headSeo(seo, slug)}
 <nav class="mobile-bottom-nav" aria-label="Primary">
 <a data-nav="home" href="../index.html"><span class="material-symbols-outlined">home</span><span>Home</span></a>
 <a data-nav="pdf-hub" href="../index.html#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span></a>
-<a data-nav="workspace" href="../index.html"><span class="material-symbols-outlined">work</span><span>Workspace</span></a>
+<a data-nav="projects" href="../index.html#myProjects"><span class="material-symbols-outlined">folder</span><span>My Projects</span></a>
 <a data-nav="account" href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span><span>Account</span></a>
 </nav>
 <!-- Main Content Container -->
