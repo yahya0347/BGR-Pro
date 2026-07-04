@@ -60,13 +60,64 @@
     let gyroRafId = null;
     let gyroRequested = false;
     const GYRO_MAX_OFFSET = 30; // px — clearly visible at a moderate ~20-30° tilt, still clamped so extreme tilts can't push dots off-screen
-    const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion (unchanged)
+    const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion
 
-    // ---- TEMPORARY on-screen debug badge (Android real-device diagnosis) --
-    // Remove this block once the drift issue is confirmed fixed on-device.
-    let gyroDebugEl = null;
-    function setGyroDebugState(text) {
-      if (gyroDebugEl) gyroDebugEl.textContent = 'gyro: ' + text;
+    // ---- Crystal/gradient shimmer (mobile only, only while gyro is active) --
+    // A soft radial "wash" sweeps behind the dots, centred on the same eased
+    // tilt offset used for the drift (so it moves with the exact same calm
+    // lerp, no separate easing state needed). Dots near that centre catch the
+    // light: they lerp from the base lavender toward the secondary brand
+    // colour and grow/opacify slightly, mirroring the existing desktop
+    // hover-lerp pattern in draw() below but driven by tilt instead of mouse.
+    const GLOW_SWEEP = 0.35;     // fraction of half-viewport the glow centre can travel
+    const GLOW_RADIUS_FACTOR = 0.6; // wash radius as a fraction of the larger viewport dimension
+    const SPARKLE_RADIUS = 160;  // px — dots this close to the glow centre catch the light
+
+    function drawGyroFrame(offsetX, offsetY) {
+      ctx.clearRect(0, 0, width, height);
+      const cols = Math.ceil(width / spacing);
+      const rows = Math.ceil(height / spacing);
+
+      const glowX = width / 2 + (offsetX / GYRO_MAX_OFFSET) * width * GLOW_SWEEP;
+      const glowY = height / 2 + (offsetY / GYRO_MAX_OFFSET) * height * GLOW_SWEEP;
+      const glowRadius = Math.max(width, height) * GLOW_RADIUS_FACTOR;
+
+      // One gradient object per frame (cheap) drawn as a soft wash underneath
+      // the dots — not recomputed per dot.
+      const gradient = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, glowRadius);
+      gradient.addColorStop(0, 'rgba(180, 19, 109, 0.12)');  // secondary #b4136d, bright core
+      gradient.addColorStop(0.5, 'rgba(72, 0, 160, 0.06)');  // primary #4800a0, mid fade
+      gradient.addColorStop(1, 'rgba(72, 0, 160, 0)');       // fades to fully transparent
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i <= cols; i++) {
+        for (let j = 0; j <= rows; j++) {
+          const x = i * spacing + offsetX;
+          const y = j * spacing + offsetY;
+
+          const dx = x - glowX;
+          const dy = y - glowY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          let radius = baseRadius;
+          let r = 204, g = 195, b = 216, a = 0.85;
+
+          if (distance < SPARKLE_RADIUS) {
+            const factor = 1 - (distance / SPARKLE_RADIUS);
+            radius = baseRadius + (maxRadius - baseRadius) * factor;
+            r = Math.round(204 + (180 - 204) * factor); // lavender -> secondary red
+            g = Math.round(195 + (19 - 195) * factor);  // lavender -> secondary green
+            b = Math.round(216 + (109 - 216) * factor); // lavender -> secondary blue
+            a = 0.85 + 0.15 * factor;
+          }
+
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+          ctx.fill();
+        }
+      }
     }
 
     function gyroLoop() {
@@ -74,7 +125,7 @@
       if (document.hidden) return; // paused while backgrounded; visibilitychange resumes it
       gyroOffset.x += (gyroTarget.x - gyroOffset.x) * GYRO_EASE;
       gyroOffset.y += (gyroTarget.y - gyroOffset.y) * GYRO_EASE;
-      drawFrame(gyroOffset.x, gyroOffset.y);
+      drawGyroFrame(gyroOffset.x, gyroOffset.y);
       gyroRafId = requestAnimationFrame(gyroLoop);
     }
 
@@ -83,10 +134,7 @@
     }
 
     function handleOrientation(e) {
-      if (typeof e.gamma !== 'number' && typeof e.beta !== 'number') {
-        setGyroDebugState('listener attached (no data received)');
-        return; // no real sensor data
-      }
+      if (typeof e.gamma !== 'number' && typeof e.beta !== 'number') return; // no real sensor data
       const gamma = Math.max(-45, Math.min(45, e.gamma || 0));       // left-right tilt
       const beta = Math.max(-45, Math.min(45, (e.beta || 0) - 45));  // front-back tilt, recentred to a natural holding angle
       gyroTarget.x = (gamma / 45) * GYRO_MAX_OFFSET;
@@ -95,32 +143,24 @@
         gyroActive = true;
         startGyroLoop();
       }
-      setGyroDebugState('granted, listener attached — β:' + Math.round(e.beta) + ' γ:' + Math.round(e.gamma));
     }
 
     function requestGyroPermission() {
       if (gyroRequested) return;
       gyroRequested = true;
       const DOE = window.DeviceOrientationEvent;
-      if (!DOE) { setGyroDebugState('unsupported (no DeviceOrientationEvent)'); return; } // no gyroscope support -> stays on the static frame
+      if (!DOE) return; // no gyroscope support -> stays on the static frame
       if (typeof DOE.requestPermission === 'function') {
         // iOS 13+: must be invoked from a user gesture. Denial or error ->
         // silent fallback, we never ask again this session.
-        setGyroDebugState('requesting');
         DOE.requestPermission()
           .then((state) => {
-            if (state === 'granted') {
-              window.addEventListener('deviceorientation', handleOrientation, { passive: true });
-              setGyroDebugState('granted, listener attached');
-            } else {
-              setGyroDebugState('denied (' + state + ')');
-            }
+            if (state === 'granted') window.addEventListener('deviceorientation', handleOrientation, { passive: true });
           })
-          .catch((err) => setGyroDebugState('denied (error: ' + (err && err.message) + ')'));
+          .catch(() => {});
       } else {
         // No permission gate needed (Android / older iOS)
         window.addEventListener('deviceorientation', handleOrientation, { passive: true });
-        setGyroDebugState('granted, listener attached');
       }
     }
 
@@ -138,15 +178,6 @@
     resize();
 
     if (isTouchDevice) {
-      // TEMPORARY: visible on-screen state badge for real-device diagnosis.
-      // Remove this element once the drift issue is confirmed fixed.
-      gyroDebugEl = document.createElement('div');
-      gyroDebugEl.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:0;z-index:2147483647;'
-        + 'background:rgba(0,0,0,0.8);color:#39ff14;font:11px/1.4 monospace;padding:4px 8px;'
-        + 'border-bottom-right-radius:8px;pointer-events:none;white-space:pre-wrap;max-width:100vw;';
-      gyroDebugEl.textContent = 'gyro: not requested';
-      document.body.appendChild(gyroDebugEl);
-
       drawStatic();
       // Request gyro permission gracefully on the first tap anywhere on the
       // page, rather than immediately on load (iOS requires a user gesture).
