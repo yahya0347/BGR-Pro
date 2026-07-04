@@ -777,6 +777,10 @@ function initUploadHandlers() {
   landingTabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation(); // prevent triggering upload click if inside upload-card
+      // These are real <a href="..."> links (crawlable to their own dedicated
+      // SEO pages) that also drive the in-page tab switch on a left-click;
+      // suppress the navigation so clicking one here stays on this page.
+      e.preventDefault();
       const tab = btn.getAttribute('data-landing-tab');
       state.activeTab = tab;
       
