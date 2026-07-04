@@ -59,8 +59,8 @@
     let gyroActive = false;          // true once a real orientation reading has arrived
     let gyroRafId = null;
     let gyroRequested = false;
-    const GYRO_MAX_OFFSET = 6;  // px — "a few pixels max"
-    const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion
+    const GYRO_MAX_OFFSET = 30; // px — clearly visible at a moderate ~20-30° tilt, still clamped so extreme tilts can't push dots off-screen
+    const GYRO_EASE = 0.06;     // low = calm/smooth, no dizzying motion (unchanged)
 
     // ---- TEMPORARY on-screen debug badge (Android real-device diagnosis) --
     // Remove this block once the drift issue is confirmed fixed on-device.
