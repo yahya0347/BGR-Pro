@@ -153,10 +153,29 @@
         details > summary::-webkit-details-marker { display: none; }
         details[open] summary ~ * { animation: sweep .3s ease-in-out; }
 
-        /* Hero illustration: 16:9 card; scale-from-corner hides the Gemini
-           watermark (bottom-right on every image) outside the clipped frame. */
-        .hero-illustration { aspect-ratio: 16 / 9; overflow: hidden; border-radius: 0.75rem; background: #f6f2fc; }
-        .hero-illustration img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.14); }
+        /* Hero illustration: watermark is pre-cropped out of the JPG itself
+           (see scripts/optimize-hero-images.py), so this stays a plain,
+           centered cover-crop with no transform hacks and no gap/border. */
+        .hero-illustration-container {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 16 / 9;
+            border-radius: 0.75rem;
+            background: #f6f2fc;
+        }
+        .hero-illustration-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
         @keyframes sweep { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -264,7 +283,7 @@
 </div></div>
 </div>
 <div class="w-full flex flex-col lg:flex-row gap-xl items-center">
-<div class="w-full lg:w-1/2"><div class="glass-panel rounded-xl overflow-hidden hero-illustration"><img src="/pdf-hub-images/redact.jpg" alt="Illustration of sensitive text being blacked out with redaction boxes on a PDF" loading="lazy" width="1280" height="720" style="transform-origin:left top"/></div></div>
+<div class="w-full lg:w-1/2"><div class="hero-illustration-container"><img src="/pdf-hub-images/redact.jpg" alt="Illustration of sensitive text being blacked out with redaction boxes on a PDF" loading="lazy" width="1500" height="703"/></div></div>
 <div class="w-full lg:w-1/2">
 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to redact your PDF</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
