@@ -1091,19 +1091,6 @@ function processUploadedImage(img) {
   state.appliedStrokes = [];
   wmHistory.clear();
   
-  // Toggle checkerboard background based on whether image format supports transparency
-  const isTransparent = state.originalFileType === 'image/png' || state.originalFileType === 'image/webp' || state.originalFileType === 'image/gif';
-  const patternBgs = document.querySelectorAll('.canvas-bg-pattern');
-  patternBgs.forEach(bg => {
-    if (isTransparent) {
-      bg.classList.add('checkerboard-bg');
-      bg.style.backgroundColor = 'transparent';
-    } else {
-      bg.classList.remove('checkerboard-bg');
-      bg.style.backgroundColor = '#f8fafc'; // Light dotted-grid background fallback color
-    }
-  });
-  
   // Default sizes
   state.exportWidth = img.width;
   state.exportHeight = img.height;
@@ -1881,7 +1868,7 @@ function initWatermarkEraserBase() {
   const layersDiv = baseCanvas.parentElement;
   layersDiv.style.width = `${w}px`;
   layersDiv.style.height = `${h}px`;
-  
+
   // Set default zoom to fit the screen
   state.zoom = screenScale;
   state.panX = 0;
