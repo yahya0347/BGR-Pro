@@ -1093,18 +1093,11 @@ h1, h2, h3, h4, h5, h6 {
   left: 20px;
   top: 20px;
   width: 250px;
-  /* Same background as the canvas/workspace (.bg-dotted-grid in index.html):
-     identical color, dot-grid pattern and fixed viewport attachment so the
-     panel blends into the canvas behind it with no visible seam. */
-  background-color: #FAFAFC;
-  background-image:
-      radial-gradient(ellipse 900px 500px at 8% -8%, rgba(124, 58, 237, 0.07), transparent 60%),
-      radial-gradient(ellipse 800px 500px at 100% 0%, rgba(8, 145, 178, 0.06), transparent 55%),
-      radial-gradient(ellipse 700px 600px at 50% 100%, rgba(236, 72, 153, 0.04), transparent 60%),
-      radial-gradient(#DCD5EA 1.5px, transparent 1.5px);
-  background-size: auto, auto, auto, 22px 22px;
-  background-position: 0 0, 0 0, 0 0, 0 0;
-  background-attachment: fixed, fixed, fixed, fixed;
+  /* Plain white -- the dot-grid pattern belongs to the canvas/workspace
+     background (.bg-dotted-grid in index.html) behind this panel, not the
+     panel itself. Shared by all 3 tools' settings panels (#config-bg-remover,
+     #config-wm-remover, #config-wm-maker) and #exportPanel. */
+  background-color: #ffffff;
   border-radius: var(--border-radius-lg);
   border: var(--glass-border);
   box-shadow: var(--shadow-high);
