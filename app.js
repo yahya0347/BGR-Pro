@@ -777,10 +777,16 @@ function initUploadHandlers() {
   landingTabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation(); // prevent triggering upload click if inside upload-card
-      // These are real <a href="..."> links (crawlable to their own dedicated
-      // SEO pages) that also drive the in-page tab switch on a left-click;
-      // suppress the navigation so clicking one here stays on this page.
-      e.preventDefault();
+      // These are real <a href="..."> links to their own dedicated SEO pages
+      // (background-remover.html etc.) -- a genuine user click should
+      // navigate there normally. The one exception: each dedicated page
+      // fires a *synthetic* click on its own matching card (via .click()) on
+      // load, purely to run the state.activeTab/class/title bookkeeping
+      // below without duplicating this logic (see generate-tool-pages.mjs's
+      // bootstrap script) -- that synthetic click must NOT navigate, since
+      // it's already on that exact page. event.isTrusted is false only for
+      // JS-dispatched clicks, so it cleanly tells the two cases apart.
+      if (!e.isTrusted) e.preventDefault();
       const tab = btn.getAttribute('data-landing-tab');
       state.activeTab = tab;
       
