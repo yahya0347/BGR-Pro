@@ -2558,9 +2558,8 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     });
 }
 
-// PHASE 1 placeholder — replace with real subscription check in Phase 2.
 function isProUser() {
-  return true;
+  return !!state.user && (state.credits || 0) > 0;
 }
 
 // ── LaMa backend call ─────────────────────────────────────────────────

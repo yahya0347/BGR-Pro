@@ -1,0 +1,17 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" },
+        { "key": "Cache-Control", "value": "max-age=0, no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ],
+  "functions": {
+    "api/inpaint.js": {
+      "maxDuration": 90
+    }
+  }
+}
