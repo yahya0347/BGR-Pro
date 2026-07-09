@@ -35,3 +35,5 @@ bilateral_*.png
 # macOS
 .DS_Store
 **/.DS_Store
+.vercel
+.env*
