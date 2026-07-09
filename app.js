@@ -2514,16 +2514,33 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
   originalCanvas.height = h;
   const origCtx = originalCanvas.getContext('2d');
   origCtx.drawImage(state.eraserBaseImage, 0, 0);
-  
-  const imageDataURL = originalCanvas.toDataURL('image/png');
-  const maskDataURL  = elements.wmRemoverMaskCanvas.toDataURL('image/png');
-  
+
   // ── Gate: Pro users get AI LaMa, free users get local OpenCV ────────
   if (!isProUser()) {
     _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo);
     return;
   }
-  
+
+  // Downscale before sending to the LaMa API — Vercel Serverless Functions cap
+  // request bodies at 4.5MB, and a full-resolution image + mask as base64 PNG
+  // blows past that routinely (the result is upscaled back to canvas size below).
+  const MAX_API_DIMENSION = 1600;
+  const apiScale = Math.min(1, MAX_API_DIMENSION / Math.max(w, h));
+  const apiW = Math.round(w * apiScale);
+  const apiH = Math.round(h * apiScale);
+
+  const apiImageCanvas = document.createElement('canvas');
+  apiImageCanvas.width = apiW;
+  apiImageCanvas.height = apiH;
+  apiImageCanvas.getContext('2d').drawImage(originalCanvas, 0, 0, apiW, apiH);
+  const imageDataURL = apiImageCanvas.toDataURL('image/png');
+
+  const apiMaskCanvas = document.createElement('canvas');
+  apiMaskCanvas.width = apiW;
+  apiMaskCanvas.height = apiH;
+  apiMaskCanvas.getContext('2d').drawImage(elements.wmRemoverMaskCanvas, 0, 0, apiW, apiH);
+  const maskDataURL = apiMaskCanvas.toDataURL('image/png');
+
   // ── Try LaMa backend first ──────────────────────────────────────────
   _tryLamaInpaint(imageDataURL, maskDataURL)
     .then(resultDataURI => {
