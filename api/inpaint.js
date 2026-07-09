@@ -126,15 +126,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'image and mask required' });
     }
 
-    // ── 1) Call LaMa via the model endpoint with Prefer: wait (synchronous) ──
-    let r = await fetch('https://api.replicate.com/v1/models/twn39/lama/predictions', {
+    // ── 1) Call LaMa via the versioned predictions endpoint with Prefer: wait (synchronous) ──
+    let r = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Prefer': 'wait'
       },
-      body: JSON.stringify({ input: { image, mask } })
+      body: JSON.stringify({
+        version: '2b91ca2340801c2a5be745612356fac36a17f698354a07f48a62d564d3b3a7a0',
+        input: { image, mask }
+      })
     });
     let pred = await r.json();
 
