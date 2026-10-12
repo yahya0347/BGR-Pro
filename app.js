@@ -14,7 +14,7 @@ import {
   doc, 
   onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { createViewport } from "./canvas-viewport.js?v=1";
+import { createViewport } from "./canvas-viewport.js?v=3";
 
 // Firebase Config Placeholder (User can override or set window.firebaseConfig)
 const firebaseConfig = window.firebaseConfig || {

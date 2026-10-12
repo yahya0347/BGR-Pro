@@ -836,6 +836,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+  touch-action: none; /* a pinch on the overlay must not zoom the whole page */
   transition: opacity 0.5s ease;
 }
 

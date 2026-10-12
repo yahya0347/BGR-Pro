@@ -44,14 +44,16 @@ export function createViewport(canvas, opts) {
     offY = clampAxis(offY, viewH, imgH * scale);
   }
 
+  // Reads the container size. Only fit() and handleResize() call this, so a
+  // size change is always seen by handleResize, which re-centres the view.
+  // The backing store itself is resized inside the render frame (see
+  // requestRender), so the canvas is never left blank between the two.
   function measure() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     const d = window.devicePixelRatio || 1;
     if (w === viewW && h === viewH && d === dpr) return false;
     viewW = w; viewH = h; dpr = d;
-    canvas.width = Math.max(1, Math.round(w * dpr));
-    canvas.height = Math.max(1, Math.round(h * dpr));
     return true;
   }
 
@@ -130,10 +132,11 @@ export function createViewport(canvas, opts) {
     framePending = true;
     requestAnimationFrame(() => {
       framePending = false;
-      if (measure() && fitted) {
-        scale = fitScale();
-        offX = (viewW - imgW * scale) / 2;
-        offY = (viewH - imgH * scale) / 2;
+      const bw = Math.max(1, Math.round(viewW * dpr));
+      const bh = Math.max(1, Math.round(viewH * dpr));
+      if (canvas.width !== bw || canvas.height !== bh) {
+        canvas.width = bw;   // also clears
+        canvas.height = bh;
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
