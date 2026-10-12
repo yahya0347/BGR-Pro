@@ -142,7 +142,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
 <title>Free Watermark Maker Online | EraserPro</title>
 <meta name="description" content="Protect and brand your photos with a custom text or logo watermark. Adjust position, size, and opacity, then download — free to start."/>
 <meta name="keywords" content="watermark maker, add watermark to photo, create watermark online, logo watermark tool"/>
@@ -758,6 +758,9 @@
 <div class="absolute inset-0 flex items-center justify-center p-xl">
 <div class="relative overflow-visible w-[80%] h-[80%] max-w-[80%] max-h-[80%]">
 <div class="canvas-box" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+    <!-- The one editor canvas, shared by all three tools. It is always exactly
+         the size of .canvas-box; canvas-viewport.js draws the image into it. -->
+    <canvas id="editorCanvas" class="editor-canvas"></canvas>
     <!-- Loading Overlay -->
     <div class="loading-overlay hidden" id="processingOverlay">
       <div class="spinner-box"><div class="double-spinner"></div></div>
@@ -793,33 +796,6 @@
       </div>
     </div>
 
-    <!-- BG REMOVER VIEW (default active, matches state.activeTab default) -->
-    <div class="workspace-view active" id="view-bg-remover">
-        <div class="preview-container">
-            <div class="preview-image-wrapper" id="bgRemoverResultContainer">
-                <canvas id="bgRemoverCanvas" class="checkerboard-bg"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- WATERMARK REMOVER VIEW -->
-    <div class="workspace-view" id="view-wm-remover">
-        <div class="editor-canvas-wrapper">
-            <div class="canvas-bg-pattern">
-                <div class="canvas-layers">
-                    <canvas id="wmRemoverBaseCanvas" class="checkerboard-bg"></canvas>
-                    <canvas id="wmRemoverBrushCanvas" style="position: absolute; top: 0; left: 0; z-index: 10;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- WATERMARK MAKER VIEW -->
-    <div class="workspace-view" id="view-wm-maker">
-        <div class="editor-canvas-wrapper">
-            <canvas id="wmMakerCanvas" class="checkerboard-bg"></canvas>
-        </div>
-    </div>
 </div>
 </div>
 </div>
@@ -851,7 +827,7 @@
 <div class="absolute bottom-lg left-md z-40 flex items-center gap-3">
 <div class="bg-surface-container-lowest/75 backdrop-blur-xl border border-outline-variant/60 rounded-full px-3 py-2 flex items-center gap-3 shadow-[0_4px_16px_rgba(24,19,31,0.08)] h-10">
 <button id="zoomOutBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">remove</span></button>
-<span id="zoomLevelVal" class="zoom-level font-mono-label text-mono-label">100%</span>
+<span id="zoomLevelVal" class="zoom-level font-mono-label text-mono-label" role="button" tabindex="0" title="Fit to screen">100%</span>
 <button id="zoomInBtn" class="zoom-btn"><span class="material-symbols-outlined text-[16px]">add</span></button>
 <span id="canvasDimensionsVal" class="zoom-dimensions font-mono-label text-mono-label"></span>
 </div>
@@ -1062,7 +1038,7 @@
 </div>
 </dialog>
 
-<script type="module" src="app.js?v=46"></script>
+<script type="module" src="app.js?v=47"></script>
 <script type="module">
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.landing-tab-btn[data-landing-tab="wm-maker"]')?.click();
@@ -1100,12 +1076,10 @@ document.addEventListener('DOMContentLoaded', () => {
   <div id="pdfDropZone"><div class="browse-link"></div></div>
   <div id="btnExecutePdfTool"></div>
   <div id="pdfSplitEndPage"></div>
-  <div id="panToggleBtn"></div>
   <div id="landingHeroGraphic"></div>
   <div id="wmModeSwitcher"></div>
   <div id="btnBackToPdfHub"></div>
   <div id="pdfCompressModeGroup"></div>
-  <div id="zoomFitBtn"></div>
   <div id="pdfPageModal"></div>
   <div id="heroGraphicBadge"></div>
   <div id="pdfSplitRangePanel"></div>

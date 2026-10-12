@@ -725,6 +725,28 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
+/* The one editor canvas. It always fills .canvas-box exactly; the image is
+   drawn into it by canvas-viewport.js, which owns fit, zoom and pan. Never
+   size or transform this element to fit the image -- that is what made the
+   old per-tool canvases render too small. touch-action:none hands pinch and
+   drag to the canvas instead of the browser's page zoom / scroll /
+   pull-to-refresh; the rest of the page still scrolls normally. */
+.editor-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.zoom-level[role="button"] {
+  cursor: pointer;
+}
+
 /* Canvas transparent pattern background */
 .checkerboard-bg {
   background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
@@ -734,39 +756,6 @@ h1, h2, h3, h4, h5, h6 {
   background-size: 20px 20px !important;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
   background-color: transparent !important;
-}
-
-/* Wraps the Watermark Remover canvas layers -- a pure layout wrapper that
-   centers/clips .canvas-layers within .editor-canvas-wrapper. The
-   checkerboard transparency pattern itself lives directly on
-   #wmRemoverBaseCanvas (.checkerboard-bg, same as #bgRemoverCanvas/
-   #wmMakerCanvas), since that's the element actually sized to the image
-   and given the zoom transform -- this wrapper is neither (it stays
-   100%/100% of the viewport and is never transformed), so painting the
-   checkerboard here instead made it span the whole work area and go out
-   of sync with the actual (zoomed) canvas bounds. */
-.canvas-bg-pattern {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.workspace-view {
-  display: none;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.workspace-view.active {
-  display: flex;
 }
 
 /* Loading status screen */
@@ -951,50 +940,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* --- View 1: BG Remover Slider --- */
-/* --- View 1: BG Remover Preview Layout --- */
-.preview-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  user-select: none;
-}
-
-.preview-image-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
-  transition: opacity 0.2s ease;
-}
-
-.preview-image-wrapper img {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-}
-
-.preview-image-wrapper .canvas-bg-pattern {
-  display: inline-block;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-#bgRemoverCanvas {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
 /* Tabs to switch between Original and Removed Background */
 .view-toggle-tabs {
   position: absolute;
@@ -1042,44 +987,6 @@ h1, h2, h3, h4, h5, h6 {
   transform: none;
   margin-bottom: 8px;
   box-shadow: none;
-}
-
-/* --- View 2 & 3: Canvas Layers for Watermark tool --- */
-.editor-canvas-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  position: relative;
-}
-
-.canvas-layers {
-  position: relative;
-  display: inline-block;
-  flex-shrink: 0;
-  transform-origin: center center;
-}
-
-/* Align canvases exactly */
-#wmRemoverBaseCanvas {
-  display: block;
-  z-index: 1;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-#wmRemoverBrushCanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  cursor: crosshair;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 /* Floating Eraser Panel docked on the LEFT */
@@ -1291,17 +1198,6 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: 8px;
   width: 100%;
-}
-
-/* Watermark Maker Canvas — sizing is driven by state.zoom/applyZoomPan (see
-   fitWMMakerCanvasToView in app.js), same as Background Eraser's canvas.
-   max-width/max-height:100% here is just a safety cap relative to its own
-   flex parent (.editor-canvas-wrapper), not an independent vh-based fit, so
-   it doesn't fight the JS-computed zoom. */
-#wmMakerCanvas {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 /* ==========================================================================
@@ -2270,19 +2166,6 @@ dialog::backdrop {
     justify-content: center !important;
   }
   
-  .workspace-view {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
-  .workspace-view.active {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    box-sizing: border-box !important;
-  }
-  
   .canvas-box {
     width: 100% !important;
     height: 50vh !important;
@@ -2294,38 +2177,6 @@ dialog::backdrop {
     justify-content: center !important;
     overflow: hidden !important;
     border-radius: var(--border-radius-md) !important;
-  }
-  
-  /* Watermark eraser workspace view — flex column to fit canvas + toolbar */
-  #view-wm-remover.workspace-view.active {
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    overflow: hidden !important;
-    height: 100% !important;
-  }
-  
-  /* Editor canvas wrapper — shrinks to leave room for brush bar */
-  .editor-canvas-wrapper {
-    flex: 1 !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    width: 100% !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0 !important;
-    position: relative !important;
-  }
-  
-  /* Canvas layers container — constrained to parent */
-  #view-wm-remover .canvas-layers {
-    max-width: 100% !important;
-    max-height: 100% !important;
-    overflow: visible !important;
   }
   
   /* Floating Eraser Panel on mobile: position/size only. This block predates
@@ -3617,12 +3468,6 @@ dialog::backdrop {
   font-size: 14px;
   min-width: 48px;
   text-align: center;
-}
-
-/* Ensure comparison images and slider handle pan & zoom transform correctly */
-.canvas-layers {
-  transform-origin: center center;
-  transition: transform 0.05s ease-out; /* Smooth panning/zooming */
 }
 
 /* ==========================================================================

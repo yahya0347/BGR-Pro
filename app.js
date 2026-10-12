@@ -14,6 +14,7 @@ import {
   doc, 
   onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { createViewport } from "./canvas-viewport.js?v=1";
 
 // Firebase Config Placeholder (User can override or set window.firebaseConfig)
 const firebaseConfig = window.firebaseConfig || {
@@ -121,11 +122,6 @@ const state = {
   activeTab: 'bg-remover',    // 'bg-remover', 'wm-remover', 'wm-maker'
   bgRemoved: false,
 
-  // Canvas zoom/pan (shared toolbar controls transform whichever tab is active)
-  zoom: 1,
-  panX: 0,
-  panY: 0,
-  panMode: false,
   history: [],
   currentHistoryId: null,
   
@@ -244,8 +240,11 @@ const elements = {
 
   // BG Remover UI
   imgBefore: document.getElementById('imgBefore'),
-  bgRemoverCanvas: document.getElementById('bgRemoverCanvas'),
-  bgRemoverResultContainer: document.getElementById('bgRemoverResultContainer'),
+  // The single visible, container-sized canvas (see canvas-viewport.js).
+  editorCanvas: document.getElementById('editorCanvas'),
+  // Full-resolution offscreen buffers. They are never in the DOM, so no CSS
+  // can resize them; the viewport draws them to editorCanvas each frame.
+  bgRemoverCanvas: document.createElement('canvas'),
   comparisonSlider: document.getElementById('comparisonSlider'),
   bgTypeBtns: document.querySelectorAll('[data-bg-type]'),
   bgColorConfig: document.getElementById('bg-color-config'),
@@ -257,8 +256,8 @@ const elements = {
   backdropPresets: document.querySelectorAll('.backdrop-preset'),
   
   // Watermark Eraser UI
-  wmRemoverBaseCanvas: document.getElementById('wmRemoverBaseCanvas'),
-  wmRemoverBrushCanvas: document.getElementById('wmRemoverBrushCanvas'),
+  wmRemoverBaseCanvas: document.createElement('canvas'),
+  wmRemoverBrushCanvas: document.createElement('canvas'),
   brushSizeSlider: document.getElementById('brushSize'),
   brushSizeVal: document.getElementById('brushSizeVal'),
   undoBrushBtn: document.getElementById('undoBrush'),
@@ -272,7 +271,7 @@ const elements = {
   btnAIDetectRemove: document.getElementById('btnAIDetectRemove'),
   
   // Watermark Maker UI
-  wmMakerCanvas: document.getElementById('wmMakerCanvas'),
+  wmMakerCanvas: document.createElement('canvas'),
   wmSourceBtns: document.querySelectorAll('[data-wm-source]'),
   wmTextConfig: document.getElementById('wm-text-config'),
   wmImageConfig: document.getElementById('wm-image-config'),
@@ -396,26 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCheckoutHandlers();
   initPdfModalHandlers();
   initPdfHubHandlers();
-  
-  // Window resize handler to maintain editor responsiveness
-  window.addEventListener('resize', () => {
-    if (state.originalImage) {
-      if (state.activeTab === 'bg-remover') {
-        renderBGRemoverCanvas();
-        fitBGRemoverCanvasToView();
-      } else if (state.activeTab === 'wm-remover') {
-        initWatermarkEraserBase();
-      } else if (state.activeTab === 'wm-maker') {
-        renderWMMakerCanvas();
-        fitWMMakerCanvasToView();
-      }
-    }
-    // Re-sync the AI processing overlay's bounding box in case its own
-    // render path above didn't already trigger applyZoomPan().
-    if (elements.aiProcessingOverlay && elements.aiProcessingOverlay.classList.contains('visible')) {
-      positionAIProcessingOverlay();
-    }
-  });
 });
 
 // Setup subscription / credit state and Auth State Changed listener
@@ -1195,12 +1174,12 @@ async function runAIBackgroundRemoval(imgSource) {
       
       // Initialize Background Remover canvas
       renderBGRemoverCanvas();
-      fitBGRemoverCanvasToView();
+      fitEditorView();
 
       // Auto-trigger layout setup for other workspaces
       initWatermarkEraserBase();
       renderWMMakerCanvas();
-      fitWMMakerCanvasToView();
+      fitEditorView();
 
       updateHistoryUI();
       hideAIProcessingOverlay();
@@ -1229,10 +1208,10 @@ async function runAIBackgroundRemoval(imgSource) {
       }
 
       renderBGRemoverCanvas();
-      fitBGRemoverCanvasToView();
+      fitEditorView();
       initWatermarkEraserBase();
       renderWMMakerCanvas();
-      fitWMMakerCanvasToView();
+      fitEditorView();
 
       updateHistoryUI();
     }
@@ -1374,10 +1353,10 @@ function applyMagicCutoutFallback(img) {
         }
 
         renderBGRemoverCanvas();
-        fitBGRemoverCanvasToView();
+        fitEditorView();
         initWatermarkEraserBase();
         renderWMMakerCanvas();
-        fitWMMakerCanvasToView();
+        fitEditorView();
         updateHistoryUI();
         resolve();
       };
@@ -1496,24 +1475,19 @@ function switchTab(tab) {
   
   // Perform initial renders or auto-triggers on tab changes
   if (tab === 'bg-remover') {
+    renderBGRemoverCanvas();
     if (!state.bgRemoved && state.originalImage) {
       // Auto-trigger background removal if it hasn't run yet, passing the current edited base image
       runAIBackgroundRemoval(state.eraserBaseImage || state.originalImage);
-    } else {
-      renderBGRemoverCanvas();
-      fitBGRemoverCanvasToView();
     }
   } else if (tab === 'wm-remover') {
-    setTimeout(() => {
-      initWatermarkEraserBase();
-      window.dispatchEvent(new Event('resize'));
-    }, 50);
+    initWatermarkEraserBase();
   } else if (tab === 'wm-maker') {
     renderWMMakerCanvas();
-    fitWMMakerCanvasToView();
   }
 
-  applyZoomPan();
+  fitEditorView();
+  viewport.refreshCursor();
   updateHistoryUI();
 }
 
@@ -1644,13 +1618,9 @@ function setViewMode(mode) {
   const originalWrapper = document.getElementById('previewOriginalWrapper');
   const removedWrapper = document.getElementById('bgRemoverResultContainer');
 
-  if (mode === 'original') {
-    originalWrapper.classList.remove('hidden');
-    removedWrapper.classList.add('hidden');
-  } else {
-    originalWrapper.classList.add('hidden');
-    removedWrapper.classList.remove('hidden');
-  }
+  if (!originalWrapper || !removedWrapper) return;
+  originalWrapper.classList.toggle('hidden', mode !== 'original');
+  removedWrapper.classList.toggle('hidden', mode === 'original');
 }
 
 // Render background removals overlay to final canvas preview
@@ -1666,18 +1636,6 @@ function renderBGRemoverCanvas() {
   // Set dimensions matching original image aspect ratio
   canvas.width = imgWidth;
   canvas.height = imgHeight;
-
-  // Give the canvas + its wrapper a definite native-pixel CSS size (mirrors the
-  // Watermark Remover tab's approach in initWatermarkEraserBase). Without this,
-  // the percentage width/height chain up through .preview-container/.canvas-box
-  // is ambiguous, leaving the canvas unconstrained and clipped instead of
-  // scaled/centered by the zoom transform in applyZoomPan().
-  canvas.style.width = `${imgWidth}px`;
-  canvas.style.height = `${imgHeight}px`;
-  if (elements.bgRemoverResultContainer) {
-    elements.bgRemoverResultContainer.style.width = `${imgWidth}px`;
-    elements.bgRemoverResultContainer.style.height = `${imgHeight}px`;
-  }
 
   // Step 1: Draw Background
   if (state.bgType === 'transparent') {
@@ -1731,6 +1689,7 @@ function renderBGRemoverCanvas() {
   
   // Save global processed buffer
   state.processedImage = canvas;
+  requestEditorRender();
 }
 
 /* Helper to make a panel draggable relative to its parent container */
@@ -1833,57 +1792,21 @@ function makeElementDraggable(elmnt, dragTrigger) {
    ========================================================================== */
 function initWatermarkEraserBase() {
   if (!state.eraserBaseImage) return;
-  
+
   const baseCanvas = elements.wmRemoverBaseCanvas;
-  const container = baseCanvas.closest('.canvas-box') || baseCanvas.parentElement;
-  
-  if (container) {
-    const containerRect = container.getBoundingClientRect();
-    if (containerRect.height === 0 || containerRect.width === 0) {
-      requestAnimationFrame(initWatermarkEraserBase);
-      return;
-    }
-  }
-  
   const brushCanvas = elements.wmRemoverBrushCanvas;
   const w = state.eraserBaseImage.width;
   const h = state.eraserBaseImage.height;
-  
-  // Set dimensions matching original image
+
+  // Buffers match the original image, pixel for pixel
   baseCanvas.width = w;
   baseCanvas.height = h;
   brushCanvas.width = w;
   brushCanvas.height = h;
-  
-  // Fit this canvas to the available container space (same shared formula
-  // used by Background Eraser and Watermark Maker, see computeFitZoom).
-  const screenScale = computeFitZoom(container, w, h);
 
-  // Canvas layout dimensions should be exactly the original image dimensions
-  baseCanvas.style.width = `${w}px`;
-  baseCanvas.style.height = `${h}px`;
-  brushCanvas.style.width = `${w}px`;
-  brushCanvas.style.height = `${h}px`;
-  
-  const layersDiv = baseCanvas.parentElement;
-  layersDiv.style.width = `${w}px`;
-  layersDiv.style.height = `${h}px`;
-
-  // Set default zoom to fit the screen
-  state.zoom = screenScale;
-  state.panX = 0;
-  state.panY = 0;
-  state.panMode = false;
-  const panToggleBtn = document.getElementById('panToggleBtn');
-  if (panToggleBtn) {
-    panToggleBtn.classList.remove('active');
-    elements.wmRemoverBrushCanvas.style.cursor = 'crosshair';
-  }
-  applyZoomPan();
-  
   const baseCtx = baseCanvas.getContext('2d');
   baseCtx.drawImage(state.eraserBaseImage, 0, 0);
-  
+
   // Setup Undo History initially
   if (!elements.wmRemoverMaskCanvas) {
     elements.wmRemoverMaskCanvas = document.createElement('canvas');
@@ -1891,17 +1814,13 @@ function initWatermarkEraserBase() {
   elements.wmRemoverMaskCanvas.width = w;
   elements.wmRemoverMaskCanvas.height = h;
   const maskCtx = elements.wmRemoverMaskCanvas.getContext('2d');
-  
+
   if (wmHistory.undoStack.length === 0) {
     maskCtx.fillStyle = '#000000';
     maskCtx.fillRect(0, 0, w, h);
     wmHistory.push(elements.wmRemoverMaskCanvas);
   }
-  
-  // Clear brush canvas
-  const brushCtx = brushCanvas.getContext('2d');
-  brushCtx.clearRect(0, 0, w, h);
-  
+
   // Initialize comparison image and active mode
   const compareImg = elements.wmRemoverCompareImg;
   if (compareImg && state.originalImage) {
@@ -1910,58 +1829,80 @@ function initWatermarkEraserBase() {
   setWMEraserMode(state.wmMode || 'brush');
 }
 
-// Shared "fit image to the available canvas area" formula used by all 3
-// editor tools (Background Eraser, Watermark Remover, Watermark Maker) so
-// switching tabs always lands on the same, consistent zoom level instead of
-// each tool computing its own scale. Returns a zoom multiplier such that an
-// image of imgWidth x imgHeight fills ~90% of containerEl's box (falling
-// back to a viewport-relative box if containerEl isn't measurable yet).
-function computeFitZoom(containerEl, imgWidth, imgHeight) {
-  let maxW = window.innerWidth * 0.9;
-  let maxH = window.innerHeight * 0.55 * 0.9;
-  if (containerEl) {
-    const rect = containerEl.getBoundingClientRect();
-    if (rect.width > 0) maxW = rect.width * 0.9;
-    if (rect.height > 0) maxH = rect.height * 0.9;
-  }
-
-  const scaleW = maxW / imgWidth;
-  const scaleH = maxH / imgHeight;
-  return Math.min(scaleW, scaleH);
+/* ==========================================================================
+   Editor viewport: one visible canvas shared by all three tools.
+   Zoom, pan, fit, resize and pointer -> image mapping live in
+   canvas-viewport.js; this section only says what to draw.
+   ========================================================================== */
+function activeEditorBuffer() {
+  if (state.activeTab === 'wm-remover') return elements.wmRemoverBaseCanvas;
+  if (state.activeTab === 'wm-maker') return elements.wmMakerCanvas;
+  return elements.bgRemoverCanvas;
 }
 
-// Scale + center the BG Remover canvas to fit inside the visible viewport.
-function fitBGRemoverCanvasToView() {
-  if (!state.transparentImage) return;
-
-  const canvasBox = elements.bgRemoverCanvas.closest('.canvas-box') || document.querySelector('.canvas-box');
-  state.zoom = computeFitZoom(canvasBox, state.transparentImage.width, state.transparentImage.height);
-  state.panX = 0;
-  state.panY = 0;
-  applyZoomPan();
+// Same 20px transparency checkerboard the canvases used to get from the
+// .checkerboard-bg CSS class, drawn in image space so it scales with zoom.
+let checkerPattern = null;
+function getCheckerPattern(ctx) {
+  if (!checkerPattern) {
+    const tile = document.createElement('canvas');
+    tile.width = tile.height = 20;
+    const tctx = tile.getContext('2d');
+    tctx.fillStyle = '#e2e8f0';
+    tctx.fillRect(0, 0, 10, 10);
+    tctx.fillRect(10, 10, 10, 10);
+    checkerPattern = ctx.createPattern(tile, 'repeat');
+  }
+  return checkerPattern;
 }
 
-function applyZoomPan() {
-  // The zoomable target differs per workspace tab since each view has its
-  // own DOM structure (bg-remover / wm-remover / wm-maker).
-  let target = null;
-  if (state.activeTab === 'bg-remover') {
-    target = elements.bgRemoverResultContainer;
-  } else if (state.activeTab === 'wm-remover') {
-    target = elements.wmRemoverBaseCanvas ? elements.wmRemoverBaseCanvas.parentElement : null; // .canvas-layers
-  } else if (state.activeTab === 'wm-maker') {
-    target = elements.wmMakerCanvas;
-  }
+// Called by the viewport once per frame, with the image transform applied:
+// (0,0) is the image's top-left corner and one unit is one image pixel.
+function renderEditorView(ctx) {
+  const buffer = activeEditorBuffer();
+  if (!state.originalImage || !buffer.width || !buffer.height) return;
 
-  if (target) {
-    target.style.transformOrigin = 'center center';
-    target.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-  }
+  ctx.fillStyle = getCheckerPattern(ctx);
+  ctx.fillRect(0, 0, buffer.width, buffer.height);
+  ctx.drawImage(buffer, 0, 0);
 
+  if (state.activeTab === 'wm-remover' && state.wmMode !== 'compare') {
+    ctx.drawImage(elements.wmRemoverBrushCanvas, 0, 0);
+  }
+}
+
+const viewportOptions = {
+  render: renderEditorView,
+  onChange: syncZoomUI,
+  cursor: () => (canPaintOnCanvas() ? 'crosshair' : 'grab'),
+  paint: null // set by initWMEraserHandlers
+};
+// Pages without the editor canvas get a detached one, which never renders.
+const viewport = createViewport(elements.editorCanvas || document.createElement('canvas'), viewportOptions);
+
+function canPaintOnCanvas() {
+  return state.activeTab === 'wm-remover' && state.wmMode !== 'compare' && !window.isSpacePressed;
+}
+
+// Redraw after a buffer changed. Keeps the user's zoom/pan unless the image
+// size itself changed.
+function requestEditorRender() {
+  const buffer = activeEditorBuffer();
+  viewport.setImageSize(buffer.width, buffer.height, false);
+}
+
+// Fit the active tool's image to the visible canvas area (tab switch, new
+// image, zoom-label click).
+function fitEditorView() {
+  const buffer = activeEditorBuffer();
+  viewport.setImageSize(buffer.width, buffer.height, true);
+}
+
+function syncZoomUI() {
   // Update the zoom level label
   const zoomLevelVal = document.getElementById('zoomLevelVal');
   if (zoomLevelVal) {
-    zoomLevelVal.innerText = `${Math.round(state.zoom * 100)}%`;
+    zoomLevelVal.innerText = `${Math.round(viewport.scale * 100)}%`;
   }
 
   // Update the image dimension readout ("2752 x 1536 px")
@@ -1982,58 +1923,32 @@ function applyZoomPan() {
   positionAIProcessingOverlay();
 }
 
-// Size + position the AI processing overlay to exactly match the visible
-// image's bounding box (not the whole canvas-box), so it keeps the image's
-// own aspect ratio/position through zoom, pan, and window resize.
-//
-// .canvas-layers (the Watermark Remover zoom/pan target) animates its
-// `transform` via a short CSS transition (styles.css `transition: transform
-// 0.05s ease-out`). Reading getBoundingClientRect() synchronously right
-// after applyZoomPan() writes a new transform can therefore catch a
-// pre/mid-transition box instead of the final one, and nothing else would
-// ever re-measure it afterward. So we measure immediately (for a responsive
-// feel while zoom/pan happens continuously, e.g. wheel/drag) and then
-// re-measure again once the transition has had time to settle.
-let aiOverlayResyncTimer = null;
-
+// Size + position the AI processing overlay to match the visible part of the
+// image (not the whole canvas-box), so it follows zoom, pan, and resize.
 function positionAIProcessingOverlay() {
   const el = elements.aiProcessingOverlay;
   if (!el) return;
 
-  const canvasBox = el.parentElement;
-  if (!canvasBox) return;
+  const rect = viewport.imageRect();
+  const view = viewport.viewSize();
+  const left = Math.max(0, rect.left);
+  const top = Math.max(0, rect.top);
+  const right = Math.min(view.width, rect.left + rect.width);
+  const bottom = Math.min(view.height, rect.top + rect.height);
 
-  const applyMeasuredRect = () => {
-    let target = null;
-    if (state.activeTab === 'bg-remover') {
-      target = elements.bgRemoverResultContainer;
-    } else if (state.activeTab === 'wm-remover') {
-      target = elements.wmRemoverBaseCanvas ? elements.wmRemoverBaseCanvas.parentElement : null;
-    } else if (state.activeTab === 'wm-maker') {
-      target = elements.wmMakerCanvas;
-    }
-
-    const targetRect = target ? target.getBoundingClientRect() : null;
-
-    if (targetRect && targetRect.width > 0 && targetRect.height > 0) {
-      const boxRect = canvasBox.getBoundingClientRect();
-      el.style.left = `${targetRect.left - boxRect.left}px`;
-      el.style.top = `${targetRect.top - boxRect.top}px`;
-      el.style.width = `${targetRect.width}px`;
-      el.style.height = `${targetRect.height}px`;
-    } else {
-      // Image not measurable yet (not rendered) — fall back to filling the canvas box
-      el.style.left = '0';
-      el.style.top = '0';
-      el.style.width = '100%';
-      el.style.height = '100%';
-    }
-  };
-
-  applyMeasuredRect();
-
-  clearTimeout(aiOverlayResyncTimer);
-  aiOverlayResyncTimer = setTimeout(applyMeasuredRect, 140);
+  if (state.originalImage && right > left && bottom > top) {
+    const canvas = elements.editorCanvas;
+    el.style.left = `${canvas.offsetLeft + left}px`;
+    el.style.top = `${canvas.offsetTop + top}px`;
+    el.style.width = `${right - left}px`;
+    el.style.height = `${bottom - top}px`;
+  } else {
+    // Image not measurable yet (not rendered) — fall back to filling the canvas box
+    el.style.left = '0';
+    el.style.top = '0';
+    el.style.width = '100%';
+    el.style.height = '100%';
+  }
 }
 
 function initWMEraserHandlers() {
@@ -2051,6 +1966,7 @@ function initWMEraserHandlers() {
     state.brushStrokes = [];
     state.appliedStrokes = [];
     brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
+    requestEditorRender();
     
     // Reset back to brush mode
     setWMEraserMode('brush');
@@ -2152,300 +2068,120 @@ function initWMEraserHandlers() {
     }
   });
   
-  // Brushing Mouse/Touch Listeners
-  const getCoordinates = (e) => {
-    const rect = brushCanvas.getBoundingClientRect();
-    const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : (e.clientX !== undefined ? e.clientX : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0].clientX : 0));
-    const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : (e.clientY !== undefined ? e.clientY : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0].clientY : 0));
-    
-    // Scale matching the display aspect ratio relative to absolute canvas resolution
-    const x = ((clientX - rect.left) / rect.width) * brushCanvas.width;
-    const y = ((clientY - rect.top) / rect.height) * brushCanvas.height;
-    
-    return { x, y };
+  // Brush strokes. Points are stored in image pixels, so a stroke lands in
+  // the same place on the image at any zoom or pan (the viewport converts
+  // each pointer event through the inverse of its transform).
+  const BRUSH_COLOR = 'rgba(239, 68, 68, 0.45)'; // Semi-transparent Red Highlight
+
+  // The slider value is the brush diameter on screen; divide by the zoom to
+  // get image pixels. A pen that reports real pressure scales it from 0.4x
+  // (lightest) to 1.6x (hardest); mouse, touch and pressure-less pens report
+  // 0.5 or 0 and get exactly the slider size.
+  const brushSizeFor = (e) => {
+    const pressure = e.pointerType === 'pen' && e.pressure > 0 ? 0.4 + 1.2 * e.pressure : 1;
+    return (state.brushSize / viewport.scale) * pressure;
   };
-  
-  const getCanvasBrushSize = () => {
-    const rect = brushCanvas.getBoundingClientRect();
-    if (!rect.width) return state.brushSize;
-    // Scale brush size relative to display vs absolute canvas resolution
-    return state.brushSize * (brushCanvas.width / rect.width);
-  };
-  
-  let currentStroke = [];
-  
-  const startDrawing = (e) => {
-    if (state.wmMode === 'compare') return;
-    if (state.panMode || window.isSpacePressed || e.button === 1 || e.button === 2 || (e.touches && e.touches.length > 1)) return;
-    state.isDrawing = true;
-    const { x, y } = getCoordinates(e);
-    const canvasBrushSize = getCanvasBrushSize();
-    
+
+  const drawDot = (p) => {
     brushCtx.beginPath();
-    brushCtx.arc(x, y, canvasBrushSize / 2, 0, Math.PI * 2);
-    brushCtx.fillStyle = 'rgba(239, 68, 68, 0.45)'; // Semi-transparent Red Highlight
+    brushCtx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    brushCtx.fillStyle = BRUSH_COLOR;
     brushCtx.fill();
-    
-    currentStroke = [{ x, y, size: canvasBrushSize }];
-    
+  };
+
+  const drawSegment = (from, to) => {
     brushCtx.beginPath();
-    brushCtx.moveTo(x, y);
+    brushCtx.moveTo(from.x, from.y);
+    brushCtx.lineTo(to.x, to.y);
+    brushCtx.strokeStyle = BRUSH_COLOR;
+    brushCtx.lineWidth = to.size;
+    brushCtx.lineCap = 'round';
+    brushCtx.lineJoin = 'round';
+    brushCtx.stroke();
   };
-  
-  const draw = (e) => {
-    if (state.wmMode === 'compare') return;
-    if (!state.isDrawing) return;
-    e.preventDefault();
-    const { x, y } = getCoordinates(e);
-    const canvasBrushSize = getCanvasBrushSize();
-    
-    if (currentStroke.length > 0) {
-      const lastPoint = currentStroke[currentStroke.length - 1];
-      brushCtx.beginPath();
-      brushCtx.moveTo(lastPoint.x, lastPoint.y);
-      brushCtx.lineTo(x, y);
-      brushCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
-      brushCtx.lineWidth = canvasBrushSize;
-      brushCtx.lineCap = 'round';
-      brushCtx.lineJoin = 'round';
-      brushCtx.stroke();
-    }
-    
-    currentStroke.push({ x, y, size: canvasBrushSize });
-  };
-  
-  const stopDrawing = () => {
-    if (state.isDrawing) {
-      state.isDrawing = false;
-      if (currentStroke.length > 0) {
-        state.brushStrokes.push(currentStroke);
-        currentStroke = [];
-        wmHistory.updateButtons();
-      }
-    }
-  };
-  
+
+  let currentStroke = [];
+
   const redrawBrushCanvas = () => {
     brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
     state.brushStrokes.forEach(stroke => {
       if (stroke.length === 0) return;
-      
-      const first = stroke[0];
-      brushCtx.beginPath();
-      brushCtx.arc(first.x, first.y, first.size / 2, 0, Math.PI * 2);
-      brushCtx.fillStyle = 'rgba(239, 68, 68, 0.45)';
-      brushCtx.fill();
-      
-      if (stroke.length > 1) {
-        brushCtx.beginPath();
-        brushCtx.moveTo(first.x, first.y);
-        for (let i = 1; i < stroke.length; i++) {
-          brushCtx.lineTo(stroke[i].x, stroke[i].y);
-        }
-        brushCtx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
-        brushCtx.lineWidth = first.size;
-        brushCtx.lineCap = 'round';
-        brushCtx.lineJoin = 'round';
-        brushCtx.stroke();
+      drawDot(stroke[0]);
+      for (let i = 1; i < stroke.length; i++) {
+        drawSegment(stroke[i - 1], stroke[i]);
       }
     });
+    requestEditorRender();
   };
-  
-  brushCanvas.addEventListener('mousedown', startDrawing);
-  brushCanvas.addEventListener('mousemove', draw);
-  window.addEventListener('mouseup', stopDrawing);
-  
-  brushCanvas.addEventListener('touchstart', startDrawing);
-  brushCanvas.addEventListener('touchmove', draw);
-  window.addEventListener('touchend', stopDrawing);
 
-  // Initialize Zoom & Pan Handlers
+  viewportOptions.paint = {
+    // Left mouse button, a finger, or a pen paints; anything else pans.
+    canStart: (e) => canPaintOnCanvas() && (e.pointerType !== 'mouse' || e.button === 0),
+
+    start(point, e) {
+      state.isDrawing = true;
+      currentStroke = [{ x: point.x, y: point.y, size: brushSizeFor(e) }];
+      drawDot(currentStroke[0]);
+      requestEditorRender();
+    },
+
+    move(point, e) {
+      if (!state.isDrawing) return;
+      const next = { x: point.x, y: point.y, size: brushSizeFor(e) };
+      drawSegment(currentStroke[currentStroke.length - 1], next);
+      currentStroke.push(next);
+      requestEditorRender();
+    },
+
+    // cancelled = the touch turned into a pinch, or the browser took it over.
+    end(cancelled) {
+      if (!state.isDrawing) return;
+      state.isDrawing = false;
+      const stroke = currentStroke;
+      currentStroke = [];
+      if (cancelled) {
+        redrawBrushCanvas();
+      } else if (stroke.length > 0) {
+        state.brushStrokes.push(stroke);
+        wmHistory.updateButtons();
+      }
+    }
+  };
+
+  // Zoom controls (shared by all three tools). Buttons zoom about the centre
+  // of the view; tapping the percentage readout fits the image again.
   const zoomInBtn = document.getElementById('zoomInBtn');
   const zoomOutBtn = document.getElementById('zoomOutBtn');
-  const zoomFitBtn = document.getElementById('zoomFitBtn');
-  const panToggleBtn = document.getElementById('panToggleBtn');
-  const canvasBox = brushCanvas.closest('.canvas-box');
-  
-  if (zoomInBtn && zoomOutBtn && zoomFitBtn && panToggleBtn) {
-    zoomInBtn.addEventListener('click', () => {
-      state.zoom = Math.min(5.0, state.zoom + 0.15);
-      applyZoomPan();
-    });
-    
-    zoomOutBtn.addEventListener('click', () => {
-      state.zoom = Math.max(0.2, state.zoom - 0.15);
-      applyZoomPan();
-    });
-    
-    zoomFitBtn.addEventListener('click', () => {
-      let maxW = window.innerWidth * 0.9;
-      let maxH = window.innerHeight * 0.55 * 0.9;
-      if (canvasBox) {
-        const rect = canvasBox.getBoundingClientRect();
-        if (rect.width > 0) maxW = rect.width * 0.9;
-        if (rect.height > 0) maxH = rect.height * 0.9;
-      }
-      const scaleW = maxW / state.eraserBaseImage.width;
-      const scaleH = maxH / state.eraserBaseImage.height;
-      state.zoom = Math.min(scaleW, scaleH);
-      state.panX = 0;
-      state.panY = 0;
-      applyZoomPan();
-    });
-    
-    panToggleBtn.addEventListener('click', () => {
-      state.panMode = !state.panMode;
-      panToggleBtn.classList.toggle('active', state.panMode);
-      if (state.panMode) {
-        brushCanvas.style.cursor = 'grab';
-      } else {
-        brushCanvas.style.cursor = 'crosshair';
-      }
-    });
-  }
+  const zoomLevelVal = document.getElementById('zoomLevelVal');
+  if (zoomInBtn) zoomInBtn.addEventListener('click', () => viewport.zoomAt(1.25));
+  if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => viewport.zoomAt(0.8));
+  if (zoomLevelVal) zoomLevelVal.addEventListener('click', () => fitEditorView());
 
-  // Wheel Zoom (Mouse scroll zoom)
-  if (canvasBox) {
-    canvasBox.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const zoomFactor = 0.05;
-      if (e.deltaY < 0) {
-        state.zoom = Math.min(5.0, state.zoom + zoomFactor);
-      } else {
-        state.zoom = Math.max(0.2, state.zoom - zoomFactor);
-      }
-      applyZoomPan();
-    }, { passive: false });
-  }
-
-  // Drag Pan Mechanics
-  let isPanning = false;
-  let startPanX = 0;
-  let startPanY = 0;
-  
-  const startPan = (clientX, clientY) => {
-    isPanning = true;
-    startPanX = clientX - state.panX;
-    startPanY = clientY - state.panY;
-    if (state.panMode) {
-      brushCanvas.style.cursor = 'grabbing';
-    }
-  };
-  
-  const movePan = (clientX, clientY) => {
-    if (!isPanning) return;
-    state.panX = clientX - startPanX;
-    state.panY = clientY - startPanY;
-    applyZoomPan();
-  };
-  
-  const endPan = () => {
-    if (isPanning) {
-      isPanning = false;
-      if (state.panMode) {
-        brushCanvas.style.cursor = 'grab';
-      } else if (window.isSpacePressed) {
-        brushCanvas.style.cursor = 'grab';
-      } else {
-        brushCanvas.style.cursor = 'crosshair';
-      }
-    }
-  };
-  
-  // Hook up panning drag handlers
-  brushCanvas.addEventListener('mousedown', (e) => {
-    const isSpacePressed = window.isSpacePressed;
-    const isMiddleOrRightClick = e.button === 1 || e.button === 2;
-    if (state.panMode || isSpacePressed || isMiddleOrRightClick) {
-      e.preventDefault();
-      startPan(e.clientX, e.clientY);
-    }
-  });
-  
-  window.addEventListener('mousemove', (e) => {
-    if (isPanning) {
-      e.preventDefault();
-      movePan(e.clientX, e.clientY);
-    }
-  });
-  
-  window.addEventListener('mouseup', endPan);
-  
-  // Touch Panning & Pinch-to-Zoom
-  let touchStartDist = 0;
-  let touchStartZoom = 1.0;
-  let isPinching = false;
-  
-  brushCanvas.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) {
-      isPinching = true;
-      e.preventDefault();
-      touchStartDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      touchStartZoom = state.zoom;
-      
-      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      startPan(midX, midY);
-    } else if (e.touches.length === 1 && state.panMode) {
-      e.preventDefault();
-      startPan(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  });
-  
-  brushCanvas.addEventListener('touchmove', (e) => {
-    if (isPinching && e.touches.length === 2) {
-      e.preventDefault();
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      const factor = dist / touchStartDist;
-      state.zoom = Math.max(0.2, Math.min(5.0, touchStartZoom * factor));
-      
-      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      movePan(midX, midY);
-    } else if (isPanning && e.touches.length === 1 && state.panMode) {
-      e.preventDefault();
-      movePan(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: false });
-  
-  brushCanvas.addEventListener('touchend', (e) => {
-    if (isPinching) isPinching = false;
-    endPan();
-  });
-
-  // Track spacebar globally
+  // Hold Space to pan with the mouse while the brush tool is active
   if (!window.hasSpaceListeners) {
     window.hasSpaceListeners = true;
     window.isSpacePressed = false;
-    
+
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
         if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
           window.isSpacePressed = true;
           if (state.activeTab === 'wm-remover') {
             e.preventDefault();
-            brushCanvas.style.cursor = 'grab';
           }
+          viewport.refreshCursor();
         }
       }
     });
-    
+
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space') {
         window.isSpacePressed = false;
-        if (state.activeTab === 'wm-remover') {
-          brushCanvas.style.cursor = state.panMode ? 'grab' : 'crosshair';
-        }
+        viewport.refreshCursor();
       }
     });
   }
-  
+
   // Inpaint trigger event
   elements.btnEraseWatermark.addEventListener('click', () => {
     runWatermarkInpaint();
@@ -2506,6 +2242,7 @@ function runWatermarkInpaint(isUndoOrRedo = false) {
     }
     state.brushStrokes = [];
     brushCtx.clearRect(0, 0, w, h);
+    requestEditorRender();
   }
   
   // Build the original image + mask as data URIs
@@ -2652,6 +2389,8 @@ function _runOpenCvFallback(originalCanvas, baseCanvas, isUndoOrRedo) {
 
 // ── Shared post-inpaint handler ───────────────────────────────────────
 function _handleInpaintResult(baseCanvas, isUndoOrRedo) {
+  requestEditorRender();
+
   // Push mask state to history (only on new erase, not undo/redo)
   if (!isUndoOrRedo) {
     wmHistory.push(elements.wmRemoverMaskCanvas);
@@ -2720,6 +2459,8 @@ function setWMEraserMode(mode) {
     if (slider) slider.style.display = 'none';
     if (brushCanvas) brushCanvas.style.display = 'block';
   }
+  viewport.refreshCursor();
+  requestEditorRender();
 }
 
 function updateSliderPosition(percent) {
@@ -3150,17 +2891,6 @@ function renderWMMakerCanvas() {
   canvas.width = w;
   canvas.height = h;
 
-  // Layout box = the image's natural pixel size (explicit px, not a %
-  // max-height, to avoid relying on this canvas's flex ancestors having a
-  // definite height -- same technique Watermark Remover already uses for
-  // its base/brush canvases). Visual fit/zoom is then purely a
-  // transform:scale(state.zoom) on top, applied by applyZoomPan(); see
-  // fitWMMakerCanvasToView() for the "fit to container" step, called on tab
-  // switch / initial load / resize -- not on every render, so live edits
-  // (text, opacity, position, etc.) don't reset the user's current zoom/pan.
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${h}px`;
-
   // Draw base image contents (BG removal layout output)
   if (state.processedImage) {
     ctx.drawImage(state.processedImage, 0, 0);
@@ -3238,23 +2968,7 @@ function renderWMMakerCanvas() {
   }
   
   ctx.restore();
-}
-
-// Scale + center the Watermark Maker canvas to fit inside the visible
-// viewport. Mirrors fitBGRemoverCanvasToView so all 3 editor tools land on
-// the same, consistent zoom level on tab switch / initial load / resize.
-function fitWMMakerCanvasToView() {
-  if (!state.transparentImage) return;
-
-  const canvas = elements.wmMakerCanvas;
-  const w = state.processedImage ? state.processedImage.width : state.transparentImage.width;
-  const h = state.processedImage ? state.processedImage.height : state.transparentImage.height;
-
-  const container = canvas.closest('.canvas-box') || canvas.parentElement;
-  state.zoom = computeFitZoom(container, w, h);
-  state.panX = 0;
-  state.panY = 0;
-  applyZoomPan();
+  requestEditorRender();
 }
 
 // Calculate absolute position mapping helper for Single Watermarks
