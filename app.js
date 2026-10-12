@@ -225,7 +225,6 @@ const elements = {
   
   // Tab panels
   tabBtns: document.querySelectorAll('.tab-btn'),
-  workspaceViews: document.querySelectorAll('.workspace-view'),
   configSections: document.querySelectorAll('.sidebar-config-section'),
   
   // Loading Overlay
@@ -1064,6 +1063,7 @@ function processUploadedImage(img) {
   // Default fallbacks
   state.transparentImage = img;
   state.eraserBaseImage = img;
+  state.processedImage = null; // previous image's composite must not leak into Watermark Maker
   state.bgRemoved = false;
   state.aiDetectionRun = false;
   state.brushStrokes = [];
@@ -1455,15 +1455,6 @@ function switchTab(tab) {
     }
   });
 
-  // Toggle workspace canvases
-  elements.workspaceViews.forEach(view => {
-    if (view.id === `view-${tab}`) {
-      view.classList.add('active');
-    } else {
-      view.classList.remove('active');
-    }
-  });
-  
   // Toggle Config Settings on the right
   elements.configSections.forEach(section => {
     if (section.id === `config-${tab}`) {
@@ -3399,6 +3390,7 @@ function loadHistoryItem(id) {
   state.originalImage = item.originalImage;
   state.transparentImage = item.transparentImage;
   state.eraserBaseImage = item.eraserBaseImage;
+  state.processedImage = null;
   state.bgRemoved = item.bgRemoved;
   state.originalFilename = item.filename;
   state.originalAspectRatio = item.aspectRatio;
