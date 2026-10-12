@@ -123,8 +123,7 @@ function initSmartPngDefault() {
   if (!exportFormat) return;
 
   exportFormat.addEventListener('change', () => {
-    const bgRemoverView = document.getElementById('view-bg-remover');
-    const isTransparentResult = !!(bgRemoverView && bgRemoverView.classList.contains('active'));
+    const isTransparentResult = !!document.querySelector('.tab-btn.active[data-tab="bg-remover"]');
     if (isTransparentResult && exportFormat.value === 'jpg') {
       exportFormat.value = 'png';
     }
@@ -166,6 +165,7 @@ function initWMRemoverModeToggle() {
 // `.is-panel-collapsed` on the active panel.
 const LEFT_PANEL_OPEN_DELAY = 120;   // ms hover intent before expanding
 const LEFT_PANEL_CLOSE_DELAY = 480;  // ms grace period before collapsing
+const TOUCH_MOUSE_GUARD = 800;      // ms after a touch during which emulated mouse events are ignored
 
 function initLeftPanelHoverCollapse() {
   const panelIds = ['config-bg-remover', 'config-wm-remover', 'config-wm-maker'];
@@ -179,13 +179,41 @@ function initLeftPanelHoverCollapse() {
     let openTimer = null;
     let closeTimer = null;
 
+    // Touch and pen have no hover: tapping the panel header toggles it, and
+    // touching the canvas (below) collapses it out of the way. Browsers also
+    // fire emulated mouseenter/mouseleave after a tap, which would undo the
+    // toggle, so mouse events arriving right after a touch are ignored.
+    let lastTouch = 0;
+    const header = panel.querySelector('.panel-drag-handle');
+    panel.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') lastTouch = Date.now();
+    }, true);
+    if (header) {
+      header.addEventListener('click', () => {
+        if (Date.now() - lastTouch < TOUCH_MOUSE_GUARD) panel.classList.toggle('is-panel-collapsed');
+      });
+    }
+
     panel.addEventListener('mouseenter', () => {
+      if (Date.now() - lastTouch < TOUCH_MOUSE_GUARD) return;
       if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
       openTimer = setTimeout(() => panel.classList.remove('is-panel-collapsed'), LEFT_PANEL_OPEN_DELAY);
     });
     panel.addEventListener('mouseleave', () => {
+      if (Date.now() - lastTouch < TOUCH_MOUSE_GUARD) return;
       if (openTimer) { clearTimeout(openTimer); openTimer = null; }
       closeTimer = setTimeout(() => panel.classList.add('is-panel-collapsed'), LEFT_PANEL_CLOSE_DELAY);
     });
   });
+
+  const canvas = document.getElementById('editorCanvas');
+  if (canvas) {
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      panelIds.forEach(id => {
+        const panel = document.getElementById(id);
+        if (panel) panel.classList.add('is-panel-collapsed');
+      });
+    });
+  }
 }

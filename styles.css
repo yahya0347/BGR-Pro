@@ -1898,7 +1898,7 @@ dialog::backdrop {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   /* Global mobile body constraints to prevent horizontal overflow */
   body {
     overflow-x: hidden !important;
@@ -2571,7 +2571,7 @@ dialog::backdrop {
 }
 
 /* Responsive Ads & Landing Tabs Behavior */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .ads-horizontal {
     height: 60px;
     max-width: 100%;
@@ -3159,7 +3159,7 @@ dialog::backdrop {
   font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .faq-section {
     margin: 40px auto 20px auto;
   }
@@ -4273,3 +4273,61 @@ body.mobile-drawer-locked { overflow: hidden; }
 }
 
 
+
+/* ==========================================================================
+   Tablet + touch
+   Width tiers: phone <= 767px, tablet/desktop >= 768px. (The older phone
+   blocks above used "<= 768px", which gave a 768px-wide iPad half of the
+   phone layout; they now stop at 767px like the rest.)
+   Touch is detected by capability -- (pointer: coarse) / (hover: none) --
+   never by user agent: iPadOS Safari reports itself as a desktop Mac.
+   Layout only; no colours or visual design change here.
+   ========================================================================== */
+
+/* Narrow tablet (iPad portrait): the desktop header fits on one line. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  nav.fixed .nav-brand-group { gap: 16px; }
+  nav.fixed .nav-links-desktop { gap: 4px; }
+  nav.fixed a,
+  nav.fixed button,
+  nav.fixed #subStatusBadge { white-space: nowrap; flex-shrink: 0; }
+  /* The zoom pill would run into the centred tool switcher; drop the
+     "6000x4000 px" readout here, as the phone layout already does. */
+  .zoom-dimensions { display: none; }
+}
+
+/* Finger / stylus: every tap target is at least 44x44 CSS px. */
+@media (pointer: coarse) {
+  nav.fixed a,
+  nav.fixed button,
+  #editorWorkspace button,
+  #editorWorkspace select,
+  #editorWorkspace [role="button"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  nav.fixed a,
+  #editorWorkspace [role="button"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* The zoom pill has a fixed 40px height; let it grow around 44px buttons. */
+  #editorWorkspace .absolute.bottom-lg.left-md > div { height: auto; }
+
+  /* Sliders: same 16px dot, 44px grab area (transparent border). */
+  .range-slider::-webkit-slider-thumb {
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    border: 14px solid transparent;
+    background-clip: padding-box;
+  }
+  .range-slider::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    border: 14px solid transparent;
+    background-clip: padding-box;
+  }
+}
