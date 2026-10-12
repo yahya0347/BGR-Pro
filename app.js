@@ -1977,9 +1977,15 @@ function initWMEraserHandlers() {
         item.transparentImage = state.eraserBaseImage;
       }
       
-      // Reset undo history stacks
+      // Reset the mask to "nothing erased" and restart the undo history from it
       wmHistory.clear();
-      wmHistory.push([]); // Push empty appliedStrokes as the initial state
+      const maskCanvas = elements.wmRemoverMaskCanvas;
+      if (maskCanvas) {
+        const maskCtx = maskCanvas.getContext('2d');
+        maskCtx.fillStyle = '#000000';
+        maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+        wmHistory.push(maskCanvas);
+      }
       
       // Re-render and update UI
       renderBGRemoverCanvas();
