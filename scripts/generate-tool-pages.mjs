@@ -30,10 +30,10 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { SITE, OG_IMAGE } from './site.config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const SITE = 'https://bgr-pro.vercel.app';
 const SOURCE = readFileSync(join(ROOT, 'index.html'), 'utf8');
 
 const esc = (s) =>
@@ -201,6 +201,7 @@ function headSeo(tool) {
     `<meta property="og:title" content="${esc(tool.title)}"/>`,
     `<meta property="og:description" content="${esc(tool.description)}"/>`,
     `<meta property="og:url" content="${url}"/>`,
+    `<meta property="og:image" content="${OG_IMAGE}"/>`,
     `<script type="application/ld+json">${JSON.stringify(howto)}</script>`,
     `<script type="application/ld+json">${JSON.stringify(faq)}</script>`,
   ].join('\n');
@@ -286,7 +287,7 @@ ${tool.benefits.length ? `<div class="w-full">
 </section>
 <footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
 <a href="/index.html" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
-<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved.</div>
+<div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved. · Made by M.Y.A Studio</div>
 <div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/index.html">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/index.html#pdfHub">PDF Hub</a></div>
 </footer>`;
 }
@@ -312,6 +313,14 @@ function renderPage(tool) {
   //    FAQPage schema block (10 general Q&As -- not specific to this page)
   //    with this tool's own head SEO block in one shot.
   html = html.replace(/<title>[^<]*<\/title>/, ''); // dropped; headSeo() re-adds it
+  // index.html's own description/canonical/Open Graph tags describe the
+  // homepage. Left in, every tool page would carry a second canonical
+  // pointing at "/" -- so they must go, and must be found.
+  const homeHeadRe = /<meta name="description"[^>]*\/>\n<link rel="canonical"[^>]*\/>\n(?:<meta property="og:[a-z]+"[^>]*\/>\n)+/;
+  if (!homeHeadRe.test(html)) {
+    throw new Error(`${tool.slug}: homepage description/canonical/og block not found (index.html <head> changed?)`);
+  }
+  html = html.replace(homeHeadRe, '');
   const faqScriptRe = /\s*<!-- FAQ structured data \(all 10 Q&As\) for SEO rich results -->\s*<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/;
   if (!faqScriptRe.test(html)) {
     throw new Error(`${tool.slug}: sitewide FAQPage schema block not found (index.html structure changed?)`);
@@ -377,6 +386,9 @@ function renderPage(tool) {
   if (!appScriptTag.test(html)) throw new Error(`${tool.slug}: app.js script tag not found`);
   html = html.replace(appScriptTag, (m) => `${m}\n${bootstrapScript(tool)}`);
 
+  for (const tag of ['<link rel="canonical"', '<meta property="og:url"', '<meta name="description"']) {
+    if (html.split(tag).length !== 2) throw new Error(`${tool.slug}: expected exactly one ${tag}> in the output`);
+  }
   return html;
 }
 
