@@ -4,6 +4,11 @@
   "description": "AI Background & Watermark Studio",
   "main": "index.html",
   "type": "module",
+  "scripts": {
+    "build:pages": "node scripts/generate-tool-pages.mjs && node scripts/generate-pdf-pages.mjs",
+    "build:sitemap": "node scripts/generate-sitemap.mjs",
+    "check:site": "node scripts/check-site.mjs"
+  },
   "dependencies": {
     "firebase-admin": "^12.0.0",
     "jsdom": "^29.1.1",

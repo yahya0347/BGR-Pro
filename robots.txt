@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://bg-eraser-pro.com/sitemap.xml
+Sitemap: https://www.bg-eraser-pro.com/sitemap.xml
