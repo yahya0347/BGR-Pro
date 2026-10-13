@@ -1,4 +1,19 @@
 # Not part of the site: keep these out of every Vercel deployment so they are
 # not publicly served or crawled. They stay in the repo.
+
+# Development leftovers
 archive/
 scratch/
+
+# Generators and the pre-deploy check. They run locally (npm run build:pages,
+# build:sitemap, check:site); their output is committed. Nothing at runtime
+# imports them.
+scripts/
+
+# Internal notes
+GUIDE.md
+FIX_INSTRUCTIONS_EraserPro.md
+SEO_and_Blogging_Guide.pdf
+
+# Netlify config; Vercel reads vercel.json instead
+_headers

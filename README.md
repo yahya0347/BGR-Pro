@@ -48,5 +48,8 @@ will skip that commit.
 
 ## What is not deployed
 
-`archive/` and `scratch/` are development leftovers. `.vercelignore` keeps
-them out of every deployment, so they are not publicly reachable.
+`.vercelignore` keeps these out of every deployment, so they are not publicly
+reachable: `archive/` and `scratch/` (development leftovers), `scripts/` (the
+generators and the check run locally and their output is committed), the
+internal notes (`GUIDE.md`, `FIX_INSTRUCTIONS_EraserPro.md`,
+`SEO_and_Blogging_Guide.pdf`) and `_headers` (a Netlify file Vercel ignores).
