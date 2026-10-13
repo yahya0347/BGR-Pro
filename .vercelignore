@@ -1,0 +1,4 @@
+# Not part of the site: keep these out of every Vercel deployment so they are
+# not publicly served or crawled. They stay in the repo.
+archive/
+scratch/

@@ -45,3 +45,8 @@ is what keeps those honest. New blog posts start from
 edit that is not a content change (metadata, template or host changes across
 many pages), put `[no-lastmod]` in the commit message and the sitemap script
 will skip that commit.
+
+## What is not deployed
+
+`archive/` and `scratch/` are development leftovers. `.vercelignore` keeps
+them out of every deployment, so they are not publicly reachable.
