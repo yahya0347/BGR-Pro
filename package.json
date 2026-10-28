@@ -9,7 +9,7 @@
     "build:sitemap": "node scripts/generate-sitemap.mjs",
     "check:site": "node scripts/check-site.mjs",
     "build:css": "npx tailwindcss -c tailwind.config.main.cjs -i src/tailwind-input.css -o tailwind-main.css --minify && npx tailwindcss -c tailwind.config.pdf.cjs -i src/tailwind-input.css -o tailwind-pdf.css --minify",
-    "build": "npm run build:pages && npm run build:css && npm run build:sitemap"
+    "build:all": "npm run build:pages && npm run build:css && npm run build:sitemap"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0",

@@ -10,6 +10,13 @@ scratch/
 # imports them.
 scripts/
 
+# Tailwind build-time inputs. The compiled output (tailwind-main.css,
+# tailwind-pdf.css) IS committed and served; these are only needed to rebuild
+# it locally via npm run build:css.
+src/
+tailwind.config.main.cjs
+tailwind.config.pdf.cjs
+
 # Internal notes
 GUIDE.md
 FIX_INSTRUCTIONS_EraserPro.md
