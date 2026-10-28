@@ -348,7 +348,7 @@ ${headSeo(seo, slug)}
 <header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] transition-all duration-300">
 <div class="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto relative">
 <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer"><span class="material-symbols-outlined">menu</span></button>
-<a class="flex items-center gap-2 cursor-pointer hover:scale-95 transition-transform duration-200 nav-brand-group" href="../index.html">
+<a class="flex items-center gap-2 cursor-pointer hover:scale-95 transition-transform duration-200 nav-brand-group" href="/">
 <span class="font-headline-md text-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed">EraserPro</span>
 </a>
 <nav class="hidden md:flex items-center gap-8"></nav>
@@ -381,23 +381,23 @@ ${headSeo(seo, slug)}
 <button id="mobileDrawerClose" class="mobile-drawer-close" aria-label="Close menu"><span class="material-symbols-outlined">close</span></button>
 </div>
 <nav class="mobile-drawer-links">
-<a href="../index.html"><span class="material-symbols-outlined">home</span>Home</a>
-<a href="../index.html#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span>PDF Hub</a>
+<a href="/"><span class="material-symbols-outlined">home</span>Home</a>
+<a href="/#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span>PDF Hub</a>
 <a href="javascript:void(0)" onclick="document.querySelector('.nav-actions-group button.bg-primary')?.click()"><span class="material-symbols-outlined">ios_share</span>Export</a>
 <a href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span>Account</a>
 </nav>
 </aside>
 <nav class="mobile-bottom-nav" aria-label="Primary">
-<a data-nav="home" href="../index.html"><span class="material-symbols-outlined">home</span><span>Home</span></a>
-<a data-nav="pdf-hub" href="../index.html#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span></a>
-<a data-nav="projects" href="../index.html#myProjects"><span class="material-symbols-outlined">folder</span><span>My Projects</span></a>
+<a data-nav="home" href="/"><span class="material-symbols-outlined">home</span><span>Home</span></a>
+<a data-nav="pdf-hub" href="/#pdfHub"><span class="material-symbols-outlined">picture_as_pdf</span><span>PDF Hub</span></a>
+<a data-nav="projects" href="/#myProjects"><span class="material-symbols-outlined">folder</span><span>My Projects</span></a>
 <a data-nav="account" href="javascript:void(0)" onclick="document.getElementById('btnHeaderAuth')?.click()"><span class="material-symbols-outlined">account_circle</span><span>Account</span></a>
 </nav>
 <!-- Main Content Container -->
 <main class="pt-32 pb-16 px-6 max-w-[800px] mx-auto min-h-screen flex flex-col items-center justify-center relative z-10">
 <!-- Back Navigation -->
 <div class="w-full mb-8">
-<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors group" href="../index.html">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors group" href="/">
 <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 PDF Hub
             </a>

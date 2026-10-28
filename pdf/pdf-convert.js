@@ -86,7 +86,7 @@
     await authReady;
     if (!authUser) {
       return error('Please sign in to use conversion tools — it uses your credits.',
-        el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '../index.html' }, 'Go to sign in'));
+        el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '/' }, 'Go to sign in'));
     }
     try {
       const token = await authUser.getIdToken();
@@ -133,9 +133,9 @@
   }
   function apiError(res) {
     if (res.status === 401) return error('Please sign in again to continue.',
-      el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '../index.html' }, 'Go to sign in'));
+      el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '/' }, 'Go to sign in'));
     if (res.status === 402 || res.error === 'NO_CREDITS') return error(`You need ${cost} credits for this conversion. Top up on the home page.`,
-      el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '../index.html' }, 'Get credits'));
+      el('a', { class: 'mt-1 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2 rounded-full font-label-md text-label-md', href: '/' }, 'Get credits'));
     if (res.status === 503) return error('Conversion service isn\'t configured yet. Please try again later.');
     return error(res.error || 'Conversion failed. Please try again.');
   }

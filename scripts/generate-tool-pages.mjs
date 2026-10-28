@@ -91,7 +91,7 @@ const TOOLS = [
       { q: 'Is there an image size limit?', a: 'There’s no strict upload limit — very large images are automatically optimized in the background before processing, so results stay fast without sacrificing quality.' },
     ],
     closingLink: { href: '/watermark-remover.html', text: 'Watermark Remover' },
-    closingText: (link) => `Need to protect the result afterward? Try our ${link} to clean up any leftover logos, or explore the <a href="/index.html#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
+    closingText: (link) => `Need to protect the result afterward? Try our ${link} to clean up any leftover logos, or explore the <a href="/#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
   },
   {
     slug: 'watermark-remover',
@@ -131,7 +131,7 @@ const TOOLS = [
       { q: 'Can I process multiple images at once?', a: 'Not yet — each image is processed individually right now to keep quality high.' },
     ],
     closingLink: { href: '/watermark-maker.html', text: 'Watermark Maker' },
-    closingText: (link) => `Want to add your own watermark afterward? Try our ${link}, or explore the <a href="/index.html#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
+    closingText: (link) => `Want to add your own watermark afterward? Try our ${link}, or explore the <a href="/#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
   },
   {
     slug: 'watermark-maker',
@@ -172,7 +172,7 @@ const TOOLS = [
       { q: 'Can I remove a watermark later if needed?', a: 'Yes, using the Watermark Remover tool.', linkHref: '/watermark-remover.html', linkText: 'Watermark Remover tool' },
     ],
     closingLink: { href: '/watermark-remover.html', text: 'Watermark Remover' },
-    closingText: (link) => `Need to take an old watermark off first? Try our ${link}, or explore the <a href="/index.html#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
+    closingText: (link) => `Need to take an old watermark off first? Try our ${link}, or explore the <a href="/#pdfHub" class="brand-gradient-text font-headline-sm">PDF Hub</a> for document tools.`,
   },
 ];
 
@@ -286,9 +286,9 @@ ${tool.benefits.length ? `<div class="w-full">
 </div>
 </section>
 <footer class="w-full py-xl px-lg flex flex-col sm:flex-row gap-md justify-between items-center max-w-7xl mx-auto border-t border-outline-variant/20 relative z-10">
-<a href="/index.html" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
+<a href="/" class="font-headline-sm text-headline-sm text-primary">EraserPro</a>
 <div class="text-on-surface-variant opacity-70 font-label-md text-label-md">© 2026 EraserPro AI. All rights reserved. · Made by M.Y.A Studio</div>
-<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/index.html">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/index.html#pdfHub">PDF Hub</a></div>
+<div class="flex gap-lg"><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/">Home</a><a class="text-on-surface-variant opacity-70 font-label-md text-label-md hover:text-primary transition-colors" href="/#pdfHub">PDF Hub</a></div>
 </footer>`;
 }
 
