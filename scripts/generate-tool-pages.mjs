@@ -341,10 +341,10 @@ function renderPage(tool) {
   if (!html.includes(heroH1)) throw new Error(`${tool.slug}: hub-hero <h1> not found verbatim (index.html copy changed?)`);
   html = html.replace(heroH1, heroH2);
 
-  const myProjectsH1 = `<h1 class="projects-title">My Projects</h1>`;
+  // My Projects is already an <h2> in index.html (the homepage's single <h1>
+  // is the hub hero), so nothing to demote here any more -- just assert it.
   const myProjectsH2 = `<h2 class="projects-title">My Projects</h2>`;
-  if (!html.includes(myProjectsH1)) throw new Error(`${tool.slug}: My Projects <h1> not found verbatim (index.html copy changed?)`);
-  html = html.replace(myProjectsH1, myProjectsH2);
+  if (!html.includes(myProjectsH2)) throw new Error(`${tool.slug}: My Projects <h2> not found verbatim (index.html copy changed?)`);
 
   // 4) Hide the tool-picker launcher, show this tool's upload screen, and
   //    mark the matching tool card active (in case the visitor clicks
@@ -368,8 +368,12 @@ function renderPage(tool) {
   // 5) Pre-set the SEO-optimized <h1> + upload CTA copy statically (so
   //    there's no flash of the wrong tool's text before the bootstrap
   //    script runs).
+  //    On index.html this heading is an <h2> (the hero owns the page's <h1>).
+  //    On a tool page it IS the main heading, so promote it back to <h1>.
+  const upH2 = '<h2 id="uploadTitle" class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h2>';
+  if (!html.includes(upH2)) throw new Error(`${tool.slug}: #uploadTitle <h2> not found verbatim (index.html copy changed?)`);
   html = html.replace(
-    '<h1 id="uploadTitle" class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Upload an Image</h1>',
+    upH2,
     `<h1 id="uploadTitle" class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">${esc(tool.h1)}</h1>`
   );
 
