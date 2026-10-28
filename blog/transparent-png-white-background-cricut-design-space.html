@@ -108,6 +108,103 @@
 <li>Either way, start from a transparent PNG so Cricut traces the real edges instead of a white box.</li>
 </ul>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The canvas is white, and that fools everyone</h2>
+
+<p>Before you conclude the file is broken, remember what you are looking at. The Design Space canvas is a light, near-white workspace, and transparency is the absence of colour. A perfectly transparent PNG on a near-white canvas looks like it has a white background, because you are seeing the canvas through it.</p>
+
+<p>A quick way to check: drag a coloured square onto the canvas and move your image on top of it. If the colour shows through around your subject, the transparency is real and Design Space is handling it correctly.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The bleed is the part nobody mentions</h2>
+
+<p>This is the single most common reason a transparent PNG looks like it has a white or odd-coloured box in Print Then Cut, and it has nothing to do with your file.</p>
+
+<p>Print Then Cut adds a <strong>bleed</strong> by default &mdash; a small margin of colour extended outward past the cut line, so that a slightly misaligned cut does not leave a thin white sliver at the edge of your sticker. On the print preview, that extended edge can look like a border or halo you did not design.</p>
+
+<p>You can turn it off in the print dialog when you send the job, and there is a <strong>Use bleed</strong> option in the project settings. Turning it off gives you an exact edge and a less forgiving cut; leaving it on gives you a more robust cut and a visible bleed in the preview. Neither is wrong &mdash; but knowing it exists stops you re-exporting a file that was never the problem.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Print Then Cut vs Cut: transparency means different things</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface"></th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Print Then Cut</th>
+<th class="py-2 font-semibold text-on-surface">Cut image</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">What it does with colour</td><td class="py-2 pr-4">Prints your full-colour artwork</td><td class="py-2">Discards colour, cuts a silhouette</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">What transparency controls</td><td class="py-2 pr-4">Where the paper shows and where the cut line falls</td><td class="py-2">The shape of the cut itself</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">A leftover white background means</td><td class="py-2 pr-4">A printed white box around your design</td><td class="py-2">A rectangle cut instead of your subject</td></tr>
+<tr><td class="py-2 pr-4">Typical use</td><td class="py-2 pr-4">Stickers, printed decals, labels</td><td class="py-2">Vinyl, cardstock, HTV</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>That third row is worth sitting with. For a Cut image, a leftover white background does not just look wrong &mdash; it changes what the machine cuts. Design Space traces the edge of the image content, so a white box means a box-shaped cut. That is why people end up with rectangles of vinyl instead of their shape.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The upload tools, and where they fall short</h2>
+
+<p>When you upload an image as a Cut image, Design Space asks whether it is Simple, Moderately Complex or Complex, then offers erase tools: a magic-wand style remove that takes out contiguous areas of similar colour, plus manual erase and a select-and-erase option.</p>
+
+<p>These are colour-based tools, so they share the same limits as every colour-based tool:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Soft edges leave a fringe.</strong> Hair, fur and feathered shadows have edge pixels that are a blend of subject and background, so a colour-based wand either leaves a pale rim or bites into the subject.</li>
+<li><strong>A background that is not uniform needs many clicks.</strong> A photo backdrop with gradients or shadows means repeatedly clicking and cleaning up.</li>
+<li><strong>Light areas inside the subject disappear</strong> if they match the background colour you removed.</li>
+<li><strong>The result lives in that upload.</strong> It is not a file you can reuse in another project or another app.</li>
+</ul>
+
+<p>For a clean logo on flat white, the built-in tools are fine. For a photographed subject, cutting it out properly first gives you a reusable PNG and a much better edge &mdash; which matters more here than in a document, because a bad edge becomes a bad physical cut.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Flatten, Offset and what they do to your edge</h2>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Flatten</h3>
+<p>Flatten merges your selected layers into a single printable layer for Print Then Cut. It is how a multi-layer design becomes one printed piece. It does not remove a white background &mdash; if white was in the artwork, flattening keeps it and prints it.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Offset</h3>
+<p>Offset builds a shape slightly larger than your design, which is how people make sticker borders. It follows the edge of your image content, so it only looks right if your cutout edge is already clean. A ragged cutout produces a ragged offset.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Desktop and mobile are not the same</h2>
+
+<p>The Design Space mobile and tablet apps have a reduced set of upload editing tools compared with the desktop app. If you are trying to clean up a background on a phone and cannot find the erase tools you read about, that is usually why. Preparing the PNG before you upload avoids the difference entirely.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White around the design on the canvas</td><td class="py-2 pr-4">The canvas showing through</td><td class="py-2">Put a coloured square behind it to check</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">A thin coloured border in the print preview</td><td class="py-2 pr-4">Print Then Cut bleed</td><td class="py-2">Turn bleed off in the print dialog</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Machine cuts a rectangle, not your shape</td><td class="py-2 pr-4">The file has a real white background</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">A printed white box around a sticker</td><td class="py-2 pr-4">White baked into the artwork</td><td class="py-2">Same &mdash; fix the file, not the settings</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Pale rim after using the erase tool</td><td class="py-2 pr-4">Blended edge pixels a colour tool can't key out</td><td class="py-2">Use a proper cutout instead</td></tr>
+<tr><td class="py-2 pr-4">Erase tools missing</td><td class="py-2 pr-4">You are on the mobile app</td><td class="py-2">Prepare the PNG before uploading</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Drag a coloured square under your image on the canvas. Colour shows through? The file is fine.</li>
+<li>If you are seeing a border only in the print preview, check the bleed setting before touching the file.</li>
+<li>Open the PNG in a browser tab. White there too means the file has no transparency.</li>
+<li>If it has no transparency, cut the background out properly and export as PNG, then re-upload.</li>
+<li>For a Cut image, check the cut preview shows your subject's outline and not a rectangle.</li>
+<li>If the edge looks rough, fix it at the cutout stage &mdash; Offset and Flatten will both inherit a bad edge.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -125,6 +222,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Will removing the background hurt my Print Then Cut quality?</h3>
 <p>No. A clean transparent PNG improves Print Then Cut because the machine registers the true outline instead of cutting around a white rectangle. Export at the highest resolution available for the sharpest result.</p>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why is there a thin border around my sticker in the print preview?</h3>
+<p>That is the Print Then Cut bleed, which extends colour slightly past the cut line so a small misalignment doesn't leave a white sliver. You can turn it off in the print dialog.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does my Cricut cut a rectangle instead of my shape?</h3>
+<p>Because the image still has a real white background, so Design Space traces the edge of the rectangle rather than your subject. Remove the background and export as PNG before uploading.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does Flatten remove a white background?</h3>
+<p>No. Flatten merges layers into one printable layer for Print Then Cut. Any white already in the artwork stays and gets printed.</p>
+</div>
 </div>
 </div>
 

@@ -83,10 +83,10 @@
 
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why PowerPoint Shows a White Box Behind Your PNG</h2>
 <ul class="list-disc list-outside pl-5 flex flex-col gap-2">
-<li>PowerPoint doesn't preserve PNG alpha transparency on insert the way browsers do — it can substitute a solid white fill behind the image.</li>
+<li>PowerPoint does support PNG alpha transparency. In almost every case the white you see is the <strong>slide background</strong> showing through the transparent area &mdash; slides are white by default.</li>
 <li>If the "transparent" PNG was ever saved or exported as a JPEG, the transparency was permanently stripped and a real white background baked in.</li>
 <li>A white rectangle placeholder or slide theme sitting behind the image can also read as a white background even when the PNG is fine.</li>
-<li>The image may display transparent in the thumbnail or a browser but white on the slide — a rendering difference, not a broken file.</li>
+<li>The image may look transparent in a browser but white on the slide. That is not a rendering bug: a browser shows transparency as a checkerboard, and a slide shows it as the slide behind it.</li>
 </ul>
 
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How to Remove the White Background in PowerPoint</h2>
@@ -111,6 +111,100 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> exports a true transparent PNG in seconds, so your image is clean before PowerPoint ever renders it wrong.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Where the white actually comes from</h2>
+
+<p>Transparency is not a colour. It is the absence of one, so a transparent PNG always takes on whatever sits behind it. On a PowerPoint slide, that is the slide background, and a default slide is white.</p>
+
+<p>So the test is simple. Change the slide background to any strong colour: <strong>Design &rarr; Format Background &rarr; Solid fill</strong>. If the colour now shows through your image, the PNG was never the problem, and nothing about the file needs fixing. You just needed something other than white behind it.</p>
+
+<p>If the image still shows a white rectangle on a coloured slide, then the white really is in the file, and you need a proper cutout.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Which PowerPoint are you using?</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Version</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Remove Background</th>
+<th class="py-2 font-semibold text-on-surface">Set Transparent Color</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">PowerPoint for Microsoft 365 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">PowerPoint 2019 / 2016 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">PowerPoint for Mac</td><td class="py-2 pr-4">Yes</td><td class="py-2">Not in all builds</td></tr>
+<tr><td class="py-2 pr-4">PowerPoint for the web</td><td class="py-2 pr-4">No</td><td class="py-2">No</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Three different things that all get called transparency</h2>
+
+<p>PowerPoint has several features with similar names, and mixing them up is a large part of why this gets confusing.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">1. Alpha transparency (what your PNG has)</h3>
+<p>Per-pixel, stored in the file, supports soft and partial edges. This is what you want. PowerPoint renders it correctly; it just renders it against the slide.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">2. Set Transparent Color (a colour key)</h3>
+<p>Removes one exact colour value &mdash; the pixel you click. Fine for a flat logo, poor for anything else. The edge pixels around your subject are a blend of white and the subject, so they are not the white you clicked and they stay behind as a pale outline. White inside the subject &mdash; a shirt, teeth, the holes in letters &mdash; disappears too, because it is the same colour you keyed out. It is also stored as a display effect rather than real transparency, so it can behave differently after an export.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">3. Picture Transparency (a slider)</h3>
+<p>Makes the <em>whole image</em> semi-transparent, including the subject. It is for fading an image back behind text, not for removing a background. If your logo has gone ghostly, this slider is probably why.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Exporting a transparent PNG out of PowerPoint</h2>
+
+<p>This trips people up in the other direction: you have a clean cutout on a slide and want it as a transparent PNG file.</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Right-click the image &rarr; Save as Picture &rarr; PNG.</strong> This exports the object, and alpha survives.</li>
+<li><strong>Exporting the whole slide as an image gives you the slide</strong> &mdash; background included. If the slide is white, you get white. This is the usual reason an "exported transparent PNG" is not transparent.</li>
+<li><strong>To export several shapes together,</strong> select them, group them (Ctrl+G), then use Save as Picture on the group.</li>
+</ul>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">If it looks right on screen but wrong when presenting or printing</h2>
+
+<p>Check it in Slide Show view and in a PDF export before you trust it. Two things change there:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Printing.</strong> Printers have no transparent ink, so transparent areas fall back to the paper. On white paper that is white, and that is correct. If you need a colour, it has to be on the slide.</li>
+<li><strong>Handouts and grayscale printing</strong> can render a Set Transparent Color effect differently from real alpha &mdash; another reason to fix the file rather than the display.</li>
+</ul>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White behind the image on a white slide</td><td class="py-2 pr-4">The slide is showing through</td><td class="py-2">Colour the slide background to confirm</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box even on a coloured slide</td><td class="py-2 pr-4">No alpha channel in the file</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White rectangle bigger than the subject</td><td class="py-2 pr-4">A placeholder or shape fill behind it</td><td class="py-2">Set that shape's fill to No Fill</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">The whole image looks faded</td><td class="py-2 pr-4">Picture Transparency slider</td><td class="py-2">Set it back to 0%</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Exported PNG is not transparent</td><td class="py-2 pr-4">You exported the slide, not the object</td><td class="py-2">Right-click the image &rarr; Save as Picture</td></tr>
+<tr><td class="py-2 pr-4">Pale outline around the subject</td><td class="py-2 pr-4">Anti-aliased edge pixels</td><td class="py-2">Redo the cutout with better edges</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Set the slide background to a strong colour. Colour shows through? The file is fine &mdash; you are done.</li>
+<li>Still a white box? Drag the PNG into a browser tab. White there too means the file has no transparency.</li>
+<li>Check nothing sits behind the image: click around it for a stray white rectangle or placeholder, and set its fill to No Fill.</li>
+<li>Check Picture Transparency is at 0% if the whole image looks washed out.</li>
+<li>If the file has no alpha, cut the background out properly, export as PNG, and replace the image.</li>
+<li>Pale fringe left? That is edge pixels from the original background, fixable only at the cutout stage.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +222,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Will saving my PNG as JPEG cause the white background?</h3>
 <p>Yes. JPEG doesn't support transparency, so exporting or converting to JPEG bakes in a solid white background permanently. Always keep signature and logo cutouts as PNG.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does PowerPoint actually support transparent PNGs?</h3>
+<p>Yes. PowerPoint renders PNG alpha transparency correctly. What looks like a white background is nearly always the white slide showing through the transparent area.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why is my exported PNG from PowerPoint not transparent?</h3>
+<p>You most likely exported the slide rather than the object. Exporting a slide includes its background. Right-click the image and choose Save as Picture to export just the object with its alpha intact.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why has my whole image gone faded instead of just the background?</h3>
+<p>That is the Picture Transparency slider, which makes the entire image semi-transparent including the subject. Set it back to 0%.</p>
 </div>
 </div>
 

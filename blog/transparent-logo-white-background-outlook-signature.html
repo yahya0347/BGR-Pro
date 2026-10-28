@@ -111,6 +111,112 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> exports a true transparent PNG in seconds, so your logo starts clean before Outlook ever gets a chance to render it wrong.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Which Outlook, and which recipient</h2>
+
+<p>This is the one case in this whole topic where the app really is at fault, and the behaviour changes depending on which Outlook is involved &mdash; <em>and</em> on which client the person reading your email uses. You can only control your half.</p>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Where the email is read</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Transparent PNG</th>
+<th class="py-2 font-semibold text-on-surface">In dark mode</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Outlook desktop, Windows (classic)</td><td class="py-2 pr-4">Rendered via Word's engine</td><td class="py-2">Light box behind images is common</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Outlook on the web</td><td class="py-2 pr-4">Generally fine</td><td class="py-2">Better, but still adjusts</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Outlook for Mac</td><td class="py-2 pr-4">Generally fine</td><td class="py-2">Better</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Outlook mobile</td><td class="py-2 pr-4">Generally fine</td><td class="py-2">Varies by version</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Gmail (web)</td><td class="py-2 pr-4">Fine</td><td class="py-2">Does not force a box</td></tr>
+<tr><td class="py-2 pr-4">Apple Mail</td><td class="py-2 pr-4">Fine</td><td class="py-2">Does not force a box</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>So a signature can look perfect while you compose it, perfect to a colleague on Gmail, and show a white rectangle to a client reading in Outlook desktop with dark mode on. Nothing broke between those cases. The file never changed.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why dark mode is where this shows up</h2>
+
+<p>A transparent logo designed for a white background is usually dark-coloured artwork with nothing behind it. On a white email, that is invisible as a problem. Switch the reading pane to dark, and two bad things can happen at once: either the dark artwork sits on a dark background and becomes unreadable, or the client puts a light panel behind it so it stays visible &mdash; and that panel is the white box you are seeing.</p>
+
+<p>Read that way, the white box is the client trying to help. It is a legibility fallback, not a bug, which is also why there is no setting to turn it off from your end.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The professional answer: don't depend on transparency here</h2>
+
+<p>This is the part worth being blunt about. Email signatures are the one place where transparency is a bad foundation, because you cannot control the background it will land on. The approaches that actually hold up:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>A logo that reads on both light and dark.</strong> Dark artwork with a light outline, or a mark with enough internal contrast that it survives either background. This is a design decision, not a file-format one.</li>
+<li><strong>A logo with its own solid background,</strong> matching your brand &mdash; a coloured tile rather than a transparent cutout. If a box is going to appear anyway, make it a box you chose.</li>
+<li><strong>Keep it small and simple.</strong> Signature logos are rendered at modest sizes; fine detail and soft shadows are where edge artefacts show most.</li>
+</ul>
+
+<p>Designers resist this because a transparent PNG feels more "correct". In a context where a third-party client decides your background, the reliable choice wins.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">File format and sizing, the parts that get missed</h2>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">SVG does not work</h3>
+<p>Most email clients, Outlook included, do not render SVG in message bodies. Use PNG. If someone hands you an SVG logo, export a PNG at the size you need.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Export at double size, display at half</h3>
+<p>Signature logos look soft on high-density screens when exported at display size. Export at roughly twice the intended width, then set the displayed width in the signature so it renders crisply. Keep the file modest &mdash; a signature image is attached to every message you send.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Embedded or hosted</h3>
+<p>An embedded image travels with the message and always appears, but adds to every email's size. A hosted image keeps messages light but can be blocked until the recipient allows images, which leaves a gap where your logo should be. Embedded is the safer default for a signature.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">JPEG is not a workaround</h3>
+<p>Saving the logo as JPEG does remove the transparency question, but it bakes in a white background permanently and adds compression artefacts around sharp edges and text &mdash; exactly the kind of detail a logo is made of. If you want a solid background, use a PNG with that background filled in.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Test it properly before you trust it</h2>
+
+<p>Composing a signature and looking at it in the editor tells you almost nothing, because the editor is not the renderer your recipients use. A real test takes five minutes:</p>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Send the signature to yourself.</li>
+<li>Open it in Outlook desktop, in Outlook on the web, and on your phone.</li>
+<li>Turn dark mode on in each and look again.</li>
+<li>Send it to a colleague on Gmail and ask for a screenshot.</li>
+</ol>
+
+<p>If it survives all of those, it will survive your clients. On Windows, signatures live in the Microsoft Signatures folder under your user's AppData &mdash; useful if you want to edit the signature HTML directly rather than through the editor.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box only in dark mode</td><td class="py-2 pr-4">The client's legibility fallback</td><td class="py-2">Use a logo that reads on both backgrounds</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Fine while composing, box after sending</td><td class="py-2 pr-4">Editor and renderer are different</td><td class="py-2">Test by sending to yourself</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box for some recipients only</td><td class="py-2 pr-4">Their client, not your file</td><td class="py-2">Design for the worst client, not the best</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box everywhere, all clients</td><td class="py-2 pr-4">The file has no transparency</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Logo missing entirely</td><td class="py-2 pr-4">Hosted image blocked by the client</td><td class="py-2">Embed the image instead</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Logo looks soft or blurry</td><td class="py-2 pr-4">Exported at display size</td><td class="py-2">Export at 2x, set the width in the signature</td></tr>
+<tr><td class="py-2 pr-4">Nothing renders at all</td><td class="py-2 pr-4">The logo is an SVG</td><td class="py-2">Export it as a PNG</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Drag the logo into a browser tab. White there too? The file has no transparency &mdash; go to step 5.</li>
+<li>Send the signature to yourself and check Outlook desktop, Outlook web and mobile, in both light and dark mode. Note exactly where the box appears.</li>
+<li>If it only appears in dark mode, this is the client's fallback. Stop trying to fix the file.</li>
+<li>Switch to a logo that reads on both backgrounds, or give it a deliberate brand-coloured background.</li>
+<li>If the file genuinely has no transparency, cut the background out properly and export as PNG.</li>
+<li>Export at about twice the display width and set the width in the signature so it stays sharp.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +234,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">How do I make a transparent logo for my Outlook signature?</h3>
 <p>Remove the background from your logo and export it as a transparent PNG, then insert it into your signature — ideally inside an HTML table cell so Outlook preserves the transparency.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Can I stop Outlook adding a white box in dark mode?</h3>
+<p>Not from your side. It is the client's way of keeping a dark logo legible on a dark background, and there is no sender-side setting for it. The practical fix is a logo that works on both light and dark.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Should I use SVG for my email signature logo?</h3>
+<p>No. Most email clients, including Outlook, do not render SVG in the message body. Export a PNG at roughly twice the display width instead.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Is it better to embed the logo or link to it?</h3>
+<p>Embedding is safer for a signature: it always appears. A hosted image keeps messages smaller but can be blocked until the recipient allows images, leaving a blank where your logo should be.</p>
 </div>
 </div>
 

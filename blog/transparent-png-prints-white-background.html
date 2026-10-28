@@ -111,6 +111,83 @@
 <li><strong class="text-on-surface">Drop it into your document or design</strong> over whatever background you actually want to print.</li>
 </ol>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Printing on fabric is a different problem</h2>
+
+<p>Everything above assumes paper, where transparency falling back to white is harmless. On a garment it is not harmless at all, and this is where a leftover white background costs real money.</p>
+
+<p>On fabric, a transparent area means <strong>no ink is laid down</strong>, so the fabric itself shows through. That is usually exactly what you want: a design that appears printed onto the shirt rather than stuck on as a patch. If your PNG still has a white background, the printer prints that white &mdash; and you get a visible white rectangle around your artwork on the finished item.</p>
+
+<p>Nobody notices on a white tee. On black, navy or heather, it is the first thing anyone sees, and it is not fixable after printing.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">DTG and DTF</h3>
+<p>Direct-to-garment and direct-to-film printing both lay ink only where your artwork has pixels. On dark fabric the printer normally lays a white <strong>underbase</strong> first, so colours stay bright instead of sinking into the dye &mdash; and that underbase is generated from your artwork's shape. If your background is opaque white rather than transparent, the underbase is generated for the whole rectangle. You get a white box with your design on it.</p>
+
+<p>This is why print-on-demand services ask for a transparent PNG rather than a JPG. It is not a preference. The transparency is the instruction telling the printer where to stop.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Sublimation</h3>
+<p>Sublimation dye bonds to polyester and has no white ink at all. A transparent area stays whatever colour the garment is, and a white area in your file prints as <em>nothing</em> &mdash; because there is no white ink to print it with. So on white polyester a white background is invisible and harmless, and on coloured polyester it simply does not appear. Different failure mode, same lesson: let transparency do the work.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Screen printing</h3>
+<p>Screen printing separates your artwork into colours, one screen per colour. A white background becomes a white screen &mdash; an extra colour, an extra screen, and usually an extra charge, for a block you never wanted. Clean transparency keeps the separation to the colours actually in your design.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">What print-on-demand uploads actually need</h2>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>PNG with a real alpha channel.</strong> Not JPG, and not a PNG that was converted from a JPG &mdash; that keeps the baked-in white.</li>
+<li><strong>High resolution at the printed size.</strong> Most services want around 300 DPI at final print dimensions. Upscaling a small cutout gives soft, fringed edges that print worse than they look on screen.</li>
+<li><strong>Clean edges, checked against the garment colour.</strong> A pale halo invisible on a white background is glaringly obvious on black fabric. Preview your cutout on the darkest colour you intend to sell.</li>
+<li><strong>No stray near-white pixels.</strong> Faint leftovers in the "transparent" area still print. Zoom in before uploading.</li>
+</ul>
+
+<p>That third point is the one that catches sellers out. A cutout that passed on a white mockup can look obviously wrong once the same file is placed on a black product.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why CMYK conversion fills transparency with white</h2>
+
+<p>Transparency lives in an alpha channel, which is separate from colour. CMYK is a four-ink colour model with nowhere to put an alpha channel, so a conversion to CMYK has to decide what the transparent pixels become &mdash; and it fills them, usually with white.</p>
+
+<p>So if your PNG looked fine until you exported a CMYK PDF, the conversion did it, not the file. Two ways around it:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Keep the export in RGB</strong> where the print workflow allows it.</li>
+<li><strong>Place the PNG inside your layout app</strong> &mdash; the page layout, not the image, becomes the thing you convert, and the transparency is handled at the layout level.</li>
+</ul>
+
+<p>Professional print workflows also "flatten transparency" at output time, which converts overlapping transparent areas into opaque equivalents. Done properly it is invisible. Done to a file that already had white baked in, it just preserves the white.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What happened</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White on plain paper, fine on screen</td><td class="py-2 pr-4">The paper is the background</td><td class="py-2">Expected &mdash; add the background in the document</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White rectangle printed on a dark shirt</td><td class="py-2 pr-4">Opaque white background in the file</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Fine until the CMYK PDF export</td><td class="py-2 pr-4">Conversion filled the alpha channel</td><td class="py-2">Keep it RGB, or place the PNG in a layout</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Pale halo, obvious on dark fabric</td><td class="py-2 pr-4">Blended edge pixels from the cutout</td><td class="py-2">Redo the cutout and check on dark</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Design missing on coloured polyester</td><td class="py-2 pr-4">Sublimation has no white ink</td><td class="py-2">Design for the garment colour</td></tr>
+<tr><td class="py-2 pr-4">Extra screen charge quoted</td><td class="py-2 pr-4">White background counted as a colour</td><td class="py-2">Supply clean transparency</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Before you send anything to print, check these</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Open the PNG over a dark background. Checkerboard or dark showing through means real transparency.</li>
+<li>Zoom to 200% or more and look along the edges for a pale rim.</li>
+<li>Confirm the file is a PNG, not a renamed JPG.</li>
+<li>Check the resolution at final printed size, not at screen size.</li>
+<li>For garments, preview on the darkest colour you plan to sell.</li>
+<li>If you must export CMYK, place the PNG in a layout app rather than converting the image itself.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +205,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Can I stop a PNG from printing white?</h3>
 <p>Yes — make sure the file is a true PNG (not a JPG), place it over the background color you want in your document, and avoid re-saving it in a format or color mode that discards transparency.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does my design print as a white box on a black t-shirt?</h3>
+<p>Because the file has an opaque white background rather than a transparent one. On fabric, transparent means no ink, so the shirt shows through — but opaque white gets printed as white. Re-cut the background and export as PNG.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Do print-on-demand services really need a transparent PNG?</h3>
+<p>Yes, and not as a preference. On dark garments the printer builds its white underbase from your artwork's shape, so an opaque background becomes a printed white rectangle.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why did my transparency disappear when I exported a CMYK PDF?</h3>
+<p>CMYK has no alpha channel, so the conversion fills transparent pixels, usually with white. Keep the export in RGB, or place the PNG inside a layout app and convert the layout instead.</p>
 </div>
 </div>
 

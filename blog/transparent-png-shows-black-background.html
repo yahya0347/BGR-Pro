@@ -110,6 +110,78 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> always exports a true transparent PNG, so if a cutout looks black somewhere, the fix is almost always about where you're viewing it, not the file it produced.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why black and not white?</h2>
+
+<p>Both answers come from the same place. When something has to show a transparent pixel but has nowhere to store transparency, it has to pick a colour, and the choice is essentially arbitrary &mdash; a default somebody set.</p>
+
+<p>Office apps and document viewers grew up around white pages, so they fall back to white. Video and compositing tools grew up around black &mdash; a dark frame is the natural "nothing" for footage, and black is also the mathematical zero of the RGB colour space. So the same transparent PNG shows white in Word and black in a video editor, and neither is wrong about the file.</p>
+
+<p>Which means: if you see black, you are almost certainly in a tool from the video, 3D or compositing world, or in something using an older image library.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Straight alpha vs premultiplied alpha</h2>
+
+<p>This is the real technical cause behind most black-background and black-fringe problems, and it is worth understanding because it explains why the symptom sometimes looks like a <em>dark outline</em> rather than a solid black background.</p>
+
+<p>There are two ways to store a semi-transparent pixel:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Straight (unassociated) alpha.</strong> The colour is stored at full strength, with transparency recorded separately. A half-transparent red pixel stores "red" and "50%".</li>
+<li><strong>Premultiplied (associated) alpha.</strong> The colour is stored already multiplied by its transparency, against a background colour &mdash; usually black. A half-transparent red pixel stores "half-strength red" and "50%".</li>
+</ul>
+
+<p>Both are valid. The trouble is when an app guesses wrong. Read premultiplied-black data as if it were straight alpha and every semi-transparent pixel comes out too dark &mdash; which is exactly the thin black rim people see around a cutout in a video editor. Read it the other way and edges look too bright or milky.</p>
+
+<p>So a black fringe is not leftover background. It is the same pixels being interpreted with the wrong assumption.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Where you are seeing it, and what to do</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Where</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Why it shows black</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Video editor timeline or preview</td><td class="py-2 pr-4">Black is the default empty frame; alpha may be misread</td><td class="py-2">Check the clip's alpha interpretation setting</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Thin black outline on a cutout</td><td class="py-2 pr-4">Premultiplied data read as straight alpha</td><td class="py-2">Switch the interpretation, or re-export straight</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">A PDF viewer</td><td class="py-2 pr-4">Older rendering paths fill alpha with black</td><td class="py-2">Open in another viewer to confirm the file is fine</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">After encoding to video</td><td class="py-2 pr-4">Most video codecs have no alpha channel</td><td class="py-2">Use a format that carries alpha, or composite first</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Saved from an image editor</td><td class="py-2 pr-4">Exported to a format without alpha</td><td class="py-2">Export as PNG with the background layer hidden</td></tr>
+<tr><td class="py-2 pr-4">A gallery or thumbnail view</td><td class="py-2 pr-4">A basic viewer flattening onto black</td><td class="py-2">Nothing &mdash; display only; check in a browser</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Video work specifically</h3>
+<p>If you are placing a transparent PNG into a video project, two things matter. First, the editor's interpretation of the file's alpha &mdash; most professional tools let you set this per clip, and switching it is the fix for a black rim. Second, the export: most common video codecs cannot store transparency at all. If your final video needs a transparent background, you need a format and codec that supports alpha, and the delivery target has to support it too. Otherwise composite your artwork over the background you want before exporting.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">When black means the file really is flattened</h2>
+
+<p>If the PNG shows black in a browser as well, the alpha channel is gone and the black is real pixel data. That happens when:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li>It was exported to a format with no alpha, and the exporter filled the gap with black instead of white.</li>
+<li>It came out of a video or 3D render that composited onto a black background before saving.</li>
+<li>It was screenshotted while displayed on a black background.</li>
+</ul>
+
+<p>None of those are recoverable by changing a setting. The subject has to be separated from the black again, which is the same job as removing any other background.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not sure? Work through this</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Drag the PNG into a browser tab. Transparent there? The file is fine and you are looking at a display fallback.</li>
+<li>Black in the browser too? The alpha channel is gone &mdash; go to step 5.</li>
+<li>In a video or compositing tool, find the clip's alpha interpretation setting and try the other option.</li>
+<li>If only the edge is dark, that is a premultiplication mismatch, not leftover background.</li>
+<li>If the alpha is genuinely gone, cut the subject out again and export as PNG.</li>
+<li>Check the result over both a light and a dark background before using it.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -127,6 +199,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">How do I check if a PNG is actually transparent?</h3>
 <p>Open it in a web browser or your device's built-in photo viewer (Preview on Mac, Photos on Windows) — these correctly render transparency as a checkerboard pattern.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does my cutout have a thin black outline in my video editor?</h3>
+<p>That is usually a premultiplied-alpha mismatch: the file stores colour already blended toward black, and the editor is reading it as if it were not. Changing the clip's alpha interpretation normally clears it.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why black in some apps and white in others?</h3>
+<p>Because apps that cannot show transparency have to pick a fill colour. Document tools default to white, video and compositing tools default to black. The file is the same in both.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Can I export a video with a transparent background?</h3>
+<p>Only with a format and codec that supports an alpha channel, and only if whatever plays it supports that too. Most common video codecs discard transparency, which is why exports often come out black.</p>
 </div>
 </div>
 

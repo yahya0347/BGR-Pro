@@ -83,10 +83,10 @@
 
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why Keynote Shows a White Box Behind Your PNG</h2>
 <ul class="list-disc list-outside pl-5 flex flex-col gap-2">
-<li>Keynote can flatten a PNG's alpha channel on import or render, replacing the transparent area with a solid white fill even though the file is see-through.</li>
+<li>Keynote supports PNG alpha transparency and does not flatten it on import. In almost every case the white you see is the <strong>slide background</strong> showing through the transparent area &mdash; Keynote slides are white by default.</li>
 <li>If the "transparent" PNG was ever exported or converted to JPEG, transparency was permanently stripped and a real white background baked in.</li>
 <li>A white slide background or a white shape sitting behind the image can read as a white box even when the PNG is genuinely transparent.</li>
-<li>The image may look transparent in Preview or a browser but white on the slide — that's a Keynote rendering difference, not a corrupted file.</li>
+<li>The image may look transparent in Preview but white on the slide. That is not a Keynote bug: Preview draws transparency as a checkerboard, and Keynote draws it as the slide behind it.</li>
 </ul>
 
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How to Remove the White Background in Keynote</h2>
@@ -111,6 +111,114 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> exports a true transparent PNG in seconds, so your image is clean before Keynote ever renders it wrong.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Where the white actually comes from</h2>
+
+<p>Transparency is the absence of colour, not a colour of its own, so a transparent PNG always shows whatever sits behind it. In Keynote that is the slide background, and new slides are white.</p>
+
+<p>There is a ten-second test. Select the slide, open the <strong>Format</strong> inspector &rarr; <strong>Background</strong>, and set a strong colour fill. If the colour appears through your image, the PNG was always fine and nothing needs fixing &mdash; you simply had white behind it. If a white rectangle still sits there on a coloured slide, the white is baked into the file.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Instant Alpha: what it is good at, and what it isn't</h2>
+
+<p>Instant Alpha is Keynote's own background-removal tool and it has no equivalent in PowerPoint. Select the image, then <strong>Format &rarr; Image &rarr; Instant Alpha</strong>, and drag over the colour you want gone. Dragging further widens the tolerance, so you can take out more of a slightly uneven background.</p>
+
+<p>It is genuinely useful, and it is still a colour-based tool. That sets its limits:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Soft edges suffer.</strong> Hair, fur, motion blur and glass have edge pixels that are a blend of subject and background. A colour-based tool either leaves a pale fringe or eats into the subject.</li>
+<li><strong>Drag too far and you lose the subject.</strong> Widening the tolerance eventually reaches colours that belong to the thing you are keeping.</li>
+<li><strong>Similar colours inside the subject go too.</strong> A white shirt on a white background cannot be separated by colour alone.</li>
+<li><strong>It only affects this copy.</strong> The change lives in the Keynote document, not in your PNG file. Reuse the image elsewhere and you start again.</li>
+</ul>
+
+<p>For a logo on flat white, Instant Alpha is the fastest route. For a photo of a person, a proper cutout gives you a reusable file and a cleaner edge.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Keynote on Mac, iPad and iCloud</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Where you are working</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Renders PNG alpha</th>
+<th class="py-2 font-semibold text-on-surface">Instant Alpha</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Keynote for Mac</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Keynote for iPad / iPhone</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes, in the image tools</td></tr>
+<tr><td class="py-2 pr-4">Keynote for iCloud (browser)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Reduced &mdash; bring a transparent PNG</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>If you are working in a browser, insert a PNG that is already transparent rather than planning to clean it up in Keynote.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How you add the image matters</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">How you added it</th>
+<th class="py-2 font-semibold text-on-surface">What happens to transparency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Drag the PNG file onto the slide</td><td class="py-2">Preserved. Use this.</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy in Preview, paste into Keynote</td><td class="py-2">Usually preserved</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from a web page, paste in</td><td class="py-2">Often flattened by the clipboard</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Screenshot of a transparent image</td><td class="py-2">Always flattened &mdash; screenshots have no alpha</td></tr>
+<tr><td class="py-2 pr-4">Insert from Photos</td><td class="py-2">Depends how the image reached Photos</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Screenshotting is the one to avoid. A screen capture records what was drawn on screen, including whatever was behind the transparent parts, so the result can never be transparent.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Exporting: why your transparent image comes out white</h2>
+
+<p>Exporting slides (<strong>File &rarr; Export To &rarr; Images</strong> or <strong>PDF</strong>) gives you the slide, background included. A white slide exports as white. That is the usual reason an exported "transparent" image isn't.</p>
+
+<p>To get the object on its own, copy the image out of Keynote and save it from Preview, or keep the original transparent PNG and use that file directly. Keynote is a presentation tool, not an image exporter &mdash; the original file is nearly always the better source.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Presenting and printing</h2>
+
+<p>Check the deck in Play view before you trust it, and remember that printing has no transparent ink. A transparent area printed on white paper comes out white, which is correct. If you need a colour behind the image on paper, put it on the slide.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White behind the image on a white slide</td><td class="py-2 pr-4">The slide is showing through</td><td class="py-2">Colour the slide background to confirm</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box even on a coloured slide</td><td class="py-2 pr-4">No alpha channel in the file</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Instant Alpha left a pale outline</td><td class="py-2 pr-4">Blended edge pixels it cannot key out</td><td class="py-2">Use a proper cutout instead</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Instant Alpha removed part of the subject</td><td class="py-2 pr-4">Tolerance dragged too far</td><td class="py-2">Undo and drag a shorter distance</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Exported image has a white background</td><td class="py-2 pr-4">You exported the slide, not the object</td><td class="py-2">Use the original PNG file instead</td></tr>
+<tr><td class="py-2 pr-4">Transparent on Mac, white in iCloud</td><td class="py-2 pr-4">A Keynote-only Instant Alpha edit</td><td class="py-2">Replace it with a real transparent PNG</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Set the slide background to a strong colour. Colour shows through? You are done &mdash; the file was fine.</li>
+<li>Still a white box? Open the PNG in Preview. No checkerboard means no transparency in the file.</li>
+<li>Click around the image for a stray white shape behind it and set its fill to None.</li>
+<li>If you used Instant Alpha and the edge looks rough, undo it &mdash; it will not get cleaner with more dragging.</li>
+<li>Cut the background out properly, export as PNG, and drag that file onto the slide.</li>
+<li>Check Play view and a PDF export before sending the deck.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +236,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Will saving my PNG as JPEG cause the white background?</h3>
 <p>Yes. JPEG doesn't support transparency, so exporting or converting to JPEG bakes in a solid white background permanently. Always keep logo and cutout images as PNG.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does Keynote support transparent PNGs?</h3>
+<p>Yes. Keynote renders PNG alpha transparency correctly and does not flatten it on import. What looks like a white background is nearly always the white slide showing through.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does Instant Alpha change my original PNG file?</h3>
+<p>No. The edit is stored inside the Keynote document. Your PNG on disk is untouched, so reusing it elsewhere means doing the work again.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does my exported image have a white background?</h3>
+<p>Exporting slides exports the slide, background included. For the object on its own, use the original transparent PNG rather than a slide export.</p>
 </div>
 </div>
 

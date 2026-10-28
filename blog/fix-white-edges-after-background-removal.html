@@ -110,6 +110,72 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> includes an edge-refine option, so most halos can be fixed in the same upload without switching tools.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">What a halo actually is</h2>
+
+<p>It helps to know what those pixels are, because it explains why some fixes work and others cannot.</p>
+
+<p>Digital images have no infinitely sharp edges. To stop edges looking jagged, the pixels along a boundary are <strong>blends</strong> of what is on either side &mdash; a process called anti-aliasing. A dark jacket photographed against a white wall has a boundary row of pixels that are genuinely part-jacket, part-wall.</p>
+
+<p>When you remove the background, those blended pixels have to go somewhere. Keep them and you keep a trace of the old white wall: a pale rim. Delete them and the edge becomes hard and slightly chewed, which looks worse. There is no setting that makes the problem disappear, because the information for "what colour would this pixel be without the wall" was never captured.</p>
+
+<p>Good edge handling is therefore not about deleting the fringe. It is about <strong>recovering the subject's true colour</strong> in those pixels and keeping the right amount of partial transparency.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why it only appears on dark backgrounds</h2>
+
+<p>A pale fringe against a white page is invisible &mdash; light pixels on a light background. Move the same cutout onto black, navy or a photograph and the contrast makes every leftover pixel obvious.</p>
+
+<p>This is the single most common reason a cutout passes review and then fails in use. The check is to always view the result against the darkest background you intend to use, not against the editor's white canvas. If you plan to put the image on dark fabric or a dark slide, judge it there.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Which fix suits which edge</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Edge type</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">What goes wrong</th>
+<th class="py-2 font-semibold text-on-surface">What actually helps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Hard edge (a logo, a box, a phone)</td><td class="py-2 pr-4">A one-pixel pale line</td><td class="py-2">Contract the edge very slightly</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Hair and fur</td><td class="py-2 pr-4">A general light haze through the strands</td><td class="py-2">Needs real alpha, not an edge shift &mdash; recut</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Soft or blurred edge</td><td class="py-2 pr-4">A wide pale band</td><td class="py-2">Recut from a sharper original if you have one</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Glass, smoke, veils</td><td class="py-2 pr-4">Looks milky or fully opaque</td><td class="py-2">Needs partial transparency preserved; hardest case</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Light subject on light background</td><td class="py-2 pr-4">Edge detection guesses</td><td class="py-2">Use a frame with more contrast if one exists</td></tr>
+<tr><td class="py-2 pr-4">Heavily compressed JPEG original</td><td class="py-2 pr-4">Blocky artefacts along edges</td><td class="py-2">Start from a less compressed original</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The pattern is worth noticing: contracting the edge only ever fixes the simplest case. For hair, soft edges and transparent materials, the fringe is a symptom of information missing from the cutout, and the only real answer is to cut it again from the best original you have.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The mistake that makes it permanent</h2>
+
+<p>The most damaging thing you can do is run an already-cut-out image through the process again.</p>
+
+<p>Once a cutout exists, its edge pixels are already a blend of the subject and the <em>old</em> background. Cut it a second time and the tool now treats that fringe as part of the subject, because as far as the file is concerned, it is. The halo gets locked in and usually widens.</p>
+
+<p>Always go back to the original photograph. Keep it. If you only have the cutout, accept that the edge has a ceiling on how good it can get.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Where the white actually came from, technically</h2>
+
+<p>Some tools store transparency "premultiplied" &mdash; the colour values already blended toward a background colour, often white. If a later app reads that data as though it were plain transparency, the blend shows up as a light rim. That is why the same cutout can look clean in one app and haloed in another, with nothing changed in between.</p>
+
+<p>Image editors have a specific tool for this, usually called defringe or remove-white-matte, which tries to undo the blend rather than delete the pixels. It is the right idea &mdash; recover the colour, keep the transparency &mdash; and it works best on hard edges, which is the same limit as everything else here.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Checklist before you use a cutout</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Place it on the darkest background you intend to use. Not white.</li>
+<li>Zoom to 200% or more and follow the whole outline, not just one corner.</li>
+<li>Look specifically at hair, shoulders and any soft edge &mdash; that is where it hides.</li>
+<li>Check for stray near-white pixels in the "empty" area; they still print.</li>
+<li>If there is a fringe, recut from the original rather than editing the cutout.</li>
+<li>Keep the original photo. You will need it the next time the edge matters.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -127,6 +193,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Does re-cutting an already-removed image make the halo worse?</h3>
 <p>Yes — always go back to the original photo rather than re-processing the cutout, since re-cutting compounds the leftover fringe.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Can I just delete the fringe pixels?</h3>
+<p>On a hard edge, shaving a pixel or so works. On hair or a soft edge it does not: those pixels are partly subject, so removing them leaves a hard, chewed outline that reads as worse than the halo.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does the same cutout look clean in one app and haloed in another?</h3>
+<p>Usually premultiplied transparency being read as plain transparency. The colour values were stored already blended toward white, and an app that does not expect that shows the blend as a light rim.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">What is the single best way to avoid halos?</h3>
+<p>Cut from the original photo, never from an existing cutout, and judge the result on a dark background rather than the editor's white canvas.</p>
 </div>
 </div>
 

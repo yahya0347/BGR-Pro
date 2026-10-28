@@ -111,6 +111,127 @@
 </ol>
 <p>This avoids Excel's flattening quirks entirely and gives you a file that also works in Word, PowerPoint, and email signatures.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why Excel is different from Word or PowerPoint</h2>
+
+<p>In Excel, a picture is not part of the sheet. It floats above the grid, anchored to a cell, and what you see behind a transparent area is the <strong>cell fill of the cells underneath it</strong>. Those cells are white by default, so a perfectly transparent PNG reads as a white box.</p>
+
+<p>That single fact explains most of the confusion here. You are not looking at the image's background &mdash; you are looking at the spreadsheet through it. Change the cells, not the picture.</p>
+
+<p>Select the cells behind the image and set a fill colour. The transparency becomes visible immediately. If you want the sheet itself to be a colour, select all cells (Ctrl+A) and fill them &mdash; there is no single "slide background" in Excel the way there is in PowerPoint.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">The sheet Background option is not what you want</h3>
+<p>Page Layout &rarr; Background looks like the answer, but it tiles an image behind the grid for on-screen display only, and it does not print. It is not a page colour. For anything you intend to print or share as a PDF, use cell fills instead.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Which Excel are you using? It changes what you can do</h2>
+
+<p>The two tools guides usually tell you to click are not available everywhere.</p>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Version</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Remove Background</th>
+<th class="py-2 font-semibold text-on-surface">Set Transparent Color</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Excel for Microsoft 365 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Excel 2019 / 2016 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Excel for Mac</td><td class="py-2 pr-4">Yes</td><td class="py-2">Not in all builds</td></tr>
+<tr><td class="py-2 pr-4">Excel for the web</td><td class="py-2 pr-4">No</td><td class="py-2">No</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>In Excel for the web there is no way to knock out a background in-app at all. The image has to arrive already transparent.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why Set Transparent Color usually disappoints</h2>
+
+<p>Set Transparent Color removes <em>one exact colour value</em> &mdash; the pixel you click. On a flat two-colour logo that is fine. Everywhere else it goes wrong in predictable ways:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>A pale outline survives.</strong> The pixels at the edge of your subject are a blend of white and the subject, so they are not the white you clicked and they stay behind as a fringe.</li>
+<li><strong>White inside the subject vanishes.</strong> A white shirt, the gaps inside letters, a reflection &mdash; all keyed out along with the background.</li>
+<li><strong>Photos barely change.</strong> A photographic background contains thousands of near-whites; clicking one removes a speckle.</li>
+<li><strong>It is stored as a display effect,</strong> not real transparency, so it can behave differently after a PDF export or on another machine.</li>
+</ul>
+
+<p>Remove Background is smarter because it detects the subject rather than a colour, but it still struggles with hair, soft shadows and busy backgrounds, and leaves you refining by hand.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Logos in headers, footers and charts</h2>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Header and footer images</h3>
+<p>A logo added through Page Setup &rarr; Header/Footer is placed in a text-based header area, and it renders on the page's white &mdash; there is nothing behind it you can colour. If your branding needs a coloured background behind the logo, bake that colour into the image rather than relying on transparency.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Images on top of a chart</h3>
+<p>Charts have their own fill. A transparent PNG dropped onto a chart shows the chart area's fill, which is usually white. Set the chart area fill to No Fill or to the colour you want, and the image's transparency starts behaving as expected.</p>
+
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mt-6 mb-1">Keeping the image where you put it</h3>
+<p>Not a transparency issue, but it comes up in the same breath: if your logo jumps around when rows are inserted or filtered, select it, open Format Picture &rarr; Size &amp; Properties &rarr; Properties, and choose <strong>Don't move or size with cells</strong>.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How you insert the image matters</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">How you added it</th>
+<th class="py-2 font-semibold text-on-surface">What happens to transparency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Pictures &rarr; This Device</td><td class="py-2">Preserved. Use this.</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from a browser, paste in</td><td class="py-2">Often flattened by the clipboard</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from Word or PowerPoint</td><td class="py-2">Usually preserved</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Screenshot of a transparent image</td><td class="py-2">Always flattened &mdash; a screenshot has no alpha</td></tr>
+<tr><td class="py-2 pr-4">Drag the file in from a folder</td><td class="py-2">Usually preserved</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>That third row catches people out: screenshotting a transparent PNG to "get a copy" destroys the transparency every time, because the screenshot captures whatever was rendered behind it.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Printing and PDF export</h2>
+
+<p>A transparent PNG over white cells prints white, and that is correct &mdash; printers have no transparent ink, so see-through areas fall back to the paper. If you need a colour behind the logo on paper, it has to be a cell fill, because Excel's sheet Background does not print.</p>
+
+<p>Exporting to PDF preserves genuine transparency. It does not rescue an image whose white is baked in, and it does not reliably carry a Set Transparent Color effect, which is another reason to fix the file rather than the display.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White in Excel, checkerboard in an editor</td><td class="py-2 pr-4">White cell fill behind the image</td><td class="py-2">Fill the cells underneath</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White everywhere, browsers included</td><td class="py-2 pr-4">The file has no alpha channel</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Was transparent, white after pasting</td><td class="py-2 pr-4">Clipboard flattened it</td><td class="py-2">Insert from This Device instead</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box only over a chart</td><td class="py-2 pr-4">Chart area fill</td><td class="py-2">Set the chart fill to No Fill</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Sheet colour vanishes on paper</td><td class="py-2 pr-4">Page Layout Background doesn't print</td><td class="py-2">Use cell fills instead</td></tr>
+<tr><td class="py-2 pr-4">Pale halo around the subject</td><td class="py-2 pr-4">Anti-aliased edge pixels</td><td class="py-2">Redo the cutout with better edges</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Drag the PNG into a browser tab. White there too? The file is the problem &mdash; go to step 5.</li>
+<li>Select the cells behind the image and apply any fill colour. If the colour shows through, the file was always fine.</li>
+<li>Delete and re-insert via <strong>Insert &rarr; Pictures &rarr; This Device</strong> instead of pasting.</li>
+<li>If the image sits on a chart or inside a shape, set that object's fill to No Fill.</li>
+<li>If the file genuinely has no transparency, cut the background out properly, export as PNG, and insert that.</li>
+<li>Still a pale fringe? That is edge pixels from the original background &mdash; it has to be fixed at the cutout stage, not in Excel.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +249,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Why does my PNG lose transparency when I copy and paste it into Excel?</h3>
 <p>Copy-paste routes the image through the clipboard and can flatten the alpha channel or convert it to a JPG-like format. Use Insert → Pictures → This Device to place the original PNG file directly instead of pasting.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why can't I find Remove Background in my Excel?</h3>
+<p>You are most likely in Excel for the web, which has neither Remove Background nor Set Transparent Color. Insert an already-transparent PNG, or open the workbook in the desktop app.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why does my logo show white in the header but not on the sheet?</h3>
+<p>Header and footer images render on the page's white area, and there are no cells behind them to colour. If you need a coloured backing there, bake it into the image.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does Excel's Page Layout Background print?</h3>
+<p>No. That option tiles an image behind the grid on screen only. Anything that has to appear on paper or in a PDF needs to be a cell fill.</p>
 </div>
 </div>
 

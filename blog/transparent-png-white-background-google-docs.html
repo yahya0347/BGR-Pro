@@ -83,7 +83,7 @@
 
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why Google Docs Shows a White Box Behind Your PNG</h2>
 <ul class="list-disc list-outside pl-5 flex flex-col gap-2">
-<li>Google Docs has no built-in background remover, so whatever background is in the file is exactly what shows on the page.</li>
+<li>Google Docs renders PNG transparency correctly, but its image editing tools are limited, and which ones you get depends on your account type and has changed over time. Whatever background is in the file is normally what you see on the page.</li>
 <li>If the PNG was saved or exported as JPEG at any point, transparency was permanently stripped and a solid white background baked in — JPEG can't store an alpha channel.</li>
 <li>The image may look transparent in a preview or on your desktop but white once inserted, because the version you uploaded wasn't the transparent one.</li>
 <li>A white shape, table cell, or highlighted paragraph sitting behind the image can read as a white box even when the PNG is genuinely transparent.</li>
@@ -111,6 +111,105 @@
 </ul>
 <p>EraserPro's <a href="/background-remover.html" class="text-primary font-medium hover:underline">background remover</a> exports a true transparent PNG in seconds, so your image is clean before you ever upload it to Google Docs.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Where the white actually comes from</h2>
+
+<p>A Google Docs page is white. Transparency is the absence of colour, so a transparent PNG shows the page through it &mdash; and a white page reads as a white background.</p>
+
+<p>The quickest way to prove this to yourself: <strong>File &rarr; Page setup &rarr; Page color</strong> and pick a strong colour. If the colour appears through your image, the file was fine all along and nothing needs re-exporting.</p>
+
+<p>If a white rectangle still sits there on a coloured page, the white is baked into the file and you need a real cutout.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How you insert the image changes the result</h2>
+
+<p>Docs has several insert paths and they do not all behave the same way, because some of them re-encode the image on the way in.</p>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">How you added it</th>
+<th class="py-2 font-semibold text-on-surface">What happens to transparency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Image &rarr; Upload from computer</td><td class="py-2">Most reliable. Use this.</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Image &rarr; Drive / Photos</td><td class="py-2">Usually fine if the stored file has alpha</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Image &rarr; By URL</td><td class="py-2">Depends on the source file</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from a web page, paste in</td><td class="py-2">Often flattened by the clipboard</td></tr>
+<tr><td class="py-2 pr-4">Screenshot of a transparent image</td><td class="py-2">Always flattened &mdash; screenshots have no alpha</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>If your image was transparent before you pasted it and white afterwards, you have found your cause. Delete it and upload the file from disk instead.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The Drawing trick: the one real workaround inside Docs</h2>
+
+<p>Docs gives you almost no control over what sits behind an inline image. A Drawing does.</p>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Go to <strong>Insert &rarr; Drawing &rarr; New</strong>.</li>
+<li>Inside the drawing, use the image button to add your transparent PNG.</li>
+<li>Add a shape behind it and fill it with the colour you want, then send it to the back.</li>
+<li>Save and close. The drawing is placed in your document as a single object.</li>
+</ol>
+
+<p>This is the practical way to put a colour behind a logo without changing the whole page colour, and it also lets you layer text over the image. The trade-off is that the result is an object, so editing it later means reopening the drawing.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Google Docs is not Google Slides</h2>
+
+<p>People move between the two and expect the same tools. They are not the same.</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Slides has a slide background</strong> you can set per slide, so transparency is easy to demonstrate there. Docs only has a whole-document page colour.</li>
+<li><strong>Slides has more image adjustment tooling,</strong> including a transparency slider under the image format options.</li>
+<li><strong>Image background removal</strong> has appeared in Google's editors over time, but availability depends on your account type and has changed. If you do not see it, do not assume your version is broken &mdash; prepare the PNG outside instead.</li>
+</ul>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">The transparency slider is not a background remover</h2>
+
+<p>Under the image options there is a Transparency adjustment. It fades the <em>entire image</em>, subject included, so it is for watermarking an image behind text. If your logo has gone ghostly rather than losing its background, that slider is why. Set it back to zero.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Exporting to PDF, Word and the web</h2>
+
+<p>Genuine transparency survives a PDF or .docx export from Docs. What it cannot do is rescue an image whose white is already baked in.</p>
+
+<p>One thing to watch: a page colour you set in Docs does appear in the PDF, so if you used page colour to make the transparency visible, your PDF will carry that colour across the whole page. If you only wanted colour behind the logo, the Drawing approach above is the better choice.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White behind the image on a white page</td><td class="py-2 pr-4">The page is showing through</td><td class="py-2">Set a page colour to confirm</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White box even on a coloured page</td><td class="py-2 pr-4">No alpha channel in the file</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Transparent before pasting, white after</td><td class="py-2 pr-4">Clipboard flattened it</td><td class="py-2">Upload the file from your computer</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">The whole image looks faded</td><td class="py-2 pr-4">Transparency slider in image options</td><td class="py-2">Set it back to zero</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Need colour behind only the logo</td><td class="py-2 pr-4">Docs has no per-image background</td><td class="py-2">Use Insert &rarr; Drawing and layer a shape</td></tr>
+<tr><td class="py-2 pr-4">Pale halo around the subject</td><td class="py-2 pr-4">Anti-aliased edge pixels</td><td class="py-2">Redo the cutout with better edges</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Try this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Set a page colour. Colour shows through? The file is fine &mdash; you are done.</li>
+<li>Still white? Drag the PNG into a browser tab. White there too means the file has no transparency.</li>
+<li>Delete the image and re-add it with <strong>Insert &rarr; Image &rarr; Upload from computer</strong> rather than pasting.</li>
+<li>Check the image options Transparency slider is at zero.</li>
+<li>If you only want colour behind the image, rebuild it as a Drawing with a shape behind.</li>
+<li>If the file has no alpha, cut the background out properly, export as PNG, and upload that.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -128,6 +227,18 @@
 <div>
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Will converting my image to JPEG cause the white background?</h3>
 <p>Yes. JPEG does not support transparency, so exporting or converting to JPEG permanently bakes in a solid white background. Always keep logos and cutouts as PNG.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">How do I put a colour behind just one image in Google Docs?</h3>
+<p>Docs has no per-image background. Use Insert → Drawing → New, add your transparent PNG inside the drawing, then put a filled shape behind it and send that shape to the back.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why did my image lose transparency when I pasted it from a website?</h3>
+<p>Pasting routes the image through the clipboard, which often flattens the alpha channel. Download the file first, then use Insert → Image → Upload from computer.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does a page colour in Google Docs show up in the PDF?</h3>
+<p>Yes. If you set a page colour to make transparency visible, that colour appears across the whole page in the exported PDF. Use a Drawing instead if you only wanted colour behind the image.</p>
 </div>
 </div>
 
