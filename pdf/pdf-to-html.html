@@ -11,7 +11,7 @@
 <meta property="og:description" content="Convert PDF to HTML online for free. Turn each page into clean HTML in your browser and download the file."/>
 <meta property="og:url" content="https://www.bg-eraser-pro.com/pdf/pdf-to-html.html"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"PDF to HTML Converter Online Free","description":"Convert PDF to HTML online for free. Turn each page into clean HTML in your browser and download the file.","step":[{"@type":"HowToStep","name":"Upload your PDF","text":"Add the PDF you want to convert into a web page."},{"@type":"HowToStep","name":"Extract the content","text":"EraserPro pulls each page’s text into a clean HTML structure."},{"@type":"HowToStep","name":"Download the HTML","text":"Download a ready-to-use .html document of your PDF."}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my PDF uploaded to convert it?","acceptedAnswer":{"@type":"Answer","text":"No — conversion runs in your browser, so your document stays private."}},{"@type":"Question","name":"Does it keep the exact layout?","acceptedAnswer":{"@type":"Answer","text":"It extracts text into clean, readable HTML. Complex visual layouts are simplified for the web."}},{"@type":"Question","name":"What do I get?","acceptedAnswer":{"@type":"Answer","text":"A single .html file with each page as a titled section you can style or publish."}},{"@type":"Question","name":"Is PDF to HTML free?","acceptedAnswer":{"@type":"Answer","text":"Yes, it is free with no watermark."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my PDF uploaded to convert it?","acceptedAnswer":{"@type":"Answer","text":"No — conversion runs in your browser, so your document stays private."}},{"@type":"Question","name":"Does it keep the exact layout?","acceptedAnswer":{"@type":"Answer","text":"It extracts text into clean, readable HTML. Complex visual layouts are simplified for the web."}},{"@type":"Question","name":"What do I get?","acceptedAnswer":{"@type":"Answer","text":"A single .html file with each page as a titled section you can style or publish."}},{"@type":"Question","name":"Is PDF to HTML free?","acceptedAnswer":{"@type":"Answer","text":"Yes, it is free with no watermark."}},{"@type":"Question","name":"Will the HTML look exactly like the PDF?","acceptedAnswer":{"@type":"Answer","text":"Not usually, and that is a trade-off rather than a fault. A PDF is fixed marks at fixed positions; HTML reflows. Keeping the exact look means positioned markup that reads poorly on a phone."}},{"@type":"Question","name":"Why is my converted table broken?","acceptedAnswer":{"@type":"Answer","text":"A table in a PDF is often just lines and text that happen to line up — there is no table structure in the file to read. Simple tables usually survive; merged cells and nested tables often do not."}},{"@type":"Question","name":"My PDF is a scan and the HTML is just an image. Why?","acceptedAnswer":{"@type":"Answer","text":"Because the “text” is a picture of text. There are no characters to convert. Try PDF to Text first — if that returns nothing, the file is image-only and needs OCR."}},{"@type":"Question","name":"Why did the fonts change?","acceptedAnswer":{"@type":"Answer","text":"Unless fonts are embedded and licensed for web use, they are substituted, which also changes line breaks. This is expected in any PDF to HTML conversion."}}]}</script>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg"/>
 <link rel="alternate icon" href="../favicon.ico"/>
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"/>
@@ -292,23 +292,40 @@
 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to convert PDF to HTML</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">money_off</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">100% Free</h3><p class="font-body-md text-body-md text-on-surface-variant">Convert PDF to HTML without paying a cent — no watermarks and no forced sign-up.</p></div>
-</div>
-<div class="glass-panel p-md rounded-lg flex items-start gap-md">
 <span class="material-symbols-outlined brand-gradient-icon mt-xs" style="font-variation-settings:'FILL' 1;">verified_user</span>
 <div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Private &amp; Secure</h3><p class="font-body-md text-body-md text-on-surface-variant">Everything runs in your browser — files are never uploaded, so your data never leaves your device.</p></div>
 </div>
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">cloud_off</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">No Installation</h3><p class="font-body-md text-body-md text-on-surface-variant">Works right in your web browser — there's nothing to download or install.</p></div>
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">code</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Real markup, not a screenshot</h3><p class="font-body-md text-body-md text-on-surface-variant">Text comes across as text, so it stays selectable, searchable and indexable once published.</p></div>
 </div>
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">devices</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Any Device</h3><p class="font-body-md text-body-md text-on-surface-variant">Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.</p></div>
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">table_chart</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Know the limits up front</h3><p class="font-body-md text-body-md text-on-surface-variant">Simple tables usually survive; merged cells and multi-column layouts often do not, because a PDF has no table structure to read.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">font_download</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Font substitution is expected</h3><p class="font-body-md text-body-md text-on-surface-variant">Unless fonts are embedded and web-licensed, they are substituted — so expect different line breaks.</p></div>
 </div></div>
 </div>
 </div>
+<div class="w-full max-w-3xl mx-auto flex flex-col gap-4 font-body-lg text-body-lg text-on-surface-variant"><h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">What you get, and what you lose</h2>
+<p>A PDF describes a page as fixed marks at fixed coordinates. HTML describes content that reflows to fit whatever screen it lands on. These are opposite ideas, so no converter can give you both the exact original layout and clean, flexible markup &mdash; it has to lean one way.</p>
+<p>Converters that preserve the look tend to produce absolutely positioned elements that match the page but read poorly on a phone and are awkward to edit. Converters that produce clean markup lose some of the original positioning. Knowing which you want decides whether the result is useful.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What usually survives and what usually breaks</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Body text</strong> comes across reliably.</li>
+<li><strong>Images</strong> come across, though they may be re-encoded.</li>
+<li><strong>Simple tables</strong> often survive. Merged cells and nested tables frequently do not, because a PDF table is sometimes just lines and text that happen to line up &mdash; there is no table structure in the file to read.</li>
+<li><strong>Fonts</strong> are substituted unless they are embedded and licensed for web use, so expect different line breaks.</li>
+<li><strong>Multi-column layouts</strong> are the hardest case. Reading order in a PDF is not always the order a human reads in, so columns can interleave.</li>
+<li><strong>Forms, links and bookmarks</strong> are inconsistent.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">A scanned PDF will not convert</h3>
+<p>If the PDF came from a scanner or a photo, the "text" is a picture of text. There are no characters in the file, so conversion gives you an HTML page containing an image. You need OCR first &mdash; try <a class="text-primary underline" href="/pdf/pdf-to-text.html">PDF to Text</a> to see whether real text can be extracted at all. If that returns nothing, the file is image-only.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Clean up after converting</h3>
+<p>Treat the output as a starting point, not a finished page. The usual passes: strip inline styles you do not need, replace positioned blocks with normal flow, re-check headings so the document outline makes sense, and add alt text to images &mdash; a converter cannot invent that.</p>
+<p>This conversion runs in your browser, so the document is not uploaded. Files up to 10 MB are supported.</p></div>
 <div class="w-full max-w-3xl mx-auto">
 <h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-sm">
@@ -339,6 +356,34 @@
 <span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
 </summary>
 <div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Yes, it is free with no watermark.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Will the HTML look exactly like the PDF?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Not usually, and that is a trade-off rather than a fault. A PDF is fixed marks at fixed positions; HTML reflows. Keeping the exact look means positioned markup that reads poorly on a phone.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Why is my converted table broken?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">A table in a PDF is often just lines and text that happen to line up — there is no table structure in the file to read. Simple tables usually survive; merged cells and nested tables often do not.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">My PDF is a scan and the HTML is just an image. Why?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Because the “text” is a picture of text. There are no characters to convert. Try PDF to Text first — if that returns nothing, the file is image-only and needs OCR.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Why did the fonts change?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Unless fonts are embedded and licensed for web use, they are substituted, which also changes line breaks. This is expected in any PDF to HTML conversion.</div>
 </details></div>
 </div>
 </section>

@@ -11,7 +11,7 @@
 <meta property="og:description" content="Extract text from a PDF online for free. Pull selectable text (with optional OCR) in your browser and download a TXT."/>
 <meta property="og:url" content="https://www.bg-eraser-pro.com/pdf/pdf-to-text.html"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"PDF to Text Converter Online Free","description":"Extract text from a PDF online for free. Pull selectable text (with optional OCR) in your browser and download a TXT.","step":[{"@type":"HowToStep","name":"Upload your PDF","text":"Add the PDF you want to extract text from."},{"@type":"HowToStep","name":"Enable OCR if needed","text":"For scanned or image-only PDFs, turn on OCR to recognize the text."},{"@type":"HowToStep","name":"Download the text","text":"Extract the text and download it as a plain .txt file."}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my PDF uploaded to extract text?","acceptedAnswer":{"@type":"Answer","text":"No — text extraction and OCR both run in your browser, so your file never leaves your device."}},{"@type":"Question","name":"Can it read scanned PDFs?","acceptedAnswer":{"@type":"Answer","text":"Yes — enable OCR and the tool recognizes text from scanned or image-based pages."}},{"@type":"Question","name":"What format is the output?","acceptedAnswer":{"@type":"Answer","text":"A plain .txt file containing the extracted text, separated by page."}},{"@type":"Question","name":"Is PDF to text free?","acceptedAnswer":{"@type":"Answer","text":"Yes, it is free with no watermark or account."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my PDF uploaded to extract text?","acceptedAnswer":{"@type":"Answer","text":"No — text extraction and OCR both run in your browser, so your file never leaves your device."}},{"@type":"Question","name":"Can it read scanned PDFs?","acceptedAnswer":{"@type":"Answer","text":"Yes — enable OCR and the tool recognizes text from scanned or image-based pages."}},{"@type":"Question","name":"What format is the output?","acceptedAnswer":{"@type":"Answer","text":"A plain .txt file containing the extracted text, separated by page."}},{"@type":"Question","name":"Is PDF to text free?","acceptedAnswer":{"@type":"Answer","text":"Yes, it is free with no watermark or account."}},{"@type":"Question","name":"I got nothing back. What went wrong?","acceptedAnswer":{"@type":"Answer","text":"Your PDF is almost certainly image-only — a scan or photo of text. Try selecting a sentence in the original: if nothing highlights, there are no characters in the file to extract and you need OCR."}},{"@type":"Question","name":"Why are the lines from my two columns mixed together?","acceptedAnswer":{"@type":"Answer","text":"A PDF stores text as positioned fragments, with nothing marking a column. Extraction reads them in file order, which for a two-column layout can interleave the columns."}},{"@type":"Question","name":"Where did my table structure go?","acceptedAnswer":{"@type":"Answer","text":"Text extraction keeps the cell contents and discards the rows and columns, because the structure is not stored as a table. If you need the layout, PDF to Word tries to rebuild it."}},{"@type":"Question","name":"Why are some words split with hyphens?","acceptedAnswer":{"@type":"Answer","text":"Those words were hyphenated across a line break in the original. Extraction keeps what is there, so rejoining them is a quick find-and-replace afterwards."}}]}</script>
 <link rel="icon" type="image/svg+xml" href="../favicon.svg"/>
 <link rel="alternate icon" href="../favicon.ico"/>
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"/>
@@ -292,23 +292,42 @@
 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Why use EraserPro to extract text from your PDF</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">money_off</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">100% Free</h3><p class="font-body-md text-body-md text-on-surface-variant">Extract text from your PDF without paying a cent — no watermarks and no forced sign-up.</p></div>
-</div>
-<div class="glass-panel p-md rounded-lg flex items-start gap-md">
 <span class="material-symbols-outlined brand-gradient-icon mt-xs" style="font-variation-settings:'FILL' 1;">verified_user</span>
 <div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Private &amp; Secure</h3><p class="font-body-md text-body-md text-on-surface-variant">Everything runs in your browser — files are never uploaded, so your data never leaves your device.</p></div>
 </div>
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">cloud_off</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">No Installation</h3><p class="font-body-md text-body-md text-on-surface-variant">Works right in your web browser — there's nothing to download or install.</p></div>
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">highlight_alt</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Check it has text first</h3><p class="font-body-md text-body-md text-on-surface-variant">Try selecting a sentence in your PDF. If nothing highlights, the page is an image and there are no characters to extract.</p></div>
 </div>
 <div class="glass-panel p-md rounded-lg flex items-start gap-md">
-<span class="material-symbols-outlined brand-gradient-icon mt-xs">devices</span>
-<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Any Device</h3><p class="font-body-md text-body-md text-on-surface-variant">Use it on Windows, macOS, Linux, iOS or Android — the experience is seamless everywhere.</p></div>
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">view_column</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Columns are the hard case</h3><p class="font-body-md text-body-md text-on-surface-variant">A PDF stores positioned fragments, not columns, so two-column layouts can come out interleaved.</p></div>
+</div>
+<div class="glass-panel p-md rounded-lg flex items-start gap-md">
+<span class="material-symbols-outlined brand-gradient-icon mt-xs">cleaning_services</span>
+<div><h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Expect a cleanup pass</h3><p class="font-body-md text-body-md text-on-surface-variant">Repeating headers, split hyphenated words and page-width line breaks are normal and quick to fix.</p></div>
 </div></div>
 </div>
 </div>
+<div class="w-full max-w-3xl mx-auto flex flex-col gap-4 font-body-lg text-body-lg text-on-surface-variant"><h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">First find out whether your PDF has text at all</h2>
+<p>This is the single thing that decides whether extraction will work, and it takes five seconds to check.</p>
+<p>Open the PDF and try to select a sentence with your cursor. If the words highlight, the file contains real characters and they can be extracted. If nothing highlights, or the whole page selects as one block, the page is an <strong>image</strong> &mdash; a photograph or scan of text. There are no characters in the file to pull out.</p>
+<p>That distinction explains almost every "it returned nothing" result. An image-only PDF needs optical character recognition to turn pictures of letters into letters, which is a different and much harder operation than reading text that is already there.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What extraction gets right and wrong</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Straight prose</strong> comes out cleanly.</li>
+<li><strong>Columns</strong> are the classic failure. A PDF stores text as positioned fragments, and nothing in the file says "this is a column". Two-column layouts often come out with lines from both columns alternating.</li>
+<li><strong>Tables</strong> lose their structure. You get the cell contents in reading order, without the rows and columns that gave them meaning.</li>
+<li><strong>Headers, footers and page numbers</strong> repeat throughout, because they are on every page.</li>
+<li><strong>Hyphenated words</strong> split across lines often stay split.</li>
+<li><strong>Ligatures and smart quotes</strong> can come out as odd characters depending on how the font was embedded.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Cleaning up the output</h3>
+<p>Expect to do a pass afterwards. The usual jobs: remove the repeating header and footer lines, rejoin hyphenated words, fix paragraph breaks where the PDF broke lines at the page width rather than at sentence ends, and reunite columns if the reading order came out interleaved.</p>
+<p>For a long document it is often faster to extract, then fix with find-and-replace, than to retype anything.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">If you need the layout kept</h3>
+<p>Text extraction deliberately discards layout. If you need the structure as well, <a class="text-primary underline" href="/pdf/pdf-to-word.html">PDF to Word</a> tries to rebuild paragraphs and tables, and <a class="text-primary underline" href="/pdf/pdf-to-html.html">PDF to HTML</a> keeps positioning. Both are heavier operations with their own trade-offs.</p>
+<p>Extraction here runs in your browser &mdash; the document is not uploaded, which is worth knowing if you are pulling text out of a contract or a statement.</p></div>
 <div class="w-full max-w-3xl mx-auto">
 <h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-sm">
@@ -339,6 +358,34 @@
 <span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
 </summary>
 <div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Yes, it is free with no watermark or account.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">I got nothing back. What went wrong?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Your PDF is almost certainly image-only — a scan or photo of text. Try selecting a sentence in the original: if nothing highlights, there are no characters in the file to extract and you need OCR.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Why are the lines from my two columns mixed together?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">A PDF stores text as positioned fragments, with nothing marking a column. Extraction reads them in file order, which for a two-column layout can interleave the columns.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Where did my table structure go?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Text extraction keeps the cell contents and discards the rows and columns, because the structure is not stored as a table. If you need the layout, PDF to Word tries to rebuild it.</div>
+</details>
+<details class="glass-panel rounded-lg group" name="seo-faq">
+<summary class="flex justify-between items-center p-md cursor-pointer hover:bg-surface-container-low/50 transition-colors rounded-lg gap-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface m-0">Why are some words split with hyphens?</h3>
+<span class="material-symbols-outlined text-outline shrink-0 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-md pt-0 font-body-md text-body-md text-on-surface-variant">Those words were hyphenated across a line break in the original. Extraction keeps what is there, so rejoining them is a quick find-and-replace afterwards.</div>
 </details></div>
 </div>
 </section>

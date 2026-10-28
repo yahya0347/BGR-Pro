@@ -193,7 +193,35 @@ export const SEO = {
       { q: 'How do I control the crop?', a: 'Enter a margin in points (72 points = 1 inch) for each side you want to trim.' },
       { q: 'Does cropping delete content?', a: 'It changes the visible page boundary rather than deleting page content permanently.' },
       { q: 'Is cropping PDFs free?', a: 'Yes, completely free with no watermarks.' },
+      { q: 'Does cropping delete the content outside the crop?', a: 'No. Cropping changes the visible page boundary, and the content outside it stays in the file. Some tools can restore the original page size, so use redaction if the area must not be seen.' },
+      { q: 'Why did my crop cut into the text on some pages?', a: 'A PDF can mix page sizes and orientations. One crop applied to everything can fit some pages and not others — check the first, middle and last page.' },
+      { q: 'Will cropping reflow the text?', a: 'No. Cropping does not re-lay-out anything. If the crop line passes through a line of text, that line is cut rather than rewrapped.' },
+      { q: 'Why does my cropped PDF print at the wrong size?', a: 'A cropped page prints at its new size, so “fit to page” in the print dialog may scale it unexpectedly. Check the scaling setting before printing.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'photo_size_select_large', title: 'Trim scanner margins', text: 'Flatbed scans often carry a dark or skewed border that wastes paper and ink when reprinted.' },
+      { icon: 'phone_iphone', title: 'Better on small screens', text: 'Cutting wide margins lets the text area fill a phone or e-reader instead of floating in white space.' },
+      { icon: 'straighten', title: 'Handles mixed page sizes', text: 'A PDF can mix sizes and orientations. Check the first, middle and last page before applying one crop to all.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">Cropping hides, it does not delete</h2>
+<p>Worth knowing before you rely on it: in PDF, cropping changes the <strong>visible page boundary</strong> rather than throwing pixels away. The content outside the crop is still in the file, and some tools can restore the original page size.</p>
+<p>For trimming margins or tidying a scan, that is fine and it is what you want. If the area you are cropping off contains something nobody should see, cropping is the wrong tool &mdash; use <a class="text-primary underline" href="/pdf/redact.html">redaction</a> instead.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What people usually crop, and why</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Scanner margins.</strong> A flatbed scan often has a dark or skewed border that wastes paper when reprinted.</li>
+<li><strong>Slide decks exported to PDF.</strong> Removing the footer band so the slides sit cleanly in a document.</li>
+<li><strong>Two-up pages.</strong> A book scan with two pages per sheet; cropping is the first step before splitting them.</li>
+<li><strong>Reading on a small screen.</strong> Trimming wide margins makes the text area fill a phone or e-reader instead of floating in white space.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Things that catch people out</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Pages are not all the same size.</strong> A PDF can mix page sizes and orientations, so one crop applied to everything can cut into content on some pages. Check the first, middle and last page.</li>
+<li><strong>Mixed orientation.</strong> Landscape pages in a portrait document need a different crop. Consider <a class="text-primary underline" href="/pdf/rotate.html">rotating</a> first so everything faces the same way.</li>
+<li><strong>Text reflows on nothing.</strong> Cropping does not re-lay-out the text. If you crop into a line, the line is simply cut, not rewrapped.</li>
+<li><strong>Printing afterwards.</strong> A cropped page prints at its new size, so "fit to page" in the print dialog may scale it unexpectedly.</li>
+</ul>
+<p>Cropping here runs in your browser, so the document is not uploaded anywhere. Files up to 10 MB are supported; for something larger, <a class="text-primary underline" href="/pdf/compress.html">compress</a> or <a class="text-primary underline" href="/pdf/split.html">split</a> it first.</p>`,
     illo: { t: 'sym', s: 'crop' }, illoAlt: 'Illustration of PDF page margins being cropped with corner guides',
   },
 
@@ -294,7 +322,37 @@ export const SEO = {
       { q: 'How secure is this redaction?', a: 'It covers content with solid boxes, which hides it visually. For permanent, forensic-grade redaction, use a dedicated professional tool.' },
       { q: 'Can I redact multiple pages?', a: 'Yes — draw boxes on any page, and all of them are applied at once.' },
       { q: 'Is redacting PDFs free?', a: 'Yes, it is free with no watermark or account.' },
+      { q: 'Is drawing a black box the same as redacting?', a: 'No, and this is the mistake that leaks documents. A black box hides text visually while leaving it in the file, where it can still be selected, copied or searched. Redaction removes the content itself.' },
+      { q: 'How do I verify a redaction worked?', a: 'Open the redacted file, try to select and copy the covered area, then search the document for a word you removed. If either brings the text back, it was only covered.' },
+      { q: 'Does redacting remove document metadata?', a: 'Not automatically. Author name, original filename and the creating software are stored separately from the page. Check those too, along with the file name itself.' },
+      { q: 'Should I flatten after redacting?', a: 'It is a sensible extra step, so no annotation layer remains in the file. Keep the unredacted original somewhere separate.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'delete_forever', title: 'Removes, not covers', text: 'A black rectangle only hides text, which can still be copied out. Redaction takes the underlying content away.' },
+      { icon: 'search_off', title: 'Fails the search test', text: 'After redacting, searching the document for the removed words finds nothing — because nothing is there.' },
+      { icon: 'gavel', title: 'Built for sensitive files', text: 'The documents you redact are the ones you least want to upload. These never leave your machine.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">Redaction is not a black rectangle</h2>
+<p>This is the part that causes real damage, so it is worth being blunt about. Drawing a black box over text in a PDF editor hides it <em>visually</em>. The text is still in the file underneath. Anyone can select it, copy it out, or read it with a text extractor &mdash; and people have leaked sensitive documents exactly this way.</p>
+<p>Real redaction removes the underlying content, not just the view of it. After redacting properly, searching the document for the removed words finds nothing, because there is nothing there.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">How to check you actually redacted something</h3>
+<ol class="list-decimal pl-6 flex flex-col gap-1">
+<li>Open the redacted file.</li>
+<li>Try to select the area you covered, then copy and paste it somewhere.</li>
+<li>Use the viewer's find function and search for a word you removed.</li>
+</ol>
+<p>If either the paste or the search brings the text back, it was covered rather than removed. Do not send that file.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What people forget to redact</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Document metadata.</strong> Author name, the original filename, the software used, and sometimes the full path of the folder it was created in.</li>
+<li><strong>Other mentions of the same thing.</strong> A name redacted on page 1 is often still on page 7, in a footer, or in a table.</li>
+<li><strong>The file name itself.</strong> Redacting a client's name inside the document does nothing if the file is called <em>client-name-contract.pdf</em>.</li>
+<li><strong>Headers, footers and page numbers,</strong> which repeat on every page and are easy to scroll past.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Why doing this in the browser matters here</h3>
+<p>Redaction, by definition, involves the documents you least want to upload anywhere. This tool runs entirely in your browser &mdash; the file is never sent to a server, so the sensitive version only ever exists on your own machine. If you are redacting under a legal or compliance obligation, that is also one fewer third party to account for.</p>
+<p>After redacting, consider <a class="text-primary underline" href="/pdf/flatten.html">flattening</a> the result so no annotation layer remains, and keep the unredacted original somewhere separate.</p>`,
     illo: { t: 'sym', s: 'redact' }, illoAlt: 'Illustration of sensitive text being blacked out with redaction boxes on a PDF',
   },
 
@@ -314,7 +372,38 @@ export const SEO = {
       { q: 'What does flattening do?', a: 'It converts interactive form fields and annotations into static page content that cannot be edited.' },
       { q: 'Why flatten a PDF?', a: 'To preserve a filled form exactly as it looks and prevent further changes before sharing.' },
       { q: 'Is flattening free?', a: 'Yes, it is free with no watermark.' },
+      { q: 'Can a flattened PDF be unflattened?', a: 'No. Flattening is one-way — fields become page content and there is no way back. Keep the original if you may need to edit the answers again.' },
+      { q: 'Does flattening make the file secure?', a: 'No. The text is still selectable and searchable, it is just no longer in form fields. To remove information use redaction; to stop people opening the file use a password.' },
+      { q: 'Why did my file get bigger after flattening?', a: 'That is normal. Field text is compact to store, while the same text drawn onto the page is not.' },
+      { q: 'Nothing changed — did it work?', a: 'Probably yes, and the PDF had nothing interactive in it. A scanned page is already flat, so there is nothing to merge down.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'lock_person', title: 'Answers stay put', text: 'Once flattened, form fields become page content, so a recipient cannot quietly change what you filled in.' },
+      { icon: 'print', title: 'Prints as you see it', text: 'Some printers and older viewers render form fields differently. Flattened content prints exactly as displayed.' },
+      { icon: 'merge', title: 'Safe to combine', text: 'Merging PDFs with identically named fields can make them overwrite each other. Flatten first and that cannot happen.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">What flattening actually changes</h2>
+<p>A PDF can hold two kinds of content: the page itself, and interactive objects sitting on top of it &mdash; form fields, comments, stamps, signature boxes, highlights. Those objects stay editable, and they are stored separately from the page they appear on.</p>
+<p>Flattening merges them down into the page. The words stay exactly where they were, but they stop being fields and become part of the artwork. That is the difference between "a form someone filled in" and "a document that records what they filled in".</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">When you need it</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Sending a completed form.</strong> Without flattening, the recipient can change your answers and the file will not show that anything was altered.</li>
+<li><strong>Printing reliability.</strong> Some printers and older viewers render form fields differently from page content, or skip them entirely. Flattened content prints as what you see.</li>
+<li><strong>Before merging files.</strong> Combining PDFs that each contain fields with the same names can make the fields overwrite each other. Flatten first and the problem disappears.</li>
+<li><strong>Archiving.</strong> Interactive features depend on the viewer. Page content does not.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What flattening is not</h3>
+<p>It is not security and it is not redaction. Flattened text is still text sitting on the page: it can be selected, copied and searched. If you need to remove information so that nobody can recover it, that is <a class="text-primary underline" href="/pdf/redact.html">redaction</a>, which is a different operation. If you need to stop people opening or editing the file, that is <a class="text-primary underline" href="/pdf/protect.html">a password</a>.</p>
+<p>Flattening is also one-way. Once fields become page content there is no "unflatten" &mdash; keep the original if you might need to edit the answers again.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Common problems</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Nothing seems to happen.</strong> The PDF probably had no interactive objects to begin with. A scanned page is already flat.</li>
+<li><strong>Annotations vanish instead of flattening.</strong> Some comment types are notes rather than page marks, and a note has no visible place on the page to flatten into.</li>
+<li><strong>The file gets bigger.</strong> Normal. Field text is compact to store; the same text drawn onto the page is not.</li>
+<li><strong>Over 10 MB.</strong> That is the size cap here. <a class="text-primary underline" href="/pdf/compress.html">Compress it</a> first, or split it and flatten the parts.</li>
+</ul>
+<p>Flattening runs entirely in your browser on this page, so a document with filled-in personal details never leaves your device &mdash; which matters more for completed forms than for almost anything else.</p>`,
     illo: { t: 'sym', s: 'flatten' }, illoAlt: 'Illustration of layered PDF form fields being flattened into a single page',
   },
 
@@ -395,7 +484,37 @@ export const SEO = {
       { q: 'Can I edit the text before converting?', a: 'Yes — the text loads into an editor where you can tweak it before generating the PDF.' },
       { q: 'Does it handle long text?', a: 'Yes, the text automatically wraps and paginates across as many pages as needed.' },
       { q: 'Is text to PDF free?', a: 'Yes, it is free with no watermark or sign-up.' },
+      { q: 'Why convert text to PDF instead of just sending the .txt?', a: 'Because a .txt file has no layout. Every program picks its own font, line width and page breaks, so it looks different everywhere and prints unpredictably. A PDF fixes all of that into the file.' },
+      { q: 'My accents and non-Latin characters came out wrong. Why?', a: 'The text file was not saved as UTF-8. An older encoding produces replacement characters, and those get baked into the PDF. Re-save as UTF-8 and convert again.' },
+      { q: 'Why are my lines running together or double-spaced?', a: 'Line endings differ between operating systems. A file written on one and opened on another can show lines merged or with extra blanks. Fix it in a text editor before converting.' },
+      { q: 'Will the text still be selectable in the PDF?', a: 'Yes. The result contains real text, not a picture of text, so it stays selectable and searchable.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'lock', title: 'Stops the text moving', text: 'A .txt file looks different in every program. A PDF fixes the font, line width and page breaks into the file.' },
+      { icon: 'text_fields', title: 'Stays real text', text: 'The result is selectable and searchable — not a picture of text — so you can still copy from it.' },
+      { icon: 'language', title: 'Save as UTF-8 first', text: 'Accents and non-Latin scripts need UTF-8. An older encoding bakes replacement characters into the PDF.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">Why convert text to PDF at all</h2>
+<p>A .txt file has no layout. Every program that opens one decides for itself what font to use, how wide the lines are, and where the page breaks fall &mdash; so the same file looks different on every machine, and printing it is unpredictable.</p>
+<p>A PDF fixes all of that into the file. The person who opens it sees what you saw, and it prints the same way everywhere. That is the whole reason to do this: not to change the words, but to stop them from moving.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Where this is genuinely useful</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Logs and exports</strong> that need to be attached to a report or a ticket.</li>
+<li><strong>Code or configuration</strong> you want to share with line positions preserved.</li>
+<li><strong>Plain-text records</strong> going into an archive, where a fixed format matters more than editability.</li>
+<li><strong>Anything being printed,</strong> where you want to know in advance how many pages it will be.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Things to check before you convert</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Line endings.</strong> A file written on one operating system and opened on another can show every line run together or with extra blank lines. Fix it in a text editor before converting, not after.</li>
+<li><strong>Character encoding.</strong> If your text contains accents, non-Latin scripts or symbols, it needs to be saved as UTF-8. A file in an older encoding produces replacement characters, and those get baked into the PDF.</li>
+<li><strong>Very long lines.</strong> Plain text has no concept of page width. A single long line either wraps at the page edge or runs off it. Break long lines yourself if the exact wrapping matters.</li>
+<li><strong>Tabs.</strong> Tab width is not standardised, so columns lined up with tabs can land differently than you expect. Spaces are safer for anything that must stay aligned.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">After converting</h3>
+<p>The result is a normal PDF, so you can <a class="text-primary underline" href="/pdf/merge.html">merge it</a> with other documents, <a class="text-primary underline" href="/pdf/page-numbers.html">add page numbers</a>, or <a class="text-primary underline" href="/pdf/protect.html">add a password</a>. The text stays selectable and searchable &mdash; it is real text, not a picture of text.</p>
+<p>Everything happens in your browser, so your file is never uploaded. That matters if the text is a log or an export containing anything private.</p>`,
     illo: { t: 'conv', a: 'TXT', b: 'PDF' }, illoAlt: 'Illustration showing plain text being converted into a PDF document',
   },
 
@@ -476,7 +595,36 @@ export const SEO = {
       { q: 'Can it read scanned PDFs?', a: 'Yes — enable OCR and the tool recognizes text from scanned or image-based pages.' },
       { q: 'What format is the output?', a: 'A plain .txt file containing the extracted text, separated by page.' },
       { q: 'Is PDF to text free?', a: 'Yes, it is free with no watermark or account.' },
+      { q: 'I got nothing back. What went wrong?', a: 'Your PDF is almost certainly image-only — a scan or photo of text. Try selecting a sentence in the original: if nothing highlights, there are no characters in the file to extract and you need OCR.' },
+      { q: 'Why are the lines from my two columns mixed together?', a: 'A PDF stores text as positioned fragments, with nothing marking a column. Extraction reads them in file order, which for a two-column layout can interleave the columns.' },
+      { q: 'Where did my table structure go?', a: 'Text extraction keeps the cell contents and discards the rows and columns, because the structure is not stored as a table. If you need the layout, PDF to Word tries to rebuild it.' },
+      { q: 'Why are some words split with hyphens?', a: 'Those words were hyphenated across a line break in the original. Extraction keeps what is there, so rejoining them is a quick find-and-replace afterwards.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'highlight_alt', title: 'Check it has text first', text: 'Try selecting a sentence in your PDF. If nothing highlights, the page is an image and there are no characters to extract.' },
+      { icon: 'view_column', title: 'Columns are the hard case', text: 'A PDF stores positioned fragments, not columns, so two-column layouts can come out interleaved.' },
+      { icon: 'cleaning_services', title: 'Expect a cleanup pass', text: 'Repeating headers, split hyphenated words and page-width line breaks are normal and quick to fix.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">First find out whether your PDF has text at all</h2>
+<p>This is the single thing that decides whether extraction will work, and it takes five seconds to check.</p>
+<p>Open the PDF and try to select a sentence with your cursor. If the words highlight, the file contains real characters and they can be extracted. If nothing highlights, or the whole page selects as one block, the page is an <strong>image</strong> &mdash; a photograph or scan of text. There are no characters in the file to pull out.</p>
+<p>That distinction explains almost every "it returned nothing" result. An image-only PDF needs optical character recognition to turn pictures of letters into letters, which is a different and much harder operation than reading text that is already there.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What extraction gets right and wrong</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Straight prose</strong> comes out cleanly.</li>
+<li><strong>Columns</strong> are the classic failure. A PDF stores text as positioned fragments, and nothing in the file says "this is a column". Two-column layouts often come out with lines from both columns alternating.</li>
+<li><strong>Tables</strong> lose their structure. You get the cell contents in reading order, without the rows and columns that gave them meaning.</li>
+<li><strong>Headers, footers and page numbers</strong> repeat throughout, because they are on every page.</li>
+<li><strong>Hyphenated words</strong> split across lines often stay split.</li>
+<li><strong>Ligatures and smart quotes</strong> can come out as odd characters depending on how the font was embedded.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Cleaning up the output</h3>
+<p>Expect to do a pass afterwards. The usual jobs: remove the repeating header and footer lines, rejoin hyphenated words, fix paragraph breaks where the PDF broke lines at the page width rather than at sentence ends, and reunite columns if the reading order came out interleaved.</p>
+<p>For a long document it is often faster to extract, then fix with find-and-replace, than to retype anything.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">If you need the layout kept</h3>
+<p>Text extraction deliberately discards layout. If you need the structure as well, <a class="text-primary underline" href="/pdf/pdf-to-word.html">PDF to Word</a> tries to rebuild paragraphs and tables, and <a class="text-primary underline" href="/pdf/pdf-to-html.html">PDF to HTML</a> keeps positioning. Both are heavier operations with their own trade-offs.</p>
+<p>Extraction here runs in your browser &mdash; the document is not uploaded, which is worth knowing if you are pulling text out of a contract or a statement.</p>`,
     illo: { t: 'conv', a: 'PDF', b: 'TXT' }, illoAlt: 'Illustration showing text being extracted from a PDF document into a text file',
   },
 
@@ -496,7 +644,34 @@ export const SEO = {
       { q: 'Does it keep the exact layout?', a: 'It extracts text into clean, readable HTML. Complex visual layouts are simplified for the web.' },
       { q: 'What do I get?', a: 'A single .html file with each page as a titled section you can style or publish.' },
       { q: 'Is PDF to HTML free?', a: 'Yes, it is free with no watermark.' },
+      { q: 'Will the HTML look exactly like the PDF?', a: 'Not usually, and that is a trade-off rather than a fault. A PDF is fixed marks at fixed positions; HTML reflows. Keeping the exact look means positioned markup that reads poorly on a phone.' },
+      { q: 'Why is my converted table broken?', a: 'A table in a PDF is often just lines and text that happen to line up — there is no table structure in the file to read. Simple tables usually survive; merged cells and nested tables often do not.' },
+      { q: 'My PDF is a scan and the HTML is just an image. Why?', a: 'Because the “text” is a picture of text. There are no characters to convert. Try PDF to Text first — if that returns nothing, the file is image-only and needs OCR.' },
+      { q: 'Why did the fonts change?', a: 'Unless fonts are embedded and licensed for web use, they are substituted, which also changes line breaks. This is expected in any PDF to HTML conversion.' },
     ],
+    benefits: [
+      'secure',
+      { icon: 'code', title: 'Real markup, not a screenshot', text: 'Text comes across as text, so it stays selectable, searchable and indexable once published.' },
+      { icon: 'table_chart', title: 'Know the limits up front', text: 'Simple tables usually survive; merged cells and multi-column layouts often do not, because a PDF has no table structure to read.' },
+      { icon: 'font_download', title: 'Font substitution is expected', text: 'Unless fonts are embedded and web-licensed, they are substituted — so expect different line breaks.' },
+    ],
+    deep: `<h2 class="font-headline-md text-headline-md text-on-surface mt-6 mb-2">What you get, and what you lose</h2>
+<p>A PDF describes a page as fixed marks at fixed coordinates. HTML describes content that reflows to fit whatever screen it lands on. These are opposite ideas, so no converter can give you both the exact original layout and clean, flexible markup &mdash; it has to lean one way.</p>
+<p>Converters that preserve the look tend to produce absolutely positioned elements that match the page but read poorly on a phone and are awkward to edit. Converters that produce clean markup lose some of the original positioning. Knowing which you want decides whether the result is useful.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">What usually survives and what usually breaks</h3>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><strong>Body text</strong> comes across reliably.</li>
+<li><strong>Images</strong> come across, though they may be re-encoded.</li>
+<li><strong>Simple tables</strong> often survive. Merged cells and nested tables frequently do not, because a PDF table is sometimes just lines and text that happen to line up &mdash; there is no table structure in the file to read.</li>
+<li><strong>Fonts</strong> are substituted unless they are embedded and licensed for web use, so expect different line breaks.</li>
+<li><strong>Multi-column layouts</strong> are the hardest case. Reading order in a PDF is not always the order a human reads in, so columns can interleave.</li>
+<li><strong>Forms, links and bookmarks</strong> are inconsistent.</li>
+</ul>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">A scanned PDF will not convert</h3>
+<p>If the PDF came from a scanner or a photo, the "text" is a picture of text. There are no characters in the file, so conversion gives you an HTML page containing an image. You need OCR first &mdash; try <a class="text-primary underline" href="/pdf/pdf-to-text.html">PDF to Text</a> to see whether real text can be extracted at all. If that returns nothing, the file is image-only.</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mt-4 mb-1">Clean up after converting</h3>
+<p>Treat the output as a starting point, not a finished page. The usual passes: strip inline styles you do not need, replace positioned blocks with normal flow, re-check headings so the document outline makes sense, and add alt text to images &mdash; a converter cannot invent that.</p>
+<p>This conversion runs in your browser, so the document is not uploaded. Files up to 10 MB are supported.</p>`,
     illo: { t: 'conv', a: 'PDF', b: 'HTML' }, illoAlt: 'Illustration showing a PDF document being converted into an HTML web page',
   },
 

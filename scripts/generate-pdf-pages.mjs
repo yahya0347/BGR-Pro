@@ -60,7 +60,11 @@ function benefitsHtml(seo) {
   const secure = seo.cs
     ? { icon: 'verified_user', title: 'Private & Secure', text: `Everything runs in your browser — files are never uploaded, so your data never leaves your device.`, fill: true }
     : { icon: 'lock', title: 'Secure Processing', text: `Files are sent over an encrypted connection to convert, then deleted automatically right after processing.`, fill: true };
-  const items = [
+  // A tool can override these with its own, tool-specific boxes (seo.benefits).
+  // Shared boilerplate on every page is a template signal, so prefer specifics.
+  const items = seo.benefits
+    ? seo.benefits.map((b) => (b === 'secure' ? secure : b))
+    : [
     { icon: 'money_off', title: '100% Free', text: `${cap(seo.action)} without paying a cent — no watermarks and no forced sign-up.` },
     secure,
     { icon: 'cloud_off', title: 'No Installation', text: `Works right in your web browser — there's nothing to download or install.` },
@@ -143,7 +147,8 @@ function seoBlock(seo, slug) {
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">${benefitsHtml(seo)}</div>
 </div>
 </div>
-<div class="w-full max-w-3xl mx-auto">
+${seo.deep ? `<div class="w-full max-w-3xl mx-auto flex flex-col gap-4 font-body-lg text-body-lg text-on-surface-variant">${seo.deep}</div>
+` : ''}<div class="w-full max-w-3xl mx-auto">
 <h2 class="font-headline-lg text-headline-lg text-on-surface text-center mb-lg">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-sm">${faqHtml(seo)}</div>
 </div>
