@@ -111,6 +111,109 @@
 </ol>
 <p>This avoids Word's flattening quirks entirely and gives you a file that also works in PowerPoint, Google Docs, and email signatures.</p>
 
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Which Word are you using? It changes the fix</h2>
+
+<p>The two tools people are usually told to use &mdash; Remove Background and Set Transparent Color &mdash; are not available everywhere. If a guide tells you to click something that isn't on your ribbon, this is why.</p>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">Version</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Remove Background</th>
+<th class="py-2 font-semibold text-on-surface">Set Transparent Color</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Word for Microsoft 365 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Word 2019 / 2016 (Windows)</td><td class="py-2 pr-4">Yes</td><td class="py-2">Yes</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Word for Mac</td><td class="py-2 pr-4">Yes</td><td class="py-2">Not in all builds</td></tr>
+<tr><td class="py-2 pr-4">Word for the web (Word Online)</td><td class="py-2 pr-4">No</td><td class="py-2">No</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>If you are in Word for the web, there is no in-app way to knock out a background at all. You have to insert a PNG that is already transparent. That is the case where fixing the file first isn't just the better option &mdash; it's the only one.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">How you insert the image decides whether transparency survives</h2>
+
+<p>This is the part most guides skip, and it accounts for a lot of "it was transparent a minute ago" cases. Word does not treat every insert path the same way. Some re-encode the image on the way in, and re-encoding is where the alpha channel gets lost.</p>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">How you added it</th>
+<th class="py-2 font-semibold text-on-surface">What happens to transparency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Pictures &rarr; This Device</td><td class="py-2">Preserved. Use this one.</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from a browser, paste into Word</td><td class="py-2">Often flattened by the clipboard</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Copy from another Office app</td><td class="py-2">Usually preserved</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Insert &rarr; Online Pictures</td><td class="py-2">Depends on the source; often re-encoded</td></tr>
+<tr><td class="py-2 pr-4">Drag the file from a folder</td><td class="py-2">Usually preserved</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>If your PNG shows the checkerboard in an image editor but a white box in Word, redo the insert through <strong>Insert &rarr; Pictures &rarr; This Device</strong> before trying anything else. It takes five seconds and solves a surprising share of these cases.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Why Set Transparent Color often makes things look worse</h2>
+
+<p>Set Transparent Color sounds like exactly the tool for this job. It isn't, and it's worth knowing why before you spend time on it.</p>
+
+<p>It removes <em>one flat colour value</em> &mdash; the exact pixel you click. That works on a logo that is pure white behind pure black lettering. It falls apart everywhere else:</p>
+
+<ul class="list-disc pl-6 flex flex-col gap-2">
+<li><strong>Anti-aliased edges stay.</strong> The pixels at the boundary of your subject are a blend of white and the subject colour. They are not the white you clicked, so they survive &mdash; and you get a pale fringe tracing the outline.</li>
+<li><strong>Photos break.</strong> A photo background has thousands of slightly different whites. Clicking one removes a speckle, not the background.</li>
+<li><strong>White inside the subject disappears too.</strong> Teeth, eyes, a white shirt, the gaps inside letters &mdash; all gone, because they are the same colour you keyed out.</li>
+<li><strong>It is not real transparency.</strong> It's a display-time colour key stored in the document, so it can behave differently when you export to PDF or open the file on another machine.</li>
+</ul>
+
+<p>Word's <strong>Remove Background</strong> is better because it detects the subject rather than a colour, but it still struggles with hair, fur, soft shadows and anything on a busy background &mdash; and it leaves you refining by hand with Mark Areas to Keep and Remove.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">If it looks fine on screen but prints white</h2>
+
+<p>A transparent PNG printed on plain white paper will look white, and nothing is wrong. Printers have no transparent ink, so any see-through area falls back to the colour of the paper.</p>
+
+<p>Two things actually matter here. First, if you wanted a colour behind the image, put it in the document &mdash; a shape fill or a coloured table cell behind the picture &mdash; rather than expecting the PNG to carry it. Second, Word does not print page background colours by default: if you set a page colour and it vanishes on paper, enable <strong>File &rarr; Options &rarr; Display &rarr; Print background colors and images</strong>.</p>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Troubleshooting table</h2>
+
+<div class="overflow-x-auto my-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 pr-4 font-semibold text-on-surface">What you see</th>
+<th class="py-2 pr-4 font-semibold text-on-surface">Likely cause</th>
+<th class="py-2 font-semibold text-on-surface">What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White in Word, checkerboard in an editor</td><td class="py-2 pr-4">The white page is showing through</td><td class="py-2">Put a coloured shape or cell behind it</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">White everywhere, including browsers</td><td class="py-2 pr-4">The file has no alpha channel</td><td class="py-2">Re-cut the background, export as PNG</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Was transparent, went white after pasting</td><td class="py-2 pr-4">Clipboard flattened it</td><td class="py-2">Insert from This Device instead</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">A white box larger than the subject</td><td class="py-2 pr-4">Shape or text-box fill behind it</td><td class="py-2">Set that container's Fill to No Fill</td></tr>
+<tr class="border-b border-outline-variant/40"><td class="py-2 pr-4">Pale outline around the subject</td><td class="py-2 pr-4">Anti-aliased edge pixels left behind</td><td class="py-2">Redo the cutout with better edges</td></tr>
+<tr><td class="py-2 pr-4">Fine on screen, white on paper</td><td class="py-2 pr-4">Paper is the background</td><td class="py-2">Add the background in the document</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Still not working? Work through this in order</h2>
+
+<ol class="list-decimal pl-6 flex flex-col gap-2">
+<li>Drag the PNG into a browser tab. White there too? The file is the problem, not Word &mdash; skip to step 5.</li>
+<li>Delete the image in Word and re-insert it with <strong>Insert &rarr; Pictures &rarr; This Device</strong>.</li>
+<li>Click the image and check whether it sits inside a shape or text box. If it does, set that container's Fill to <strong>No Fill</strong>.</li>
+<li>Right-click &rarr; <strong>Wrap Text</strong> &rarr; <strong>In Front of Text</strong>, so nothing with a white fill is drawn over it.</li>
+<li>If the file itself has no transparency, cut the background out properly and export as PNG, then insert that.</li>
+<li>Still a pale fringe? That's edge pixels from the original background, not a Word setting &mdash; it has to be fixed at the cutout stage.</li>
+</ol>
+
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Frequently Asked Questions</h2>
 <div class="flex flex-col gap-4">
 <div>
@@ -129,12 +232,42 @@
 <h3 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Why does my PNG lose transparency when I copy and paste it into Word?</h3>
 <p>Copy-paste often converts the image through the clipboard and can flatten the alpha channel or convert it to a JPG-like format. Use Insert → Pictures → This Device to place the original PNG file directly instead of pasting.</p>
 </div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why can't I find Remove Background in Word?</h3>
+<p>You are most likely in Word for the web, which has neither Remove Background nor Set Transparent Color. Insert a PNG that is already transparent, or open the document in the desktop app.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Does Word add a white background when I save the document as a web page?</h3>
+<p>It can. Saving as a web page re-encodes images, and some images come out as JPG with white baked in. Keep a copy of the original PNG and re-insert it if that happens.</p>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-1">Why is there a faint white line around my cut-out image in Word?</h3>
+<p>Those are anti-aliased edge pixels from the original background. Word's Set Transparent Color cannot remove them because they are not the exact colour you clicked — the edge has to be handled when the background is removed.</p>
+</div>
 </div>
 
 <div class="my-4">
 <a href="/background-remover.html" class="inline-block px-8 py-3 bg-primary text-on-primary rounded-full font-label-lg text-label-lg shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-200">Remove Your Background Now →</a>
 </div>
 
+
+<div class="mt-8 pt-6 border-t border-outline-variant/60">
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-6 mb-2">Related guides</h2>
+<p class="mb-2">Start with the complete guide if you are not sure which case you are in:</p>
+<p class="mb-4"><a class="text-primary underline font-semibold" href="/blog/why-is-my-png-not-transparent.html">Why Is My PNG Not Transparent? Every Cause and Fix</a></p>
+<p class="mb-2">Or go straight to your app:</p>
+<ul class="list-disc pl-6 flex flex-col gap-1">
+<li><a class="text-primary underline" href="/blog/transparent-png-white-background-excel.html">Transparent PNG shows white in Excel</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-white-background-powerpoint.html">Transparent PNG shows white in PowerPoint</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-white-background-keynote.html">Transparent PNG shows white in Keynote</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-white-background-google-docs.html">Transparent PNG shows white in Google Docs</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-white-background-cricut-design-space.html">PNG shows white in Cricut Design Space</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-logo-white-background-outlook-signature.html">Transparent logo shows a white box in Outlook signatures</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-prints-white-background.html">Transparent PNG prints with a white background</a></li>
+<li><a class="text-primary underline" href="/blog/transparent-png-shows-black-background.html">Transparent PNG shows a black background</a></li>
+<li><a class="text-primary underline" href="/blog/fix-white-edges-after-background-removal.html">White edges or halo after removing a background</a></li>
+</ul>
+</div>
 </div>
 </article>
 </main>
