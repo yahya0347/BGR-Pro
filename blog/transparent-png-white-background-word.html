@@ -16,106 +16,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
 <link rel="manifest" href="/site.webmanifest"/>
 <meta name="theme-color" content="#4800a0"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "secondary-container": "#fea619",
-                        "primary-fixed-dim": "#d2bbff",
-                        "on-error-container": "#93000a",
-                        "background": "#FAFAFC",
-                        "inverse-primary": "#d2bbff",
-                        "on-primary-fixed": "#25005a",
-                        "outline": "#7b7487",
-                        "on-primary": "#ffffff",
-                        "on-secondary-fixed": "#2a1700",
-                        "tertiary-fixed": "#ffdcc6",
-                        "surface": "#FAFAFC",
-                        "on-tertiary-fixed": "#301400",
-                        "primary": "#6D28D9",
-                        "on-surface-variant": "#4a4455",
-                        "surface-container-lowest": "#ffffff",
-                        "tertiary-fixed-dim": "#ffb784",
-                        "primary-fixed": "#eaddff",
-                        "on-surface": "#18131F",
-                        "on-secondary": "#ffffff",
-                        "secondary-fixed": "#ffddb8",
-                        "inverse-on-surface": "#f6eefc",
-                        "surface-dim": "#dfd7e6",
-                        "on-primary-fixed-variant": "#5a00c6",
-                        "secondary-fixed-dim": "#ffb95f",
-                        "on-background": "#18131F",
-                        "surface-container-highest": "#E4DEEE",
-                        "on-tertiary-fixed-variant": "#713700",
-                        "surface-variant": "#E4DEEE",
-                        "tertiary": "#7d3d00",
-                        "on-error": "#ffffff",
-                        "outline-variant": "#E4E0EC",
-                        "surface-tint": "#7C3AED",
-                        "error": "#ba1a1a",
-                        "on-secondary-fixed-variant": "#653e00",
-                        "inverse-surface": "#332f39",
-                        "on-primary-container": "#ffffff",
-                        "surface-container-high": "#EDE8F3",
-                        "surface-container-low": "#F7F5FA",
-                        "tertiary-container": "#a15100",
-                        "on-secondary-container": "#684000",
-                        "secondary": "#855300",
-                        "primary-container": "#7C3AED",
-                        "error-container": "#ffdad6",
-                        "surface-bright": "#FAFAFC",
-                        "on-tertiary-container": "#ffe0cd",
-                        "on-tertiary": "#ffffff",
-                        "surface-container": "#F3F0F8",
-                        "accent-teal": "#0891B2",
-                        "accent-rose": "#EC4899",
-                        "accent-success": "#10B981",
-                        "accent-gold": "#F59E0B",
-                        "accent-gold-dark": "#D97706"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "lg": "24px",
-                        "toolbar-width": "64px",
-                        "base": "4px",
-                        "md": "16px",
-                        "sm": "12px",
-                        "xs": "8px",
-                        "sidebar-width": "280px",
-                        "xl": "32px"
-                    },
-                    "fontFamily": {
-                        "body-lg": ["Inter"],
-                        "label-md": ["Inter"],
-                        "body-md": ["Inter"],
-                        "headline-md": ["Outfit"],
-                        "label-bold": ["Inter"],
-                        "mono-label": ["Inter"],
-                        "headline-lg": ["Outfit"]
-                    },
-                    "fontSize": {
-                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
-                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
-                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
-                        "mono-label": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
-                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
-                    }
-                }
-            }
-        }
-    </script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -123,6 +25,7 @@
     </style>
 <link rel="stylesheet" href="/styles.css?v=14"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my transparent PNG turn white only in Word but looks fine elsewhere?","acceptedAnswer":{"@type":"Answer","text":"Word displays the image on the document's default white page, so a genuinely transparent PNG can look white even though it isn't. It can also happen if the image sits inside a shape or text box with a white fill. Setting the wrap to Behind Text and the shape fill to No Fill usually reveals the real transparency."}},{"@type":"Question","name":"How do I remove a white background from an image already inserted in Word?","acceptedAnswer":{"@type":"Answer","text":"Select the image, go to the Picture Format tab, and use either Set Transparent Color (click the white area) for flat logos or Remove Background for photos. For detailed edges, it's more reliable to remove the background with a dedicated tool first and re-insert the PNG."}},{"@type":"Question","name":"Does saving a Word document as PDF keep PNG transparency?","acceptedAnswer":{"@type":"Answer","text":"Yes — if the PNG is truly transparent and isn't sitting on a white shape fill, exporting to PDF preserves transparency. If the image had a baked-in white background, the PDF will keep that white, so fix the source PNG first."}},{"@type":"Question","name":"Why does my PNG lose transparency when I copy and paste it into Word?","acceptedAnswer":{"@type":"Answer","text":"Copy-paste often converts the image through the clipboard and can flatten the alpha channel or convert it to a JPG-like format. Use Insert then Pictures then This Device to place the original PNG file directly instead of pasting."}}]}</script>
+<link rel="stylesheet" href="/tailwind-main.css?v=1"/>
 </head>
 <body class="min-h-screen flex flex-col bg-background font-body-md text-on-surface">
 
